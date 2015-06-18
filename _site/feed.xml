@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>André Mirtschink</title>
+    <description>My research activities at a glance!
+</description>
+    <link>http://andremirt.github.io/</link>
+    <atom:link href="http://andremirt.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Mon, 04 May 2015 11:32:49 +0200</pubDate>
+    <lastBuildDate>Mon, 04 May 2015 11:32:49 +0200</lastBuildDate>
+    <generator>Jekyll v2.5.3</generator>
+    
+      <item>
+        <title>Happy 65 Andreas Savin!</title>
+        <description>&lt;p&gt;Congratulations &lt;a href=&quot;http://www.lct.jussieu.fr/pagesperso/savin/&quot;&gt;Andreas Savin&lt;/a&gt; and joyful retirement! Hopefully you will be around in our community for many more years to share with us your original view on DFT. I learned a lot from you already. Here some impressions from the &lt;a href=&quot;https://wiki.lct.jussieu.fr/workshop/index.php/Workshop_on_%22Advances_in_electronic_structure_theory%22&quot;&gt;workshop on “Advances in electronic structure theory”&lt;/a&gt; that was organized in honor of Andreas Savin.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;my&quot; src=&quot;/img/2015-04-27_Toulouse.jpg&quot; alt=&quot;Julien Toulouse&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;my&quot; src=&quot;/img/2015-04-29_Gill.jpg&quot; alt=&quot;Peter Gill&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;my&quot; src=&quot;/img/2015-04-27_Ayers.jpg&quot; alt=&quot;Paul Ayers&quot; /&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 30 Apr 2015 00:00:00 +0200</pubDate>
+        <link>http://andremirt.github.io/conference/2015/04/30/Savin.html</link>
+        <guid isPermaLink="true">http://andremirt.github.io/conference/2015/04/30/Savin.html</guid>
+        
+        
+        <category>conference</category>
+        
+      </item>
+    
+      <item>
+        <title>Mini-symposium</title>
+        <description>&lt;p&gt;I’m glad to announce a mini-symposium at the day of my PhD defense. The members of my thesis reading committee will present some of their recent advances in DFT.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2015-01-29_mini-symposium.png&quot; alt=&quot;announcement&quot; class=&quot;my&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;[&lt;a href=&quot;/img/2015-01-29_mini-symposium_hr.png&quot;&gt;hig-res&lt;/a&gt;][&lt;a href=&quot;/downloads/2015-01-29_mini-symposium.pdf&quot;&gt;pdf&lt;/a&gt;]&lt;/p&gt;
+</description>
+        <pubDate>Thu, 29 Jan 2015 10:30:00 +0100</pubDate>
+        <link>http://andremirt.github.io/conference/thesis/2015/01/29/mini-symposium.html</link>
+        <guid isPermaLink="true">http://andremirt.github.io/conference/thesis/2015/01/29/mini-symposium.html</guid>
+        
+        
+        <category>conference</category>
+        
+        <category>thesis</category>
+        
+      </item>
+    
+      <item>
+        <title>Poster: SCE charge transfer excitations</title>
+        <description>&lt;p&gt;Find here a poster where the SCE functional correctly captures the electron hopping excitation in a model Hydrogen molecule. In a fractional particle number perspective this can be attributed to the &lt;em&gt;smooth&lt;/em&gt; SCE derivative discontinuity - &lt;a href=&quot;http://dx.doi.org/10.1103/PhysRevLett.111.126402 &quot;&gt;see here for more&lt;/a&gt; or &lt;a href=&quot;../downloads/MirSeiGor-PRL-13.pdf&quot;&gt;download the article&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2015-01-09_Oslo_poster.png&quot; alt=&quot;poster Oslo&quot; class=&quot;my&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;[&lt;a href=&quot;/img/2015-01-09_Oslo_poster_hr.png&quot;&gt;high-res&lt;/a&gt;][&lt;a href=&quot;/downloads/2015-01-09_Oslo_poster.pdf&quot;&gt;pdf&lt;/a&gt;][&lt;a href=&quot;http://dx.doi.org/10.6084/m9.figshare.1285135&quot;&gt;doi&lt;/a&gt;]&lt;/p&gt;
+</description>
+        <pubDate>Fri, 09 Jan 2015 13:39:12 +0100</pubDate>
+        <link>http://andremirt.github.io/conference/poster/sce/dft/tddft/2015/01/09/DFTOslo.html</link>
+        <guid isPermaLink="true">http://andremirt.github.io/conference/poster/sce/dft/tddft/2015/01/09/DFTOslo.html</guid>
+        
+        
+        <category>conference</category>
+        
+        <category>poster</category>
+        
+        <category>sce</category>
+        
+        <category>dft</category>
+        
+        <category>tddft</category>
+        
+      </item>
+    
+      <item>
+        <title>PhD finished!</title>
+        <description>&lt;p&gt;Four years of research summarized in a book. &lt;a href=&quot;/andremirt.github.io/downloads/Mir-thesis-14.pdf&quot;&gt;Download a copy&lt;/a&gt; or &lt;a href=&quot;http://dx.doi.org/10.6084/m9.figshare.1254927&quot;&gt;find more information here.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;my&quot; src=&quot;/img/2014-11-01_cover.png&quot; alt=&quot;cover thesis&quot; /&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 01 Nov 2014 00:00:00 +0100</pubDate>
+        <link>http://andremirt.github.io/publications/thesis/2014/11/01/PhDfinished.html</link>
+        <guid isPermaLink="true">http://andremirt.github.io/publications/thesis/2014/11/01/PhDfinished.html</guid>
+        
+        
+        <category>publications</category>
+        
+        <category>thesis</category>
+        
+      </item>
+    
+  </channel>
+</rss>

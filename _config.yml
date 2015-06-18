@@ -1,0 +1,14 @@
+# Site settings
+title: André Mirtschink
+email: andre.mirtschink@gmail.com
+name: André Mirtschink
+description: > # this means to ignore newlines until "baseurl:"
+  My research activities at a glance!
+
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: "http://andremirt.github.io" # the base hostname & protocol for your site
+#twitter_username: jekyllrb
+github_username:  andremirt
+
+# Build settings
+markdown: kramdown
