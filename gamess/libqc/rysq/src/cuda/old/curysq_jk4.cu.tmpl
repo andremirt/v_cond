@@ -1,0 +1,251 @@
+/* ##-*- C++-Cheetah -*-
+#compiler-settings
+directiveStartToken = %
+commentStartToken = ///
+#end compiler-settings
+*/
+
+/** @file 
+@warning template generated
+*/
+
+#include "rysq.h"
+#include "curysq_const.h"
+#include "curysq_jk.h"
+#include "vec.h"
+
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <stdio.h>
+#include <algorithm>
+
+/**
+@brief 
+@private
+*/
+typedef struct {
+    int first[4];
+    int len[4];
+    int L[4];
+    int size; /** < number of threads and number of elements computing */
+    int size_2d; /** < size of 2D integral */
+    int nij;
+    int nkl;
+    int njk;
+    int nil;
+    int nijk;
+} cuRysq_jk4_t;
+
+%from shell import Shell
+%set Lmax = int($CURYSQ_LMAX)
+
+/** shared gpu memory */
+extern __shared__ char shmem[];
+
+%set minN = 1
+%set maxN = (4*Lmax)/2 + 1
+///
+
+%for N in range(minN, maxN+1)
+///
+
+/**
+   @brief Computes the Fock elements. A,B,C,D shells mapped to threads; for $(N) roots
+   @param eri4 private structure
+   @param dev_rij Packed <AB| center pairs in device memory
+   @param dev_rkl Packed |CD> center pairs in device memory
+   @tparam dev_Ix 2-D x integrals in device memory
+   @tparam dev_Iy 2-D y integrals in device memory
+   @tparam dev_Iz 2-D z integrals in device memory
+   @param Dij ij density in device memory
+   @param Dkl kl density in device memory
+   @param Dil il density in device memory
+   @param Djk jk density in device memory
+   @param scale Constant scale factor
+   @param[out] Fij ij Fock matrix in device memory
+   @param[out] Fkl kl Fock matrix in device memory
+   @param[out] Fil il Fock matrix in device memory
+   @param[out] Fjk jk Fock matrix in device memory
+*/
+template <class T>
+__global__ void cuRysq_jk4_$(N)(cuRysq_jk4_t eri4,
+				double *dev_rij, double *dev_rkl,
+				T *dev_Ix, T *dev_Iy, T *dev_Iz, 
+				double *Dij, double *Dkl, double *Dil, double *Djk,
+				double scale,
+				double *Fij, double *Fkl, double *Fil, double *Fjk) {
+
+    
+    int t = threadIdx.x + blockDim.x*(threadIdx.y + blockDim.y*(threadIdx.z));
+    int nt = eri4.size;
+    int bid =  blockIdx.x + gridDim.x*(blockIdx.y + gridDim.y*(blockIdx.z));
+    
+    int *mapi = (int*)shmem;
+    int *mapj = (int*)shmem + blockDim.x;
+    for(int j = eri4.first[1] + t, ij = t*eri4.len[1]; j < (eri4.len[1] + eri4.first[1]); j += nt) {
+	for(int i = eri4.first[0]; i < (eri4.len[0] + eri4.first[0]); ++i, ++ij) {
+	    mapi[ij] = i;
+	    mapj[ij] = j;	
+	}
+    }
+    __syncthreads();
+
+    int i_eri = mapi[threadIdx.x];
+    int j_eri = mapj[threadIdx.x];
+
+    dev_Ix += bid*eri4.size_2d;
+    dev_Iy += bid*eri4.size_2d;
+    dev_Iz += bid*eri4.size_2d;
+    //    int ijkl = bid*eri4.size + t;
+
+    if(t == 0) {
+	Dij += blockIdx.x*eri4.nij;
+	Dkl += blockIdx.y*eri4.nkl;
+	Dil += blockIdx.x*eri4.nil;
+	Djk += blockIdx.y*eri4.njk;
+
+	Fij += blockIdx.x*eri4.nij;
+	Fkl += blockIdx.y*eri4.nkl;
+	Fil += blockIdx.x*eri4.nil;
+	Fjk += blockIdx.y*eri4.njk;
+    }
+
+    __shared__ T rij[6], rkl[6];
+    Vec_copy(6, &dev_rij[bid*6], rij, t, eri4.size);
+    Vec_copy(6, dev_rkl, rkl, t, eri4.size);
+    __syncthreads();
+    
+    T *Ix = &((T*)shmem)[0];
+    T *Iy = &((T*)shmem)[eri4.size_2d];
+
+    short3 index2d;
+    index2d.x =  $(N)*(CURYSQ_LX[eri4.first[0] + i_eri] 
+		   + (eri4.L[0] + 1)*(CURYSQ_LX[eri4.first[1] + j_eri] 
+				+ (eri4.L[1] + 1)*(CURYSQ_LX[eri4.first[2] + threadIdx.y]
+						 + (eri4.L[2] + 1)*(CURYSQ_LX[eri4.first[3] + threadIdx.z]))));
+    index2d.y =  $(N)*(CURYSQ_LY[eri4.first[0] + i_eri] 
+		   + (eri4.L[0] + 1)*(CURYSQ_LY[eri4.first[1] + j_eri] 
+				+ (eri4.L[1] + 1)*(CURYSQ_LY[eri4.first[2] + threadIdx.y]
+						 + (eri4.L[2] + 1)*(CURYSQ_LY[eri4.first[3] + threadIdx.z]))));
+    index2d.z =  $(N)*(CURYSQ_LZ[eri4.first[0] + i_eri] 
+		   + (eri4.L[0] + 1)*(CURYSQ_LZ[eri4.first[1] + j_eri] 
+				+ (eri4.L[1] + 1)*(CURYSQ_LZ[eri4.first[2] + threadIdx.y]
+						 + (eri4.L[2] + 1)*(CURYSQ_LZ[eri4.first[3] + threadIdx.z]))));
+    T R[$(N)];
+    // < | > z = (:,:,:,:)
+    Vec_copy(eri4.size_2d, &dev_Iz[eri4.size_2d], Ix, t, eri4.size);
+    __syncthreads();
+    for(int a = 0; a < $(N); ++a) {
+ 	R[a] = Ix[index2d.z+a];
+    }
+    
+    ///
+    // < | > = ( , , )
+    __syncthreads();
+    Vec_copy(eri4.size_2d, &dev_Ix[eri4.size_2d], Ix, t, eri4.size);
+    Vec_copy(eri4.size_2d, &dev_Iy[eri4.size_2d], Iy, t, eri4.size);
+    __syncthreads();
+
+    T q = (T)0.0;
+    for(int a = 0; a < $(N); a+=1) {
+	q += Ix[a+index2d.x]*Iy[a+index2d.y]*R[a];//Iz[a+ijz];
+    }
+    
+    __syncthreads();
+    double *I = (double *)(shmem);
+    I[t] = q;
+    
+    double *sh_Dij = I + eri4.size;
+    double *sh_Dkl = sh_Dij + eri4.nij;
+    double *sh_Dil = sh_Dkl + eri4.nkl;
+    double *sh_Djk = sh_Dil + eri4.nil;
+    
+    Vec_copy(eri4.nij, Dij, sh_Dij, t, nt);
+    Vec_copy(eri4.nkl, Dkl, sh_Dkl, t, nt);
+    Vec_copy(eri4.nil, Dil, sh_Dil, t, nt);
+    Vec_copy(eri4.njk, Djk, sh_Djk, t, nt);
+    __syncthreads();
+
+    
+    int kl = t;
+    for( ; kl < eri4.nkl; kl += nt) {
+	Fkl[kl] = Vec_dot(eri4.nij, &I[kl*eri4.nij], sh_Dij)*scale;
+    }
+    int ij = kl - eri4.nkl;
+    for( ; ij < eri4.nij; ij += nt) {
+	Fij[ij] = Vec_dot(eri4.nkl, sh_Dkl, &I[ij], eri4.nij)*scale;
+    }
+    int jk = ij - eri4.nij;
+    for( ; jk < eri4.njk; jk += nt) {
+	double fjk = 0.0;
+	for(int l = 0; l < eri4.len[3]; ++l) {
+	    fjk += Vec_dot(eri4.len[0], &sh_Dil[l*eri4.len[0]], &I[jk*eri4.len[0]+l*eri4.nijk]);
+	}
+	Fjk[jk] = fjk;
+    }
+    int i = jk - eri4.njk;
+    for(int il = 0; i < eri4.len[0]; i+= nt) {
+	for(int l = 0; l < eri4.len[3]; ++l, ++il) {
+	    Fil[il] = Vec_dot(eri4.njk, sh_Djk, &I[i+l*eri4.nijk], eri4.len[0])*scale;
+	}
+    }
+}
+
+/// N
+%end for 
+
+/** @see curysq_jk.h */
+int cuRysq_jk4(int flags, double tole,
+	       Rysq_shell_t a, Rysq_shell_t b, int ni, int nj, double *dev_rij,
+	       Rysq_shell_t c, Rysq_shell_t d, int nk, int nl, double *dev_rkl, 
+	       double *dev_Ix, double *dev_Iy, double *dev_Iz,
+	       double *Dij, double *Dkl, double *Dil, double *Djk,
+	       double alpha, double *Fij, double *Fkl, double *Fil, double *Fjk) {
+    
+    int N = Rysq_num_roots(a.L, b.L, c.L, d.L);
+    
+    dim3 dimG = dim3(ni*nj, nk*nl);
+    dim3 dimB = dim3(Rysq_shell_size(a)*Rysq_shell_size(b), Rysq_shell_size(c), Rysq_shell_size(d));
+    int Ns = N*(a.L+1)*(b.L+1)*(c.L+1)*(d.L+1)*2;
+    
+    cuRysq_jk4_t eri4;
+    eri4.first[0] = a.min;
+    eri4.L[0] = a.L;
+    eri4.len[0] = a.max - a.min + 1;
+
+    eri4.first[1] = b.min;
+    eri4.L[1] = b.L;
+    eri4.len[1] = b.max - b.min + 1;
+
+    eri4.first[2] = c.min;
+    eri4.L[2] = c.L;
+    eri4.len[2] = c.max - c.min + 1;
+
+    eri4.first[3] = d.min;
+    eri4.L[3] = d.L;
+    eri4.len[3] = d.max - d.min + 1;
+
+    eri4.size = (a.max - a.min + 1)*(b.max - b.min + 1)*(c.max - c.min + 1)*(d.max - d.min + 1);
+    eri4.size_2d = (a.L + 1)*(b.L + 1)*(c.L + 1)*(d.L + 1)*N;
+
+    eri4.nij = eri4.len[0]*eri4.len[1];
+    eri4.nkl = eri4.len[2]*eri4.len[3];
+    eri4.njk = eri4.len[1]*eri4.len[2];
+    eri4.nil = eri4.len[0]*eri4.len[3];
+    eri4.nijk = eri4.len[0]*eri4.len[1]*eri4.len[2];
+
+    Ns = max(Ns, eri4.size+eri4.nij+eri4.nkl+eri4.nil+eri4.njk);
+    
+%set minN = 1
+%set maxN = (4*Lmax)/2 + 1
+%for N in range(minN, maxN+1)
+    if(N == $(N)) {
+	cuRysq_jk4_$(N)<<< dimG, dimB, Ns*sizeof(double)>>>
+	    (eri4, dev_rij, dev_rkl, dev_Ix, dev_Iy, dev_Iz, Dij, Dkl, Dil, Djk,
+	     alpha, Fij, Fkl, Fil, Fjk);
+    }
+%end for
+
+    return 0;
+}
+

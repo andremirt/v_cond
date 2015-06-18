@@ -1,0 +1,470 @@
+#!/bin/csh
+#
+#   This 'gms' script sends a 'rungms' GAMESS job to SGE batch queues.
+#
+#   We are using this front-end "gms" on a Rocks Linux cluster with 
+#   an Infiniband, whose MPI is chosen to be MVAPICH.  To use this,
+#   we must edit the back-end "rungms" script (provided with the
+#   source code version of GAMESS) to our communication model, and 
+#   to the SGE-defined local work disk:
+#            set TARGET=mpi
+#            set SCR=$TMPDIR
+#
+#   Let's make sure the user is set up for running MPICH2/iMPI
+#
+if (-e ~/.mpd.conf) then
+else
+   echo "You need to create a iMPI-related file ~/.mpd.conf"
+   echo "This file should contain exactly one line, such as"
+   echo "secretword=GiantsOverDodgers"
+   echo "      or"
+   echo "secretword=VikingsOverPackers"
+   echo "Then make this private by 'chmod 600 ~/.mpd.conf'"
+   exit
+endif
+#
+#   ===== next section parses arguments
+#
+#   anything not recognized is taken as the input file name.
+#
+while ($#argv > 0)
+   set val=$argv[1]
+   shift
+   switch ($val)
+      case -help:
+        set JOB=morehelp
+        breaksw
+      case -cluster:
+        set JOB=cluster
+        breaksw
+#           job/queue resource options
+      case -l:
+        set LOGFILE=$argv[1]
+        shift
+        breaksw
+      case -p:
+        set NCPUS=$argv[1]
+        shift
+        breaksw
+      case -w:
+        set WALL=$argv[1]
+        shift
+        breaksw
+      case -hog:
+        set HOG=true
+        breaksw
+      case -ppn:
+        set PPN=$argv[1]
+        shift
+        breaksw
+      case -test:
+        set TESTJOB=true
+        breaksw
+#           (we have GPUs in our cluster, but not on all nodes)
+      case -gpu:
+        set NGPUS=$argv[1]
+        shift
+        breaksw
+#            next two specify binary "version number" and pathname
+      case -exepath:
+        set XPATH=$argv[1]
+        shift
+        breaksw
+      case -v:
+        set VERNO=$argv[1]
+        shift
+        breaksw
+#             next four are special file options.
+      case -b:
+        set EXTBAS=$argv[1]
+        shift
+        breaksw
+      case -elg:
+        set ELGFILE=$argv[1]
+        shift
+        breaksw
+      case -save30:
+        set SAVE30=true
+        breaksw
+      case -file37:
+        set FILE37=$argv[1]
+        set FILE12=$FILE37:r.civec
+        shift
+        set HACK37=true
+        breaksw
+      default:
+        if ($?JOB == 1) then
+           echo You\'ve given too many input file names, $JOB and $val.
+           exit 4
+        else
+           set JOB=$val
+           if ($JOB =~ *.inp) set JOB=$JOB:r
+        endif
+        breaksw
+   endsw
+end
+#
+if ($?JOB == 0)     set JOB=help
+if ($?VERNO == 0)   set VERNO=00
+if ($?LOGFILE == 0) set LOGFILE=default
+if ($?XPATH == 0)   set XPATH=none
+if ($?NCPUS == 0)   set NCPUS=0
+if ($?WALL == 0)    set WALL=default
+if ($?HOG == 0)     set HOG=false
+if ($?TESTJOB == 0) set TESTJOB=false
+if ($?PPN == 0)     set PPN=-1
+if ($?NGPUS == 0)   set NGPUS=0
+if ($?EXTBAS == 0)  set EXTBAS=/dev/null
+if ($?SAVE30 == 0)  set SAVE30=false
+if ($?HACK37 == 0)  set HACK37=false
+if ($?ELGFILE == 0) set ELGFILE=ELGNAME
+#
+#    ===== next section provides some help screens, which exit.
+#
+if ($JOB == help) then
+   clear
+   echo "The syntax to execute GAMESS is"
+   echo "     gms [-l logfile] [-p CPUS] [-w dd:hh:mm:ss] jjj"
+   echo "where jjj is the name of your jjj.inp file, and"
+   echo "   -l        gives the log file name."
+   echo "   -p        will run CPUS compute processes.  If CPUS is greater"
+   echo "             than 8, and you don't give -ppn, your request will be"
+   echo "             rounded downward to a multiple of 8 cores."
+   echo "   -w        wall clock time limit (default=00:12:00:00=12 hrs)"
+   echo "                  choose no more than one of the following:"
+   echo "   -hog      reserves one (1) entire node for this run, so you may"
+   echo "             choose -p from 1 to 8, while being assured that the"
+   echo "             entire 16 GB RAM in the node can be used by your run."
+   echo "   -ppn X    reserves more than one whole node for this run,"
+   echo "             placing NCPUS/X compute processes in each node."
+   echo "             Jobs using MEMDDI may benefit from using -ppn 4 or 6"
+   echo "             to leave some cores free for the data servers."
+   echo "             Using -p 48 -ppn 6 will allocate 48/6=8 whole nodes,"
+   echo "             these 64 cores will run 48 compute processes and 48"
+   echo "             data servers, six of each per node."
+   echo "Other options, more rarely given, can be displayed by 'gms -help'"
+   echo "Dynamo's hardware characteristics can be displayed by 'gms -cluster'"
+   exit
+endif
+if ($JOB == morehelp) then
+   clear
+   echo " "    
+   echo "Other 'gms' options, which are seldom given, are"
+   echo "   -gpu G   requests G nodes with G of the GPUs be allocated,"
+   echo "            note that the production GAMESS cannot use GPUs."
+   echo "   -test    executes in a 4-node "reserved" programming queue."
+   echo "            the -test option is incompatible with -hog/-ppn."
+   echo "   -v to choose a version number (default=current)."
+   echo "   -exepath /full/path/name      (location of GAMESS binary)"
+   echo "   -b /full/path/to/file.name    (of an external basis set file)"
+   echo "   -save30 saves/reuses file DAFL30 for spin-orbit coupling runs."
+   echo "   -file37 /full/name/of/file.gci  save/reuses file GCILIST/CIVECTR."
+   echo " "       
+   exit 
+endif
+if ($JOB == cluster) then
+   clear
+   echo "The head node of this cluster is named dynamo.iprt.iastate.edu,"
+   echo "     and is a Dell PE-2950 node, with two 2.5 GHz quad core E5420."
+   echo "     Its permanent file storage is called /home/yourname"
+   echo "The 34 compute nodes in this cluster are named compute-0-0,"
+   echo "compute-0-1, ..., compute-0-33.  Every compute node is the same,"
+   echo "except that some have a GPU and some do not:"
+   echo "     Dell R5400n blade, two quad-core 3.0 GHz E5450 chips, 16 GB RAM,"
+   echo "     and 1300 GBytes of /scratch disk (on 7200 RPM SATA disks)."
+   echo "There are a total of 11 GPUs attached to 11 of the compute nodes."
+   echo " "
+   echo "Therefore this cluster contains 8*34 = 272 cores, but 4 nodes,"
+   echo "each of which owns a GPU, are reserved for programming tests:"
+   echo "       compute-0-0, -0-1, -0-2, and -0-3."
+   echo " "
+   echo "The network in this cluster is an Infiniband, 4X DDR quality,"
+   echo "offering 16 Gbit/sec unidirectional bandwidth.  Of course, there"
+   echo "is also a gigabit ethernet for ordinary system management."
+   echo " "
+   echo "This cluster is based on Rocks/Linux, with the SGE batch scheduler,"
+   echo "and all the usual software: gfortran/ifort, MKL, various MPIs..."
+   exit 
+endif
+#
+#    ===== next section tests file existance
+#
+if (-d ~/scr) then
+else
+   echo An empty ~/scr directory is being created for you...
+   mkdir ~/scr
+endif
+#
+#    we should make sure the input exists, and that we don't
+#    destroy any files from previous runs that might be useful.
+#
+set nerr=0
+#
+if ((-e $JOB.inp) || (-e tests/$JOB.inp)) then
+else
+   echo I could not find $JOB.inp in your current directory.
+   @ nerr++
+endif
+#
+if (-e ~/scr/$JOB.dat) then
+   echo You presently have a PUNCH file named ~/scr/$JOB.dat,
+   echo save this data, or delete it, before submitting this job.
+   @ nerr++
+endif
+#
+if (-e ~/scr/$JOB.trj) then
+   echo You presently have a TRAJECT file named ~/scr/$JOB.trj,
+   echo save this data, or delete it, before submitting this job.
+   @ nerr++
+endif
+#
+if (-e ~/scr/$JOB.rst) then
+   echo You presently have a RESTART file named ~/scr/$JOB.rst,
+   echo save this data, or delete it, before submitting this job.
+   @ nerr++
+endif
+#
+if (-e ~/scr/$JOB.efp) then
+   echo You presently have a MAKEFP file named ~/scr/$JOB.efp,
+   echo save this data, or delete it, before submitting this job.
+   @ nerr++
+endif
+#
+if ($nerr > 0) then
+   echo bombing out...
+   exit 4
+endif
+#
+#  This cluster is 8-way nodes with very slow disks, so we will
+#  try to encourage the use of AO integral direct options.
+#
+                set ndir = `grep -i "dirscf=.true." $JOB.inp | wc -l`
+if ($ndir == 0) set ndir = `grep -i "dirscf=.t."    $JOB.inp | wc -l`
+if ($ndir == 0) set ndir = `grep -i "dirtrf=.true." $JOB.inp | wc -l`
+if ($ndir == 0) set ndir = `grep -i "dirtrf=.t."    $JOB.inp | wc -l`
+if ($ndir == 0) then
+   echo "   Your job does not contain a DIRSCF or DIRTRF keyword."
+   echo "   The dynamo cluster is based on SATA quality disks, which"
+   echo "   are shared by eight (8) cores.  You probably will get"
+   echo "   better wall clock times if you go AO integral direct."
+endif
+#
+#    ===== next section looks for job resources, output file names, etc.
+#
+set RESOURCES=" "
+#
+if ($LOGFILE == default) then
+   set LOGFILE=$JOB.log
+   echo -n "output file name? [$LOGFILE] "
+   set ans=$<
+   if (null$ans != null) set LOGFILE=$ans
+endif
+#
+#  SGE seems to append to the end of existing log file, instead of overwrite.
+#  probably we want to delete the old log file, as that's very confusing.
+#
+if (-e $LOGFILE) then
+   echo -n "$LOGFILE already exists.  OK to delete the old one? [y] "
+   set ans=$<
+   if (null$ans == null) set ans=y
+   if ($ans == y) then
+      rm $LOGFILE
+   else
+      echo "Exiting, so you can think about your old log file's value."
+      exit
+   endif
+endif
+#
+#      NCPUS is the number of compute processes we will run.
+#
+if ($NCPUS == 0) then
+   set NCPUS=1
+   echo -n "number of cores to use ? [$NCPUS] "
+   set ans=$<
+   if (null$ans != null) set NCPUS=$ans
+endif
+#
+set WHOLENODE=' '
+#
+#      reserve entire memory of one (1) node for 1 or more of its 8 CPUs
+#      We will ask the batch manager for 8 cores, in a single node,
+#      but the actual run will use only NCPUS of the node's cores.
+#      This ensures that all RAM in that node is assigned to this job.
+if ($HOG == true) then
+    if ($NCPUS > 8) set NCPUS=8
+    set PPN=$NCPUS
+    set NNODES=1
+    set WHOLENODE=true
+endif
+#
+#    next is a similar concept, ensuring multiple whole node allocation
+#    One might want to schedule 4 (or 6?) compute processes per 8-way
+#    node, if this run utilizes MEMDDI storage, leaving some processors
+#    to handle data server time requirements.  In other words, 
+#          gms -p 48 -ppn 6
+#    will request 48/6=8 nodes (64 processors), spreading the 48 compute
+#    processes out six/node, with the other two cores per node free to
+#    run the six data servers/node.
+#
+if ($PPN != 0) then
+   if ($PPN > 8) then
+      echo Our nodes are 8-way nodes, so you cannot request more
+      echo than 8 processors per node.
+      exit
+   endif
+   @ xx = $NCPUS / $PPN
+   @ yy = $PPN * $xx
+   if ($yy == $NCPUS) then
+      set NNODES=$xx
+      set WHOLENODE=true
+   else
+      echo Your requested number of CPUs = $NCPUS
+      echo is not evenly divisible by your processors per node, $PPN
+      exit
+   endif
+   unset xx
+   unset yy
+endif
+#
+#      round larger values of p downward to an exact multiple of 8,
+#      but allow for p=1 to p=7 to be chosen, without requiring
+#      that the schedular be unable to book the rest of such a node.
+if ($PPN == -1) then
+   @ xx = $NCPUS / 8
+   @ yy = 8 * $xx
+   if ($NCPUS >= 8) then
+      set PPN=8
+      set NCPUS=$yy
+      set NNODES=$xx
+      set WHOLENODE=true
+   else
+      set PPN=0
+      set NNODES=1
+      set WHOLENODE=false
+   endif
+   unset xx
+   unset yy
+endif
+#
+#   the 'exclusive' resource causes entire nodes be reserved,
+#   and it changes the units of the -pe option to be 'nodes',
+#   rather than 'cores'.  At this point, the variable NNODES is
+#   equal to NCPUS only if the job is not reserving whole nodes.
+#
+#   the 'reserved' resource allocates from four nodes that
+#   are dedicated to programming use only.
+#
+if ($TESTJOB == true) then
+   set RESOURCES="$RESOURCES -l reserved"
+else
+   if ($WHOLENODE == true) set RESOURCES="$RESOURCES -l exclusive"
+endif
+#
+if ($WALL == default) then
+   set WALL=12:00:00
+   echo -n "Requested wall clock time (days:hours:minutes:seconds)? [$WALL] "
+   set ans=$<
+   if (null$ans != null) set WALL=$ans
+endif
+#     ugh, we have to give SGE seconds, so we must parse
+#     a relatively user friendly string into as many as
+#     four fields, and convert them to seconds.
+set time=(`echo $WALL | cut --delimiter=: --output-delimiter=' ' --fields 1-`)
+set ntime=$#time
+switch ($ntime)
+  case 4:
+    @ seconds = 86400 * $time[1] + 3600 * $time[2] + 60 * $time[3] + $time[4]
+    breaksw
+  case 3:
+    @ seconds =                    3600 * $time[1] + 60 * $time[2] + $time[3]
+    breaksw
+  case 2:
+    @ seconds =                                      60 * $time[1] + $time[2]
+    breaksw
+  case 1:
+    @ seconds =                                                      $time[1]
+    breaksw
+  default
+    echo Something is wrong with this time specifier: $WALL
+    echo Please enter only colon separated wall clock times,
+    echo any of    ss  or  mm:ss  or  hh:mm:ss  or  dd:hh:mm:ss is OK.
+    exit
+endsw
+if ($seconds > 604800) then
+   echo Please request no more than 7 wall clock days.
+   exit
+endif
+set RESOURCES="$RESOURCES -l h_rt=$seconds"
+#
+#    our cluster at ISU has graphical processing units on some of its nodes,
+#    the GPU-possessing nodes are set up as a consumable resource in SGE.
+#
+if ($NGPUS > 0) set RESOURCES="$RESOURCES -l gpu=$NGPUS"
+#
+#    ===== next section prepares the job script.
+#
+cp /home/mike/gamess/rungms ~/scr/$JOB
+#
+#    special option to execute test version, rather than production code
+#
+if ($XPATH != none) then
+   sed -e \\+/home/mike/gamess+s++$XPATH+ ~/scr/$JOB > ~/scr/$JOB.mung
+   mv ~/scr/$JOB.mung ~/scr/$JOB
+endif
+#
+#    special option to use an external basis set library
+#
+if ($EXTBAS != /dev/null) then
+ if (-e $EXTBAS) then
+   sed -e \\+EXTBAS\ /dev/null+s++EXTBAS\ $EXTBAS+ ~/scr/$JOB > ~/scr/$JOB.mung
+   mv ~/scr/$JOB.mung ~/scr/$JOB
+ else
+   echo Your external basis set file $EXTBAS does not exist.
+   echo Please provide the correct fully qualified path name to this file.
+   exit 8
+ endif
+endif
+#
+#    special option to save/reuse DAFL30 for spin-orbit coupling runs
+#
+if ($SAVE30 == true) then
+   sed -e /JOB.F30/s//JOB.dafl30/ ~/scr/$JOB > ~/scr/$JOB.mung
+   mv ~/scr/$JOB.mung ~/scr/$JOB
+endif
+#
+#    special option to save/reuse GCILIST for general CI calculations
+#    we can't test its existence as this might be the run that creates it.
+#
+if ($HACK37 == true) then
+   sed -e \\+\$SCR/\$JOB.F12+s++$FILE12+ \
+       -e \\+\$SCR/\$JOB.F37+s++$FILE37+ ~/scr/$JOB > ~/scr/$JOB.mung
+   mv ~/scr/$JOB.mung ~/scr/$JOB
+endif
+#
+#    ===== next section actually submits the run.
+#
+#    the 'parallel environment' named ddi was set up specially,
+#    so that its SGE prolog file creates the SGE directory $TMPDIR
+#    on every node, and its epilog script erases $TMPDIR, to be sure
+#    the scratch disk is always cleaned up.
+#
+#    Mirabile dictu!  SGE allows you to pass args to a job script by
+#    placing them behind the script name.  In all my living days, I
+#    have never seen a batch program that permitted this, necessitating
+#    sed hacking to pass the data in.  Glory be!
+#
+#    however, job names cannot begin with a number.
+#
+if (`echo $JOB | cut -b 1` =~ [0-9]) then
+   set SGENAME=X$JOB
+else
+   set SGENAME=$JOB
+endif
+#
+echo Submitting GAMESS job $JOB.inp using $NCPUS cores...
+set echo
+qsub -cwd -o $LOGFILE -j yes -pe ddi $NNODES -N $SGENAME $RESOURCES \
+           ~/scr/$JOB $JOB $VERNO $NCPUS $PPN
+unset echo
+sleep 2
+rm ~/scr/$JOB

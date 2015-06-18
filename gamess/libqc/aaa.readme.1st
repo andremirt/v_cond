@@ -1,0 +1,300 @@
+                                                         June 9, 2010
+
+This is the README file for Andrey Asadchev's "libqc", a library for
+fast quantum chemistry on a Nvidia GPU, with CUDA software.
+
+The libqc toolkit was written in 2010 by Andrey Asadchev in the
+Department of Chemistry at Iowa State University.
+
+The 2e- AO integrals and their assembly into a closed shell Fock matrix
+can be converted into a GPU/CPU code.  This presently works only within
+a single node, but can utilize all GPUs and CPUs present in that node.
+GAMESS itself will read the basis set, atomic coordinates, do the 1e-
+integrals, prepare the initial orbital guess, drive the SCF convergence,
+and depending on the type of run, compute the nuclear gradient.  Only
+the very time consuming 2e- Fock matrix construction is done with the
+help of the GPU and CPU threads.  Other parts of GAMESS will run in
+parallel in this single node, on the CPUs only, using the parallization
+provided by GAMESS' DDI library (which is a message passing interface
+to MPI or TCP/IP and so on).  Arithmetic in the GPU is done at double
+precision, and thus all results are equally accurate to normal CPU runs.
+
+The integral algorithm for the GPU is described in
+    Uncontracted Rys Quadrature Implementation of up to G Functions
+                 on Graphical Processing Units.  
+    Andrey Asadchev, Veerendra Allada, Jacob Felder, Brett M. Bode,
+               Mark S. Gordon, Theresa L. Windus
+     Journal of Chemical Theory and Computation 6, 696-704(2010).
+
+------------------------------------------------------------------------
+            To utilize the "libqc" GPU code with GAMESS:
+
+
+1. Obtain the quantum chemistry software:
+
+GAMESS/libqc/DDI is available at:
+      http://www.msg.chem.iastate.edu/GAMESS/GAMESS.html
+After registering for a properly licensed source code copy of GAMESS at
+our web site, for 'linux64' systems, follow its normal installation
+procedures: ~/gamess/misc/readme.unix.  This produces a version of
+GAMESS that does -not- use the GPUs.  The directions below assume that
+you compile, link, and execute GAMESS w/o the GPU code at this point,
+before going on.  Given that GAMESS/libqc/DDI are going to run in
+a single node only, 'sockets' is the most reasonable message passing
+choice.  We did however use iMPI 3.2 on our node.
+
+
+2. Obtain additional software:
+
+     a) Nvidia's CUDA software, to prepare the GPU threads
+The CUDA compiler 'nvcc' must be on your path, e.g. /usr/local/cuda/bin,
+our CUDA compiler was version 2.3 (nvcc -V).
+The CUDA libraries will be needed when GAMESS is linked, and when the
+program is run: e.g. LD_LIBRARY_PATH containing /usr/local/cuda/lib64
+
+     b) a c++ compiler, to prepare the CPU threads.
+It is better if this is g++ 4.3, but our system had g++ 4.1, which
+works with the "configure" command shown below.  If you have 4.3,
+you could try adding -mtune=native to the CXXFLAGS shown.
+
+     c) cheetah: www.cheetahtemplate.org
+This is a code preprocessor acting on the libqc C++ source codes.
+Your execution path must be able to locate the binary file 'cheetah'.
+Our cheetah was version 2.4.2.1
+
+     d) Boost: www.boost.org
+This is a set of libraries aimed at standardizing C++ codes.  The
+next step requires naming a path pointing to Boost, and one of its
+libraries is used at link time.  Our Boost was version 1.43.  Boost
+requires three changes to its include files compile code with 'nvcc',
+ i: change /opt/boost/include/boost/mpl/aux_/integral_wrapper.hpp's line 59
+          from
+    #if BOOST_WORKAROUND(__EDG_VERSION__, <= 243)
+          to
+    #if BOOST_WORKAROUND(__EDG_VERSION__, <= 243) || defined(__CUDACC__)
+ii: change /opt/boost/include/boost/mpl/size_t_fwd.hpp  around line 22,
+    so that one original line is in an 'else' clause:
+  #if defined(__CUDACC__)
+     typedef std::size_t std_size_t;
+     template< std_size_t N > struct size_t;
+  #else
+     template< std::size_t N > struct size_t;
+  #endif
+iii: change /opt/boost/include/boost/mpl/size_t.hpp  around line 23,
+     so that four original lines are in an else clause:
+  #if defined(__CUDACC__)
+     #define AUX_WRAPPER_VALUE_TYPE std_size_t
+     #define AUX_WRAPPER_NAME size_t
+     #define AUX_WRAPPER_PARAMS(N) std_size_t N
+  #else
+     //typedef std::size_t std_size_t;
+     #define AUX_WRAPPER_VALUE_TYPE std::size_t
+     #define AUX_WRAPPER_NAME size_t
+     #define AUX_WRAPPER_PARAMS(N) std::size_t N
+  #endif
+These are clearly benign to any other compiler than 'nvcc'.
+
+     e) have a typical 64-bit Linux: GNU compiler suite with their
+libraries, a mathematical library for GAMESS such as Intel's MKL,
+Python, make/automake/libtool, and so forth.  The "e" software is
+sufficient to install the non-GPU GAMESS code, while "a" to "d" are
+specifically required to use the GPU through libqc.
+
+
+3. Compile the quantum chemistry library "libqc"
+
+Note that all commands below are C-shell syntax, adjust as needed
+to any other shell's file redirections.
+
+% chdir ~/libqc
+% ./configure --with-gamess
+              --with-integer8
+              --with-boost=/opt/boost
+              --prefix=/home/mike/gamess/libqc
+              CXXFLAGS='-O2 -DNDEBUG -msse3 -ffast-math -ftree-vectorize'
+              CXX='g++'   >& step1.log
+% make                    >& step2.log &
+% make install            >& step3.log
+
+Obviously, the configure command is typed on one line in real life.
+It will produce two output files named config.log and config.status,
+in addition to the output step1.log.  CXX names the desired C++
+compiler, and CXXFLAGS selects high optimization for both the CPU
+code and the GPU code.  This step prepares 'Makefile' which should
+contain your desired compiler options.
+
+The 2nd step compiles 'libqc', taking about 75 minutes on our system.
+
+The 3rd step copies the libraries to a subdirectory "lib" located
+beneath the --prefix path.  If this step finishes correctly, you
+will find three libraries there,
+    libqc_gamess.a  - interfaces to GAMESS
+    libqc.a         - Fock construction
+    librys.a        - two electron integrals by Rys quadrature
+along with their .la counterparts.
+
+
+4. linking "libqc" to GAMESS/DDI
+
+The libqc works with threads, some running on the CPU(s), and
+some running on the GPU(s).  Threads are incompatible with DDI,
+which runs distinct GAMESS processes.  So, during the Fock
+matrix construction, only the master GAMESS/DDI process will
+generate GPU/CPU threads.  The other GAMESS/DDI processes will
+just sit idle until the Fock build is finished, waiting to join
+back in at later steps, such as the nuclear gradient.  By spawning
+as many CPU threads during the Fock build as you have cores, all
+CPUs will be utilized at all stages.
+
+Since the only quantum chemistry functionality provided by
+the "libqc" at this point is closed shell Fock construction,
+we must re-compile just one file included in standard GAMESS,
+so that it will invoke the "libqc" package.
+
+a) vi comp, set GPUCODE=true  (i.e. change where GPUCODE is set false)
+b) ./comp rhfuhf            adds in calls to the "libqc" package
+c) vi lked, set GPUCODE=true, and change the library pathnames,
+   at the second place the string 'GPUCODE' appears.  The three
+   paths must point to your libqc, CUDA, and Boost libraries.
+d) ./lked gamess gpu        produces a binary gamess.gpu.x
+
+Comments about the linking step: "libqc" produces three .a files
+for a static link, and the Boost library that is linked is also
+used as a static library.  Therefore, your compute nodes do not
+need to have Boost, but will need to have the CUDA dynamic link
+libraries (.so) available.  "ldd gamess.gpu.x" will show the full
+set of dynamically linked libraries required to exist on your
+compute nodes, and in your LD_LIBRARY_PATH.
+
+
+5. running GAMESS with libqc
+
+% vi rungms
+
+At the top, select the execution target as 'sockets' or 'mpi'.
+The processes are started according to the normal kickoff procedures
+for the chosen DDI messaging mechanisms, e.g. ddikick.x or mpirun.
+
+As usual, several other customizations in 'rungms' are needed, to
+point to the working scratch directory, locate the ericfmt.dat file,
+locate the GAMESS/libqc/ddi binary, and so forth.
+
+In principle, you already did this when installing GAMESS/DDI at
+step 1 of these instructions.  Nothing else need be done to use the
+GPUs, but two relevant environment variables are discussed below.
+
+Execute a closed shell SCF calculation from input file xxx.inp by
+      rungms xxx gpu ncpu >& xxx.log &
+The 2nd parameter assumes that you named the binary 'gamess.gpu.x',
+it is just the middle part of the binary's name.
+The 3rd parameter passed to this script will control the number of
+DDI processes generated (it is not related to the number of GPU
+or CPU threads used by libqc).
+
+At the present time, the input file xxx.inp should be a RHF calculation
+only, but can do nuclear gradients, so that tasks requiring gradients
+such as geometry optimization, semi-numerical hessians, and so on are
+possible.  Note that closed shell DFT is not enabled.
+
+At the present time, GAMESS/libqc/DDI runs inside a single node only,
+but can use all its CPUs and GPUs.
+
+The CPU thread(s) function as a 'backlog queue' evaluating integrals
+that are missed out on the GPU.  For example, our GPU will do
+only up to 1600 integrals/shell quartet, in order to fit in the
+available registers and memory.  Therefore parts of a [ff|ff]
+quartet don't fit, and are left for the CPU thread to clean up.
+The CPU thread(s) also chip in to help speed things up, by taking
+some of the quartets anyway.
+
+As already noted, all but one of the GAMESS/DDI processes will sleep
+while 'libqc' handles a Fock matrix build.  By default, all available
+CPUs will still be used in this step, along with the GPUs, by spawning
+a thread for each CPU.
+
+Two environment variables, namely NUM_THREADS and CUDA_DEVICES, can
+be set to use fewer than all available computational devices.
+
+A computing system like the Nvidia S1070 has 4 GPUs, and is cabled to
+two different conventional nodes, so that a node appears to own 2 GPUs.
+In case you want to use just one GPU, or even no GPUs, 'rungms' can define
+  not defining   CUDA_DEVICES               will use both (default)
+          setenv CUDA_DEVICES "1" (or "2")  will use that specific GPU
+          setenv CUDA_DEVICES "-1"          will use no GPUs
+
+The node might contain any number of CPU cores, perhaps 4 or 8 or
+even more.  Add this line to 'rungms'
+     setenv NUM_THREADS $NCPUS
+to generate threads on the same number of cores as for which DDI
+process are executing (NCPUS is set by the 3rd argument passed to
+the 'rungms' script).  If NUM_THREADS is not set, the number of CPU
+threads generated will equal the total number of cores in the node.
+
+
+6. Timing examples
+
+node: Dell R5400n with 16x PCIe
+      two quad-core Intel E5450 (Harperton) processors,
+      16 GBytes RAM, 1333 MHz front side bus (Dell R5400n node)
+      Nvidia Tesla S1070 (two T10 processors with 4 GBytes memory/T10)
+
+software: RedHat Enterprise Linux 2.6.18-92.el5
+          gfortran 4.1, g++ 4.1, MKL 10.0,
+          cheetah 2.4.2.1, Boost 1.43
+          GAMESS/DDI version: 25 Mar 2010 (R3)
+          CUDA nvcc 2.3
+
+The examples are a Pople DZP-type and a correlation-consistent TZ2P-type
+basis set.
+
+
+a. vancomycin: C66 N9 O24 Cl2 H75, direct SCF converges in 15 iterations
+there are 176 atoms, 380 occupied orbitals, 1673 AOs & MOs for 6-31G(d).
+
+GAMESS+libqc: E= -5748.5708774945 to ..40, 1,2,4,8 CPU threads, 2 GPU
+              E= -5748.5708774938 to ..40, 1,    8 CPU threads, 0 GPU
+      GAMESS: E= -5748.5708774573 to ..74, 1,8 CPUs, best integral codes
+      GAMESS: E= -5748.5708774579, using only rotated axis codes
+      GAMESS: E= -5748.5708774558, using only Rys quadrature code
+
+GAMESS+libqc, using both GPUs, with various numbers of CPUs:
+      total   first iteration   final iteration
+#CPU   wall    GPU  GPU  CPU     GPU  GPU   CPU
+  1   9,207  11:58 12:03 11:51  6:25 6:29  6:24
+  2   6,622   9:01  9:11  9:04  2:22 2:22  6:51
+  4   4,207   5:47  5:49  5:43  2:30 2:33  2:27
+  8   3,144   4:13  4:17  4:10  1:38 1:42  1:39
+only one CPU thread's time is shown, others +/- 1 or so seconds
+
+GAMESS only, with DDI parallelization, and best integral algorithms
+      total   guess    SCF   property
+#CPU   wall     CPU    CPU     CPU
+  1  21,366   211.3 20,988.9 153.1
+  8   2,941   144.6  2,731.2  33.1
+Using p=1 and only Rys quadrature integrals takes 29,676 wall seconds.
+Using p=1 and only rotated axis integrals   takes 23,470 wall seconds.
+
+
+b. ginkgolide A: C20 O9 H24, direct SCF converges in 13 iterations
+there are 53 atoms, 108 occupied MOs, 1375 AOs and 1206 MOs for cc-pVTZ
+
+GAMESS+libqc: E= -1445.5558009259
+ GAMESS, p=1: E= -1445.5558009249, using best integral codes
+ GAMESS, p=8: E= -1445.5558009251, using best integral codes
+ GAMESS, p=1: E= -1445.5558009247, using only Rys quadrature
+
+GAMESS+libqc, using both GPUs, with various numbers of CPUs:
+      total      first iteration            final iteration
+#CPU   wall     GPU     GPU     CPU        GPU     GPU     CPU
+  1  21,598    35:19   35:19   41:58      10:40   10:41   12:49
+  2  11,543    21:12   21:12   21:58       7:05    7:05    7:15
+  4   7,153    13:20   13:20   13:33       4:20    4:20    4:24
+  8   5,475     9:58    9:58   10:05       3:20    3:20    3:24
+Only one CPU thread's timing is shown, which is typical of the other threads.
+
+GAMESS only, with DDI parallelization, and best integral algorithms
+      total   guess    SCF   property
+#CPU   wall     CPU    CPU     CPU
+  1  56,400    88.0  56215.3  86.7
+  8   7,218    63.3   7109.5  28.3
+Using p=1 and only Rys quadrature integrals takes 66,601 wall seconds.

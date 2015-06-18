@@ -1,0 +1,26 @@
+Fri Nov 19 16:13:39 KST 2010
+GAMESS will be linked into the binary file gamess.01.x.
+ 
+The name of the linker on this machine is gfortran,
+and the linker options are " ".
+ 
+Object code list begins with gamess.o unport.o, followed by
+BLAS code=" ", VECTOR code=" ", quiche="zunix.o",
+followed by the standard GAMESS object code list,
+ 
+aldeci.o algnci.o basccn.o basecp.o basext.o basg3l.o bashuz.o bashz2.o baskar.o basn21.o basn31.o baspcn.o bassto.o ccaux.o ccddi.o ccqaux.o ccquad.o ccsdt.o ceeis.o chgpen.o cisgrd.o cosmo.o cosprt.o cphf.o cpmchf.o cprohf.o dccc.o dcgues.o dcint2.o dclib.o dcmp2.o dcscf.o dctran.o ddilib.o delocl.o demrpt.o dft.o dftaux.o dftdis.o dftfun.o dftgrd.o dftint.o dftxca.o dftxcb.o dftxcc.o dftxcd.o dftxce.o dftxcf.o dftxcg.o dgeev.o dgesvd.o dmulti.o drc.o eaipcc.o ecp.o ecpder.o ecplib.o ecppot.o efchtr.o efdrvr.o efelec.o efgrd2.o efgrda.o efgrdb.o efgrdc.o efinp.o efinta.o efintb.o efmo.o efpaul.o efpcm.o efpcov.o efpfmo.o eftei.o eigen.o elglib.o elgloc.o elgscf.o eomcc.o ewald.o ffield.o fmo.o fmocp.o fmoesd.o fmogrd.o fmohss.o fmoint.o fmoio.o fmolib.o fmopbc.o fmoprp.o frfmt.o fsodci.o g3.o globop.o gmcpt.o gradex.o guess.o grd1.o grd2a.o grd2b.o grd2c.o gugdga.o gugdgb.o gugdm.o gugdm2.o gugdrt.o gugem.o gugsrt.o gvb.o hess.o hss1a.o hss1b.o hss2a.o hss2b.o inputa.o inputb.o inputc.o int1.o int2a.o int2b.o int2c.o int2d.o int2f.o int2g.o int2r.o int2s.o int2t.o int2u.o int2v.o int2w.o int2x.o iolib.o ivocas.o lagran.o local.o loccd.o locpol.o
+mcpgrd.o mcpinp.o mcpint.o mcpl10.o mcpl20.o mcpl30.o mcpl40.o mcpl50.o mcpl60.o mcpl70.o mcpl80.o mccas.o mcjac.o mcqdpt.o mcqdwt.o mcqud.o mcscf.o mctwo.o mdefp.o mexing.o mm23.o morokm.o mp2.o mp2ddi.o mp2grd.o mp2gr2.o mp2ims.o mpcdat.o mpcgrd.o mpcint.o mpcmol.o mpcmsc.o mthlib.o nameio.o nmr.o ordint.o ormas1.o parley.o pcm.o pcmcav.o pcmcv2.o pcmder.o pcmdis.o pcmief.o pcmpol.o pcmvch.o prpamm.o prpel.o prplib.o prppop.o qeigen.o qfmm.o qmfm.o qrel.o raman.o rhfuhf.o ricab.o riint.o rimp2.o rohfcc.o rxncrd.o ryspol.o scflib.o scfmi.o scrf.o sobrt.o soffac.o solib.o sozeff.o statpt.o surf.o svpchg.o svpinp.o svpleb.o symorb.o symslc.o tddft.o tddefp.o tddfun.o tddfxc.o tddgrd.o tddint.o tddxca.o tddxcc.o tddxcd.o tdhf.o tdx.o tdxio.o tdxitr.o tdxni.o tdxprp.o trans.o trfdm2.o trnstn.o trudge.o umpddi.o utddft.o vibanl.o vscf.o vvos.o zapddi.o zheev.o zmatrx.o
+ 
+Choices for some optional plug-in codes are
+   Using qmmm.o, Tinker/SIMOMM code is not linked.
+   Using vbdum.o, neither VB program is linked.
+   Using neostb.o, Nuclear Electron Orbital code is not linked.
+ 
+Message passing libraries are ../ddi/libddi.a -lpthread
+ 
+Other libraries to be searched are -L/usr/lib64/atlas -lf77blas -latlas
+ 
+Linker messages (if any) follow...
+ 
+The linking of GAMESS to binary gamess.01.x was successful.
+0.841u 0.222s 0:01.14 92.9%	0+0k 992+51072io 0pf+0w

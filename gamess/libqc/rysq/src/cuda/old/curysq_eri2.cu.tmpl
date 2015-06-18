@@ -1,0 +1,199 @@
+/* ##-*- C++-Cheetah -*-
+#compiler-settings
+directiveStartToken = %
+commentStartToken = ///
+#end compiler-settings
+*/
+
+/** @file 
+@warning template generated
+*/
+
+#include "rysq.h"
+#include "curysq_eri.h"
+#include "curysq_const.h"
+#include "vec.h"
+
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <stdio.h>
+#include <assert.h>
+
+
+/**
+@brief
+@private
+*/
+typedef struct {
+    int first[2];
+    int L[2];
+    int size;  /** < Number of threads and number of elements computing */
+    int size_2d; /** < Size of 2D integral */
+    int n; /**< Number of integrals to compute */
+} cuRysq_eri2_t;
+
+%from shell import Shell
+%set Lmax = int($CURYSQ_LMAX)
+
+/** shared gpu memory */
+extern __shared__ char shmem[];
+
+%for D in Shell.range(last = Lmax)
+%for C in Shell.range(last = Lmax)
+
+///
+%set minN = (C.L + D.L)/2 + 1
+%set maxN = (C.L + D.L + 2*Lmax)/2 + 1
+///
+
+%for N in range(minN, maxN+1)
+%set cdN = str(C) + str(D) + str(N)
+%set Lcd = (C.L+1)*(D.L+1)
+///
+
+/**
+@brief A,B shells mapped; $(C),$(D) iterated for $(N) roots
+@param eri2 
+@param dev_rij
+@param dev_rkl
+@tparam dev_Ix
+@tparam dev_Iy
+@tparam dev_Iz
+@param scale
+@param dev_I
+*/
+template <class T>
+__global__ void cuRysq_eri_$(cdN)(cuRysq_eri2_t eri2,
+				  T *dev_Ix, T *dev_Iy, T *dev_Iz, 
+				  double scale, double *dev_I) {
+    
+    int t = threadIdx.x + threadIdx.y*blockDim.x;
+    int bid =  blockIdx.x + blockIdx.y*gridDim.x;
+
+    if(bid >= eri2.n) return;
+    
+    dev_Ix += bid*eri2.size_2d*$(Lcd);
+    dev_Iy += bid*eri2.size_2d*$(Lcd);
+    dev_Iz += bid*eri2.size_2d*$(Lcd);
+    int ijkl = bid*eri2.size*$(len(C)*len(D)) + t;
+
+//     __shared__ T rij[6], rkl[6];
+//     Vec_copy(6, &dev_rij[bid*6], rij, t, eri2.size);
+//     Vec_copy(6, dev_rkl, rkl, t, eri2.size);
+//     __syncthreads();
+    
+    T *Ix = &((T*)shmem)[0];
+    T *Iy = &((T*)shmem)[eri2.size_2d];
+
+    short3 index2d;
+    index2d.x =  $(N)*(CURYSQ_LX[eri2.first[0] + threadIdx.x] 
+		       + CURYSQ_LX[eri2.first[1] + threadIdx.y]*(eri2.L[0] + 1));
+    index2d.y =  $(N)*(CURYSQ_LY[eri2.first[0] + threadIdx.x] 
+		       + CURYSQ_LY[eri2.first[1] + threadIdx.y]*(eri2.L[0] + 1));
+    index2d.z =  $(N)*(CURYSQ_LZ[eri2.first[0] + threadIdx.x] 
+		       + CURYSQ_LZ[eri2.first[1] + threadIdx.y]*(eri2.L[0] + 1));
+
+    T R[$(N)];
+%for lz in range(0,D.L+1)
+%for kz in range(0,C.L+1)
+    // |kl>z = (:,:,$(kz)$(lz))
+    Vec_copy(eri2.size_2d, &dev_Iz[$(kz+lz*(C.L+1))*eri2.size_2d], Ix, t, eri2.size);
+    __syncthreads();
+    for(int a = 0; a < $(N); ++a) {
+	R[a] = Ix[index2d.z+a];
+    }
+    
+%for lx in range(0,D.L-lz+1)
+%for kx in range(0,C.L-kz+1)
+%set ky = C.L-kx-kz
+%set ly = D.L-lx-lz
+    ///
+%set klx = kx+lx*(C.L+1)
+%set kly = ky+ly*(C.L+1)
+    ///
+    // |kl> = ($(kx)$(lx),$(ky)$(ly),$(kz)$(lz))
+    __syncthreads();
+    Vec_copy(eri2.size_2d, &dev_Ix[eri2.size_2d*$(klx)], Ix, t, eri2.size);
+    Vec_copy(eri2.size_2d, &dev_Iy[eri2.size_2d*$(kly)], Iy, t, eri2.size);
+    __syncthreads();
+    
+    {
+	T q = (T)0.0;
+	for(int a = 0; a < $(N); a+=1) {
+	    q += Ix[a+index2d.x]*Iy[a+index2d.y]*R[a];//Iz[a+ijz];
+	}
+	dev_I[ijkl] = scale*q;
+    }
+    ijkl += eri2.size;
+
+%end for
+%end for
+///
+%end for
+%end for
+
+}
+
+///N
+%end for 
+/// C
+%end for 
+/// D
+%end for 
+
+int cuRysq_eri2(int flags, double tole,
+		Rysq_shell_t a, Rysq_shell_t b, 
+		Rysq_shell_t c, Rysq_shell_t d, int n,
+		double *dev_Ix, double *dev_Iy, double *dev_Iz,
+		double scale, double *dev_I) {
+    
+    int N = Rysq_num_roots(a.L, b.L, c.L, d.L);
+
+    int dev;
+    struct cudaDeviceProp prop;
+    assert(cudaGetDevice(&dev) == cudaSuccess);
+    assert(cudaGetDeviceProperties(&prop,dev) == cudaSuccess);
+    int x = prop.maxGridSize[0];
+    int y = max(n/x,1);
+    
+    dim3 dimG = dim3(x, y);
+    dim3 dimB = dim3(Rysq_shell_size(a), Rysq_shell_size(b));
+    int Ns = N*(a.L+1)*(b.L+1)*2;
+    
+    cuRysq_eri2_t eri2;
+    eri2.first[0] = a.min;
+    eri2.L[0] = a.L;
+    eri2.first[1] = b.min;
+    eri2.L[1] = b.L;
+    eri2.size = (a.max - a.min + 1)*(b.max - b.min + 1);
+    eri2.size_2d = (a.L + 1)*(b.L + 1)*N; 
+    eri2.n = n;
+    
+%for D in Shell.range(last = Lmax)
+%for C in Shell.range(last = Lmax)
+%set minN = (C.L + D.L)/2 + 1
+%set maxN = (C.L + D.L + 2*Lmax)/2 + 1
+%for N in range(minN, maxN+1)
+%set cdN = str(C) + str(D) + str(N)
+    if(d.type == RYSQ_TYPE_$(str(D).upper()) && 
+       c.type == RYSQ_TYPE_$(str(C).upper()) &&
+       N == $(N)) {
+	cuRysq_eri_$(cdN)<<< dimG, dimB, Ns*sizeof(double)>>>
+	    (eri2, dev_Ix, dev_Iy, dev_Iz, scale, dev_I);
+///	
+/// 	cuRysq_eri_$(cdN)<<< dimG, dimB, Ns*sizeof(float)>>>
+/// 	    (dim, a, (float)(a.a[0]), b, (float)(b.a[0]), (float*)dev_rij, 
+/// 	     (float)(c.a[0]), (float)(d.a[0]), (float*)dev_rkl,
+/// 	     (float*)dev_Ix, (float*)dev_Iy, (float*)dev_Iz, 
+/// 	     (float) scale, (float*)dev_I);
+///	
+/// 	cuRysq_eri_$(cdN)<<< dimG, dimB, Ns*sizeof(double)>>>
+/// 	    (dim, a, gi.a, b, gj.a, dev_rij, gk.a, gl.a, dev_rkl,
+/// 	     dev_Ix, dev_Iy, dev_Iz, scale, dev_I);
+    }
+%end for
+%end for
+%end for
+
+    return 0;
+}

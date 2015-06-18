@@ -1,0 +1,33 @@
+#!/bin/csh
+#
+#  Execute CARTIC
+#
+set JOB=$1
+#
+if (null$JOB == null) then
+   echo " "
+   echo "The syntax to execute CARTIC is "
+   echo "     cartic XXX"
+   echo "where XXX is the name of your XXX.xyz input file."
+   echo " "
+   echo "The contents of the XXX.xyz file should be simply one"
+   echo "card per atom, containing ATOMNAME, ZNUC, X, Y, Z."
+   echo " "
+   exit
+endif
+#
+if (-e $JOB.xyz) then
+else
+   echo "I could not find $JOB.xyz in your current directory."
+   echo "The contents of the XXX.xyz file should be simply one"
+   echo "card per atom, containing ATOMNAME, ZNUC, X, Y, Z."
+   echo "Bombing out..."
+   exit
+endif
+#
+setenv CARTIC  $JOB.xyz
+#
+cartic.x
+#
+unsetenv CARTIC
+exit

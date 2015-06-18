@@ -1,0 +1,186 @@
+/* ##-*- C++-Cheetah -*-
+#compiler-settings
+directiveStartToken = %
+commentStartToken = ///
+#end compiler-settings
+*/
+
+/** @file 
+@warning template generated
+*/
+
+#include "rysq.h"
+#include "curysq_eri.h"
+#include "curysq_const.h"
+#include "vec.h"
+
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <stdio.h>
+#include <assert.h>
+
+/**
+@brief 
+@private
+*/
+typedef struct {
+    int first[3];
+    int N;
+    int L[3];
+    int nt; /** < number of threads and number of elements computing */
+    int size2d_ijk;
+    int size2d_ijkl; /** < size of 2D integral */
+    //    int size_eri; 
+    int n; /**< Number of integrals to compute */
+} cuRysq_eri3_t;
+
+%from shell import Shell
+%set LMAX = int($CURYSQ_LMAX)
+
+/** shared gpu memory */
+extern __shared__ char shmem[];
+
+
+%for D in Shell.range(last=LMAX)
+%set Ld = (D.L+1)
+
+/**
+@brief A,B,C shells mapped to threads; explicitly unrolled for $(D) 
+@param eri3
+@tparam dev_Ix 2D Integrals x-dimension
+@tparam dev_Iy 2D Integrals y-dimension
+@tparam dev_Iz 2D Integrals z-dimension
+@param scale Scaling factor
+@param dev_I Integral
+*/
+template <class T>
+__global__ void cuRysq_eri_$(D)(cuRysq_eri3_t eri3,
+				T *dev_Ix, T *dev_Iy, T *dev_Iz, 
+				double scale, double *dev_I) {
+    
+    typedef struct {
+	int bid;
+	T *Ix;
+	T *Iy;
+	T *Iz;
+    } sh_t;
+    
+    __shared__ sh_t sh;
+
+    int t = threadIdx.x + blockDim.x*(threadIdx.y + blockDim.y*threadIdx.z);
+    //    int bid  =  blockIdx.x + gridDim.x * blockIdx.y;
+
+
+///     T *Ix = &((T*)shmem)[0];
+///     T *Iy = &((T*)shmem)[eri3.size2d_ijkl];
+///     T *Iz = &((T*)shmem)[2*eri3.size2d_ijkl];
+
+    if (t == 0) {
+	sh.bid = blockIdx.x + gridDim.x * blockIdx.y;
+	sh.Ix = &((T*)shmem)[0];
+	sh.Iy = &((T*)shmem)[eri3.size2d_ijkl];
+	sh.Iz = &((T*)shmem)[2*eri3.size2d_ijkl];
+
+	dev_Ix += sh.bid*eri3.size2d_ijkl;
+	dev_Iy += sh.bid*eri3.size2d_ijkl;
+	dev_Iz += sh.bid*eri3.size2d_ijkl;
+
+    }
+    __syncthreads();
+
+    if(sh.bid >= eri3.n) return;
+
+    int3 index2d_ijk;
+    
+    index2d_ijk.x =  (CURYSQ_LX[eri3.first[0] + threadIdx.x] 
+		      + (eri3.L[0] + 1)*(CURYSQ_LX[eri3.first[1] + threadIdx.y] 
+					 + (eri3.L[1] + 1)*(CURYSQ_LX[eri3.first[2] + threadIdx.z])));
+    index2d_ijk.y =  (CURYSQ_LY[eri3.first[0] + threadIdx.x] 
+		      + (eri3.L[0] + 1)*(CURYSQ_LY[eri3.first[1] + threadIdx.y] 
+					 + (eri3.L[1] + 1)*(CURYSQ_LY[eri3.first[2] + threadIdx.z])));
+    index2d_ijk.z =  (CURYSQ_LZ[eri3.first[0] + threadIdx.x] 
+		      + (eri3.L[0] + 1)*(CURYSQ_LZ[eri3.first[1] + threadIdx.y] 
+					 + (eri3.L[1] + 1)*(CURYSQ_LZ[eri3.first[2] + threadIdx.z])));
+    
+%for (i,f) in enumerate(D)
+    T q$(i) = (T)0.0;
+%end for
+
+    Vec_copy(125*3, &dev_Ix[0], sh.Ix, t, eri3.nt);
+
+    //loop over roots
+    for(int a = 0; a < eri3.N; ++a) {
+	__syncthreads();
+	//Vec_copy(eri3.size2d_ijkl, &dev_Iy[0], sh.Iy, t, eri3.nt);
+	//Vec_copy(eri3.size2d_ijkl, &dev_Iy[0], sh.Iz, t, eri3.nt);
+	__syncthreads();
+
+	T Ix0 = sh.Ix[index2d_ijk.x];	
+	T Iy0 = sh.Iy[index2d_ijk.y];	
+	T Iz0 = sh.Iz[index2d_ijk.z];		
+
+%for (i,f) in enumerate(D)
+	
+/// %set Ix = ("Ix0", "sh.Ix[index2d_ijk.x+(%i)*eri3.size2d_ijk]" %f[0]) [f[0] >= 0]
+/// %set Iy = ("Iy0", "sh.Iy[index2d_ijk.y+(%i)*eri3.size2d_ijk]" %f[1]) [f[1] >= 0]
+/// %set Iz = ("Iz0", "sh.Iz[index2d_ijk.z+(%i)*eri3.size2d_ijk]" %f[2]) [f[2] >= 0]
+%set Ix = ("Ix0", "sh.Ix[index2d_ijk.x+(%i)*27]" %f[0]) [f[0] > 0]
+%set Iy = ("Iy0", "sh.Iy[index2d_ijk.y+(%i)*27]" %f[1]) [f[1] > 0]
+%set Iz = ("Iz0", "sh.Iz[index2d_ijk.z+(%i)*27]" %f[2]) [f[2] > 0]
+
+	q$(i) += $(Ix)*$(Iy)*$(Iz);
+%end for
+    }
+    int ijkl = sh.bid*eri3.nt*$(len(D)) + t;
+
+%for (i,f) in enumerate(D)
+    dev_I[ijkl+$(i)*eri3.nt] = q$(i);
+%end for
+
+}
+%end for
+
+
+int cuRysq_eri3(int flags, double tole,
+		Rysq_shell_t a, Rysq_shell_t b, 
+		Rysq_shell_t c, Rysq_shell_t d, int n,
+		double *dev_Ix, double *dev_Iy, double *dev_Iz,
+		double scale, double *dev_I) {
+    
+    int dev;
+    struct cudaDeviceProp prop;
+    assert(cudaGetDevice(&dev) == cudaSuccess);
+    assert(cudaGetDeviceProperties(&prop,dev) == cudaSuccess);
+    int x = prop.maxGridSize[0];
+    int y = max(n/x,1);
+    
+    dim3 dimG = dim3(x, y);
+    dim3 dimB = dim3(Rysq_shell_size(a), Rysq_shell_size(b), Rysq_shell_size(c));
+    int Ns = (a.L+1)*(b.L+1)*(c.L+1)*(d.L+1)*3+125*3;
+    
+    cuRysq_eri3_t eri3;
+    eri3.N = Rysq_num_roots(a.L, b.L, c.L, d.L);
+    eri3.first[0] = a.min;
+    eri3.L[0] = a.L;
+    eri3.first[1] = b.min;
+    eri3.L[1] = b.L;
+    eri3.first[2] = c.min;
+    eri3.L[2] = c.L;
+    eri3.nt = (a.max - a.min + 1)*(b.max - b.min + 1)*(c.max - c.min + 1);
+    eri3.size2d_ijk = (a.L + 1)*(b.L + 1)*(c.L + 1);
+    eri3.size2d_ijkl = eri3.size2d_ijk*(d.L+1);
+    eri3.n = n;
+    
+%for D in Shell.range(last = LMAX)
+    if(d.type == RYSQ_TYPE_$(str(D).upper())) {
+	cuRysq_eri_$(D)<<< dimG, dimB, Ns*sizeof(double)>>>
+	    (eri3, dev_Ix, dev_Iy, dev_Iz, scale, dev_I);
+
+    }
+%end for
+
+    return 0;
+}
+
+
+

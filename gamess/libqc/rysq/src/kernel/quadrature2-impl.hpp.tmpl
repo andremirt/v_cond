@@ -1,0 +1,221 @@
+/**  ## -*- C++-Cheetah -*-
+#compiler-settings 
+directiveStartToken = %
+commentStartToken = ///
+#end compiler-settings
+@file 
+@warning Automatically Generated
+*/
+%include "global.tmpl"
+%import operator
+%from shell import Shell, product, coefficient_index
+
+%set Specs = eval(file("kernel/quadrature2.py", "r").read())
+
+#ifndef _RYSQ_KERNEL_QUADRATURE2_IMPL_HPP_
+#define _RYSQ_KERNEL_QUADRATURE2_IMPL_HPP_
+
+#include "rysq/config.hpp"
+#include "kernel/eri.hpp"
+#include "meta.hpp"
+#include "vector.hpp"
+
+BEGIN_NAMESPACE(rysq, kernel, quadrature)
+
+namespace recurrence {
+
+    static inline double coefficient(double A1, double B, double t2) {
+	return 0.5*A1*(1.0 - B*t2);
+    }
+    
+    template<int q>
+    static inline double coefficient(const Vector<3> &rAi, double B,
+				     const Vector<3> &rAB, double t2) {
+	return rAi[q] - B*rAB[q]*t2;
+    }
+
+    template<int q, int N>
+    static inline Vector<N> coefficient(const Vector<3> &rAi, double B,
+					const Vector<3> &rAB, double (&t2)[N]) {
+	Vector<N> C;
+	for (int a = 0; a < N; ++a) {
+	    C[a] = coefficient<q>(rAi, B, rAB, t2[a]);
+	}
+    }
+
+}
+
+namespace mpl = boost::mpl;
+
+///%set types = []
+%for spec in Specs.items()
+%set S = map(Shell, spec[0])
+%set (symbols, exprs) = spec[1]
+%set Q = list(product(*S))
+%set bra = ", ".join(["rysq::%s" % (s.upper()) for s in S[:2]])
+%set ket = ", ".join(["rysq::%s" % (s.upper()) for s in S[2:]])
+%set tparams = ", ".join(["%s" % (s.upper()) for s in S])
+///%set types = types + [ tparams ]
+%set L = sum([s.L for s in S])
+%set N = L/2 + 1
+%set size =  reduce(operator.mul, map(len, S))
+%set nc = reduce(operator.mul, map(lambda s: s.nc, S))
+
+template<>
+struct impl<meta::braket<$(bra), $(ket)> > {
+    typedef void enable;
+    static const bool value = true; 
+
+    static inline void eval(double A, double B,
+			    const Vector<3> &rAi, const Vector<3> &rBk,
+			    const Vector<3> &rAB,
+			    const Vector<3> &rij, const Vector<3> &rkl,
+			    const Vector<$(min(N,L))> &t2, const Vector<$(N)> &W,
+			    const double (&C)[$(nc)], double (&I)[$(size)]) {
+
+#define pow(x,y) util::pow<(y)>::eval((x))
+
+	const int N = $(N);
+
+%if "xij" in symbols
+	double xij = rij[0];
+	double yij = rij[1];
+	double zij = rij[2];
+%end if
+
+%if "xkl" in symbols
+	double xkl = rkl[0];
+	double ykl = rkl[1];
+	double zkl = rkl[2];
+%end if
+
+// %if "B00" in symbols
+// 	double vB00[N] __attribute__ ((aligned(16)));
+// %end if
+// %if "B10" in symbols
+// 	double vB10[N] __attribute__ ((aligned(16)));
+// %end if
+// %if "B01" in symbols
+// 	double vB01[N] __attribute__ ((aligned(16)));
+// %end if
+
+// %if "Cx" in symbols
+// 	double vCx[N] __attribute__ ((aligned(16)));
+// 	double vCy[N] __attribute__ ((aligned(16)));
+// 	double vCz[N] __attribute__ ((aligned(16)));
+// %end if
+
+// %if "Dx" in symbols
+// 	double vDx[N] __attribute__ ((aligned(16)));
+// 	double vDy[N] __attribute__ ((aligned(16)));
+// 	double vDz[N] __attribute__ ((aligned(16)));
+// %end if 
+
+// 	for (int a = 0; a < N; ++a) {
+// %if "B00" in symbols
+// 	    vB00[a] = 0.5*t2[a];
+// %end if
+// %if "B10" in symbols
+// 	    vB10[a] = recurrence::coefficient(1.0/A, B, t2[a]);
+// %end if
+// %if "B01" in symbols
+// 	    vB01[a] = recurrence::coefficient(1.0/B, A, t2[a]);
+// %end if
+
+// %if "Cx" in symbols
+// 	    vCx[a] = recurrence::coefficient<0>(rAi, B, rAB, t2[a]);
+// 	    vCy[a] = recurrence::coefficient<1>(rAi, B, rAB, t2[a]);
+// 	    vCz[a] = recurrence::coefficient<2>(rAi, B, rAB, t2[a]);
+// %end if
+
+// %if "Dx" in symbols
+// 	    vDx[a] = recurrence::coefficient<0>(rBk, -A, rAB, t2[a]);
+// 	    vDy[a] = recurrence::coefficient<1>(rBk, -A, rAB, t2[a]);
+// 	    vDz[a] = recurrence::coefficient<2>(rBk, -A, rAB, t2[a]);
+// %end if 
+// 	}
+
+// #define B00 vB00[a]
+// #define B10 vB10[a]
+// #define B01 vB01[a]
+// #define Cx vCx[a]
+// #define Cy vCy[a]
+// #define Cz vCz[a]
+// #define Dx vDx[a]
+// #define Dy vDy[a]
+// #define Dz vDz[a]
+
+	///%set BLOCK = 128
+%set BLOCK = len(exprs)
+%for I in range(0, len(exprs), $BLOCK)
+#if defined (__INTEL_COMPILER) 
+#pragma ivdep
+#pragma vector aligned
+#endif
+	for (int a = 0; a < N; ++a) {
+
+%if "B00" in symbols
+	    double B00 = 0.5*t2[a];
+%end if
+%if "B10" in symbols
+	    double B10 = recurrence::coefficient(1.0/A, B, t2[a]);
+%end if
+%if "B01" in symbols
+	    double B01 = recurrence::coefficient(1.0/B, A, t2[a]);
+%end if
+
+%if "Cx" in symbols
+	    double Cx = recurrence::coefficient<0>(rAi, B, rAB, t2[a]);
+	    double Cy = recurrence::coefficient<1>(rAi, B, rAB, t2[a]);
+	    double Cz = recurrence::coefficient<2>(rAi, B, rAB, t2[a]);
+%end if
+
+%if "Dx" in symbols
+	    double Dx = recurrence::coefficient<0>(rBk, -A, rAB, t2[a]);
+	    double Dy = recurrence::coefficient<1>(rBk, -A, rAB, t2[a]);
+	    double Dz = recurrence::coefficient<2>(rBk, -A, rAB, t2[a]);
+%end if 
+
+%for (s,e) in [se for se in sorted(symbols.items()) if se[1]]
+	    double $(s) = $(e);
+%end for 
+
+%for j,(q,(e,s)) in enumerate(exprs[I:I+$BLOCK])
+%set i = Q.index(q)
+%set k = coefficient_index(i, *S)
+	    I[$(j+I)] += C[$(k)]*W[a]*($(e));
+%end for
+	}
+%end for
+
+#undef B00
+#undef B10
+#undef B01
+#undef Cx
+#undef Cy
+#undef Cz
+#undef Dx
+#undef Dy
+#undef Dz
+
+#undef pow
+    }
+
+    static inline void reorder(double (&I)[$(size)]) {
+	double T[$(size)];
+	for (int i = 0; i < $(size); ++i) {
+	    T[i] = I[i];
+	}
+%for j,(q,(e,s)) in enumerate(exprs)
+%set i = Q.index(q)
+	I[$(i)] = T[$(j)];
+%end for
+    }
+
+};
+%end for 
+
+END_NAMESPACE(rysq, kernel, quadrature)
+
+#endif /* _RYSQ_KERNEL_QUADRATURE2_IMPL_HPP_ */
+

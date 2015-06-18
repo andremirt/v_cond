@@ -1,0 +1,2277 @@
+C 11 Dec 06 - MWS - adjust MP2 common block
+C 19 Nov 06 - PEA - new module for positron annihilation rates
+C
+C*MODULE neopos  *DECK lambdahf
+      SUBROUTINE lambdahf
+C
+      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+c
+      logical pack2e
+C
+c-pea      COMMON /DIRMEM/ LPQRJ,IVEC,IDEN,IFCK,NUM,NOCC,NDIM,MINPQ,MAXPQ
+      COMMON /FMCOM / X(1)
+      COMMON /MP2PAR/ OSPT,CODEMP,SCSPT,TOL,METHOD,NWDMP2,MEMPRI,MPPROP,
+     *                NACORE,NBCORE,NOA,NOB,NO,NBF,NOMIT,MOCPHF,MAXITC
+      COMMON /INTFIL/ NINTMX,NHEX,NTUPL,PACK2E,INTTYP,IGRDTYP
+      COMMON /IOFILE/ IR,IW,IP,IS,IPK,IDAF,NAV,IODA(950)
+c-pea      common /lambda/ noc,nvir,nnoc,nnorb,nnvir
+c-pea      common /lamfci/ lvec,iacon1,ibcon1,iacon1_nu,ibcon1_nu
+      COMMON /NUCMOI/ NUNIQN,IUNIQN(20),IUNIQT(20),NQMNUC,IQMNUC(20),
+     *                IQNTYP(20),NUMNB,NUCST,NAUXNB,IAUXNB(20),NUMULT,
+     *                NNA,NNB,NTAUXB
+      COMMON /NEOMPN/ NEMPLV
+c
+      PARAMETER (PIRE2C=5.0469693435422D+10)
+
+      noc=noa
+      nvir=no-noc
+      nnoc=1
+      nnorb=numnb
+      nnvir=nnorb-nnoc
+
+      WRITE(IW,9000) noc,noa,nacore,nvir,no,nbf,nnoc,nnorb,nnvir,numnb
+      call flshbf(iw)
+
+c-pea      ithisone=0
+c-pea      DO 70 I = 1,nbf
+c-pea      DO 60 J = 1,i
+c-pea      DO 50 K = 1,numnb
+c-pea      DO 40 L = 1,k
+c-pea         ovrlpmat(ijmnInd(i,j,k,l,numnb))=0.0D+00
+c-pea         if(EXETYP.eq.DEBUG.or.ithisone.eq.1) then
+c-pea            write(iw,*)'i j k l ijmnInd',
+c-pea     *      i,j,k,l,ijmnInd(i,j,k,l,numnb)
+c-pea         end if
+c-pea   40 CONTINUE
+c-pea   50 CONTINUE
+c-pea   60 CONTINUE
+c-pea   70 CONTINUE
+
+      CALL VALFM(LOADFM)
+      loxx=loadfm+1
+      loix=loxx+nintmx
+      lepxx=loix+nintmx
+      lepix=lepxx+nintmx
+      lcep=lepix+4*nintmx
+      lsep=lcep+noc*no*nnorb 
+      ivec=lsep+noc*no*nnorb         
+      ivecn=ivec+no*nbf
+      ieng=ivecn+nnorb*numnb
+      iengn=ieng+no
+      last=iengn+nnorb
+      needa=last-loadfm-1
+      call getfm(needa)
+c---      call getlambdahf(is,xlhf,x(ivec),x(ivecn),x(lepxx),x(lepix),nintmx)
+c---      xlhf=PIRE2C*xlhf
+c---      xtauhf=1.0d+00/xlhf
+c---      write(iw,*)'xlhf',xlhf
+c---      write(iw,*)'xtauhf',xtauhf
+c---      write(iw,*)' '
+c---      call flshbf(iw)
+
+      xlhf=0.0d+00
+      xlep=0.0d+00
+
+      CALL DAREAD(IDAF,IODA,X(ivec),no*nbf,15,0)
+      CALL DAREAD(IDAF,IODA,X(IVECN),nnorb*numnb,444,0)
+c
+c
+c     DFTINTS contains the e-p overlap integrals
+c
+      is=21
+      CALL SEQOPN(is,'DFTINTS','UNKNOWN',.FALSE.,'UNFORMATTED')
+
+      IF(NEMPLV.EQ.2) THEN
+         CALL DAREAD(IDAF,IODA,X(IENG),NBF ,17,0)
+         CALL DAREAD(IDAF,IODA,X(IENGN),NUMNB,447,0)
+         it=67
+         CALL SEQOPN(it,'ELNUINT','UNKNOWN',.FALSE.,'UNFORMATTED')
+c
+c---c        do a check of the e-p mp2 energy
+c---c
+c---         call getmp2energy(it,xeep,x(ivec),x(ivecn),
+c---     *      x(ieng),x(iengn),x(lepxx),x(lepix),nintmx,x(lcep))
+c---         write(iw,*)'xeep=',2.0d+00*xeep
+c
+         call getlambdamp2(is,it,xlhf,xlep,x(ivec),x(ivecn),
+     *      x(ieng),x(iengn),x(lepxx),x(lepix),nintmx,
+     *      x(lcep),x(lsep))
+      else
+         xlfci = 9999.9d+99
+c-pea         call getlambdafci(is,xlhf,xlfci,x(ivec),x(ivecn),
+c-pea     *   x(lvec),x(iacon1),x(ibcon1),x(iacon1_nu),
+c-pea     *   x(ibcon1_nu),x(lepxx),x(lepix),nintmx)
+      end if
+
+      call retfm(needa)
+
+c-pea      tenm20=1.0D-20
+c-pea      ithisone=0
+c-pea      if (exetyp.eq.debug.or.ithisone.eq.1) then
+c-pea         DO 110 i = 26,26
+c-pea         DO 100 j = 1,1
+c-pea         DO 90 m = 4,6
+c-pea         DO 80 n = 4,6
+c-pea            ijmnval=ijmnInd(i,j,m,n,numnb)
+c-pea            ovrlpval=ovrlpmat(ijmnval)
+c-pea            if (ovrlpval.gt.tenm20) then
+c-pea            write(6,*)'ijmn ovrlpmat(',i,',',j,',',m,',',n,')',
+c-pea     *         ijmnval,ovrlpval
+c-pea            end if
+c-pea   80    CONTINUE
+c-pea   90    CONTINUE
+c-pea  100    CONTINUE
+c-pea  110    CONTINUE
+c-pea      end if
+c-pea
+      xlhf=PIRE2C*xlhf
+      xtauhf=1.0d+00/xlhf
+
+      IF(NEMPLV.EQ.2) THEN
+
+c        remember that the correction to the annihilation rate is negative
+c        therefore the -1 multiplier
+         xlep=-1.0d+00*PIRE2C*xlep
+c        xtauep=1.0d+00/xlep
+         xlmp2=xlhf+xlep
+         xtaump2=1.0d+00/xlmp2
+         write(iw,9010) xlhf*1.0D-09,xtauhf*1.0D+09,xlep*1.0D-09,
+     *      xlmp2*1.0D-09,xtaump2*1.0D+09
+
+      else
+
+         xlfci=PIRE2C*xlfci
+         xtaufci=1.0d+00/xlfci
+
+         write(iw,9020) xlhf*1.0D-09,xtauhf*1.0D+09,
+     *      xlfci*1.0D-09,xtaufci*1.0D+09
+
+      end if
+
+      return
+ 9000 FORMAT(/1X,39('-'),3X,23(1H-)/
+     *        1X,'NEO POSITRON-ELECTRON ANNIHILATION RATE',
+     *        3X,'ADAPTED BY PAUL ADAMSON'/
+     *        1X,39('-'),3X,23(1H-)/
+     *        1X,'-ELECTRON-'/
+     *        1X,'NOC  =',I4,' NOA  =',I5,' NACORE=',I5,' NVIR =',I5/
+     *        1X,'NO   =',I4,' NBF  =',I5/
+     *        1X,'-POSITRON-'/
+     *        1X,'NNOC =',I5,' NNORB=',I5,' NNVIR =',I5,' NUMNB=',I5)
+ 9010 FORMAT(/1X,'HF  ANNIHILATION RATE (1/NSEC) =', F14.8/
+     *        1X,'HF  POSITRON LIFETIME (NSEC  ) =', F14.8/
+     *        1X,'MP2 ANN RATE CORR     (1/NSEC) =', F14.8/
+     *        1X,'MP2 ANNIHILATION RATE (1/NSEC) =', F14.8/
+     *        1X,'MP2 POSITRON LIFETIME (NSEC  ) =', F14.8/)
+ 9020 FORMAT(/1X,'HF  ANNIHILATION RATE (1/NSEC) =', F14.8/
+     *        1X,'HF  POSITRON LIFETIME (NSEC  ) =', F14.8/
+     *        1X,'FCI ANNIHILATION RATE (1/NSEC) =', F14.8/
+     *        1X,'FCI POSITRON LIFETIME (NSEC  ) =', F14.8/)
+      end 
+c---C*MODULE neopos  *DECK getlambdahf
+c---      SUBROUTINE getlambdahf(is,xlhf,ce,cn,norb,nbf,noc,
+c---     *   norb_nu,numnb,xx,ix,nintmx)
+c---C
+c---      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+c---C
+c---      DIMENSION xx(nintmx),ix(nintmx*4)
+c---      DIMENSION ce(norb*nbf),cn(norb_nu*numnb)
+c---c
+c---      COMMON /IOFILE/ IR,IW,IP,IJK,IPK,IDAF,NAV,IODA(950)
+c---      COMMON /PCKLAB/ LABSIZ
+c---
+c---
+c---      CALL SEQREW(is)
+c---   10 CALL PREAD(is,XX,IX,NXX,NINTMX)
+c---      IF(NXX.EQ.0) RETURN
+c---      NINT=IABS(NXX)
+c---
+c---
+c---C
+c---C     ----- TWO BYTES PER LABEL -----
+c---C
+c---         DO 50 M=1,NINT
+c---c       data rnan/0xffffffffffffffff/
+c---c-pea            if (xx(m).eq.rNAN) then
+c---c-pea               val1=0.0d+00
+c---c-pea            else
+c---               VAL1 = XX(M)
+c---c-pea            end if
+c---c-pea	    if(.not.(val1.eq.val1)) val1=0.0d+00
+c---C
+c---                       NPACK = M
+c---
+c---      IF(LABSIZ.GE.2) THEN
+c---*I32                     LABEL = IX( 2*NPACK - 1 )
+c---*I32                     IPACK = ISHFT( LABEL, -16 )
+c---*I32                     JPACK = IAND(  LABEL, 65535 )
+c---*I32                     LABEL = IX( 2*NPACK     )
+c---*I32                     KPACK = ISHFT( LABEL, -16 )
+c---*I32                     LPACK = IAND(  LABEL, 65535 )
+c---*I64                     LABEL = IX(NPACK)
+c---*I64                     IPACK = ISHFT( LABEL, -48 )
+c---*I64                     JPACK = IAND( ISHFT( LABEL, -32 ), 65535 )
+c---*I64                     KPACK = IAND( ISHFT( LABEL, -16 ), 65535 )
+c---*I64                     LPACK = IAND( LABEL, 65535 )
+c---      ELSE
+c---*I32                     LABEL = IX(NPACK)
+c---*I32                     IPACK = ISHFT( LABEL, -24 )
+c---*I32                     JPACK = IAND( ISHFT( LABEL, -16 ), 255 )
+c---*I32                     KPACK = IAND( ISHFT( LABEL,  -8 ), 255 )
+c---*I32                     LPACK = IAND( LABEL, 255 )
+c---*I64                     IF ( MOD(NPACK,2) .EQ. 0 ) THEN
+c---*I64                       LABEL = IX( NPACK/2 )
+c---*I64                       IPACK = IAND( ISHFT( LABEL, -24 ), 255 )
+c---*I64                       JPACK = IAND( ISHFT( LABEL, -16 ), 255 )
+c---*I64                       KPACK = IAND( ISHFT( LABEL,  -8 ), 255 )
+c---*I64                       LPACK = IAND( LABEL, 255 )
+c---*I64                     ELSE
+c---*I64                       LABEL = IX( (NPACK/2)+1 )
+c---*I64                       IPACK = ISHFT( LABEL, -56 )
+c---*I64                       JPACK = IAND( ISHFT( LABEL, -48 ), 255 )
+c---*I64                       KPACK = IAND( ISHFT( LABEL, -40 ), 255 )
+c---*I64                       LPACK = IAND( ISHFT( LABEL, -32 ), 255 )
+c---*I64                     END IF
+c---         end if
+c---                       MP = IPACK
+c---                       MQ = JPACK
+c---                       MR = KPACK
+c---                       MS = LPACK
+c---      kk=1
+c---      do 40 ii=1,noc
+c---c        check for NaN in val1 (skip if found)
+c---         if (val1.eq.val1) then
+c---c-pea            write(iw,*) 'ce(',ii,MP,')=',ce( (ii-1)*nbf+MP),
+c---c-pea     *         'ce(',ii,MQ,')=',ce( (ii-1)*nbf+MQ)
+c---c-pea            write(iw,*) 'cn(',kk,MR,')=',cn( (kk-1)*numnb+MR),
+c---c-pea     *         'cn(',kk,MS,')=',cn( (kk-1)*numnb+MS)
+c---c-pea            write(iw,*) 'ovrlpint(', mp,mq,mr,ms,')=',val1
+c---            emult=2.0d+00
+c---            pmult=2.0d+00
+c---            if(mp.eq.mq) emult=1.0d+00
+c---            if(mr.eq.ms) pmult=1.0d+00
+c---            xlhf=xlhf+ emult*pmult*2.0d+00*val1
+c---     *      * ce( (ii-1)*nbf+MP) * ce( (ii-1)*nbf+MQ )
+c---     *      * cn( (kk-1)*numnb+MR ) * cn( (kk-1)*numnb+MS )
+c---         end if
+c---   40 continue
+c---C
+c---   50    CONTINUE
+c---C
+c---      IF(NXX.GT.0) GO TO 10
+c---
+c---      call flshbf(iw)
+c---      RETURN
+c---      END
+C*MODULE neopos  *DECK getlambdamp2
+      SUBROUTINE getlambdamp2(is,it,xlhf,xlep,ce,cn,
+     *   eige,eign,xx,ix,nintmx,cep,sep)
+C
+      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+C
+c---      COMMON /IOFILE/ IR,IW,IP,IJK,IPK,IDAF,NAV,IODA(950)
+      COMMON /MP2PAR/ OSPT,CODEMP,SCSPT,TOL,METHOD,NWDMP2,MEMPRI,MPPROP,
+     *                NACORE,NBCORE,NOA,NOB,NO,NBF,NOMIT,MOCPHF,MAXITC
+      COMMON /NUCMOI/ NUNIQN,IUNIQN(20),IUNIQT(20),NQMNUC,IQMNUC(20),
+     *                IQNTYP(20),NUMNB,NUCST,NAUXNB,IAUXNB(20),NUMULT,
+     *                NNA,NNB,NTAUXB
+      COMMON /PCKLAB/ LABSIZ
+
+      DIMENSION XX(nintmx),IX(NINTMX*4)
+      DIMENSION cep(noa*no*numnb)
+      DIMENSION sep(noa*no*numnb)
+      DIMENSION ce(no*nbf),cn(numnb*numnb),eige(no),eign(numnb)
+
+      noc=noa
+      nnorb=numnb
+      
+c---      ithisone=0
+c---      if(ithisone.eq.1) then
+c---         write(iw,*) ' '
+c---         write(iw,*) "-ELECTRON EIGENVALUES-"
+c---         write(iw,*) ' '
+c---         do 10 i=1,no
+c---            write(iw,7010) i,eige(i)
+c---   10    continue
+c--- 7010 FORMAT(1X,'eige(',I4,')=',F14.8)
+c---
+c---         write(iw,*) ' '
+c---         write(iw,*) "-ELECTRON MOS-"
+c---         write(iw,*) ' '
+c---         do 20 i=1,no
+c---            do 15 j=1,nbf
+c---               write(iw,7020) i,j,ce((i-1)*nbf+j)
+c---   15       continue
+c---   20    continue
+c--- 7020 FORMAT(1X,'ce(',I4,',',I4')=',F14.8)
+c---
+c---         write(iw,*) ' '
+c---         write(iw,*) "-POSITRON EIGENVALUES-"
+c---         write(iw,*) ' '
+c---         do 25 i=1,nnorb
+c---            write(iw,7025) i,eign(i)
+c---   25    continue
+c--- 7025 FORMAT(1X,'eign(',I4,')=',F14.8)
+c---
+c---         write(iw,*) ' '
+c---         write(iw,*) "-POSITRON MOS-"
+c---         write(iw,*) ' '
+c---         do 35 i=1,nnorb
+c---            do 30 j=1,numnb
+c---               write(iw,7035) i,j,cn((i-1)*numnb+j)
+c---   30       continue
+c---   35    continue
+c---      end if
+c--- 7035 FORMAT(1X,'cn(',I4,',',I4')=',F14.8)
+
+      do i=1,noc*no*nnorb
+        cep(i)=0.0d+00
+        sep(i)=0.0d+00
+      enddo
+      
+c           get the epa matrix and form the mp2 coefficients
+c           epa integrals stored in <pp|ee> order
+      CALL SEQREW(it)
+  110 CALL PREAD(it,XX,IX,NXX,NINTMX)
+      IF(NXX.EQ.0) go to 180
+      NINT=IABS(NXX)
+C
+       DO 150 M=1,NINT
+          VAL1 = XX(M)
+c          if(.not.(val1.eq.val1)) val1=0.0d+00
+C
+                       NPACK = M
+
+C     ----- TWO BYTES PER LABEL -----
+C
+                  IF(LABSIZ.GE.2) THEN
+*I32                     LABEL = IX( 2*NPACK - 1 )
+*I32                     IPACK = ISHFT( LABEL, -16 )
+*I32                     JPACK = IAND(  LABEL, 65535 )
+*I32                     LABEL = IX( 2*NPACK     )
+*I32                     KPACK = ISHFT( LABEL, -16 )
+*I32                     LPACK = IAND(  LABEL, 65535 )
+*I64                     LABEL = IX(NPACK)
+*I64                     IPACK = ISHFT( LABEL, -48 )
+*I64                     JPACK = IAND( ISHFT( LABEL, -32 ), 65535 )
+*I64                     KPACK = IAND( ISHFT( LABEL, -16 ), 65535 )
+*I64                     LPACK = IAND( LABEL, 65535 )
+                  else
+C     ----- ONE BYTE PER LABEL -----
+C
+C
+*I32                     LABEL = IX(NPACK)
+*I32                     IPACK = ISHFT( LABEL, -24 )
+*I32                     JPACK = IAND( ISHFT( LABEL, -16 ), 255 )
+*I32                     KPACK = IAND( ISHFT( LABEL,  -8 ), 255 )
+*I32                     LPACK = IAND( LABEL, 255 )
+*I64                     IF ( MOD(NPACK,2) .EQ. 0 ) THEN
+*I64                       LABEL = IX( NPACK/2 )
+*I64                       IPACK = IAND( ISHFT( LABEL, -24 ), 255 )
+*I64                       JPACK = IAND( ISHFT( LABEL, -16 ), 255 )
+*I64                       KPACK = IAND( ISHFT( LABEL,  -8 ), 255 )
+*I64                       LPACK = IAND( LABEL, 255 )
+*I64                     ELSE
+*I64                       LABEL = IX( (NPACK/2)+1 )
+*I64                       IPACK = ISHFT( LABEL, -56 )
+*I64                       JPACK = IAND( ISHFT( LABEL, -48 ), 255 )
+*I64                       KPACK = IAND( ISHFT( LABEL, -40 ), 255 )
+*I64                       LPACK = IAND( ISHFT( LABEL, -32 ), 255 )
+*I64                     END IF
+C
+                   end if
+      jip = IPACK
+      jjp = JPACK
+      ji = KPACK
+      jj = LPACK
+      jap=1
+      do 140 ja=1,noc
+      do 130 jr=noc+1,no
+      do 120 jrp=2,nnorb
+c        check for NaN in val1 (skip if found)
+c-pea         denomlim = 1.0D-08
+c         if (val1.eq.val1) then
+c-pea           if(denom.gt.denomlim) then
+c-pea            write(iw,*) 'ce(',ja,ji,')=',ce( (ja-1)*nbf+ji),
+c-pea     *         ' ce(',jr,jj,')=',ce( (jr-1)*nbf+jj)
+c-pea            write(iw,*) 'cn(',jap,jip,')=',cn( (jap-1)*numnb+jip),
+c-pea     *         ' cn(',jrp,jjp,')=',cn( (jrp-1)*numnb+jjp)
+c-pea            write(iw,*) 'epa(',ji,jj,jip,jjp,')=',val1
+c-pea            emult=2.0
+c-pea            pmult=2.0
+c-pea            if(ji.eq.jj) then
+c-pea               emult=1.0
+c-pea            end if
+c-pea            if(jip.eq.jjp) then
+c-pea               pmult=1.0
+c-pea            end if
+c-pea        write(iw,*)'before cep(',ja,jr,jrp,')',
+c-pea     *     cep((ja-1)*no*nnorb+(jr-1)*nnorb+jrp)
+c-pea            write(iw,*)'denom',denom
+            denom = eige(ja)+eign(jap)-eige(jr)-eign(jrp)
+            icep=(ja-1)*no*nnorb+(jr-1)*nnorb+jrp
+            ctmpa=cep(icep)
+            if ((ji.eq.jj).and.(jip.eq.jjp)) then
+            ctmp= val1
+     *      * ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +jj )
+     *      * cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+            else if (ji.eq.jj) then
+            ctmp= val1
+     *      *(ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +jj ))
+     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+     *      + cn((jap-1)*numnb+jjp) * cn((jrp-1)*numnb+jip))
+            else if (jip.eq.jjp) then
+            ctmp= val1
+     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp))
+     *      *(ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +jj )
+     *      + ce((ja -1)*nbf  +jj ) * ce((jr -1)*nbf  +ji ))
+            else
+            ctmp= val1
+     *      *(ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +jj )
+     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+     *       +cn((jap-1)*numnb+jjp) * cn((jrp-1)*numnb+jip))
+     *      + ce((ja -1)*nbf  +jj ) * ce((jr -1)*nbf  +ji )
+     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+     *       +cn((jap-1)*numnb+jjp) * cn((jrp-1)*numnb+jip)))
+            end if
+            cep(icep) = ctmpa + ctmp/denom
+c-pea     *      + emult*pmult*val1
+c-pea     *      * ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +jj )
+c-pea     *      * cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)/denom
+c-pea        write(iw,*)'after cep(',ja,jr,jrp,')',
+c-pea     *     cep((ja-1)*no*nnorb+(jr-1)*nnorb+jrp)
+c-pea           end if
+c         end if
+  120 continue 
+  130 continue
+  140 continue
+C
+C
+  150    CONTINUE
+C
+      IF(NXX.GT.0) GO TO 110
+  180 continue
+
+c         compute the mp2 correction to the annihilation rate
+c         ovrlpints are stored in <ee|pp> order
+      xlhf=0.0d+00
+      CALL SEQREW(is)
+  200 CALL PREAD(is,XX,IX,NXX,NINTMX)
+      IF(NXX.EQ.0) return
+      NINT=IABS(NXX)
+C
+C     ----- TWO BYTES PER LABEL -----
+C
+       DO 250 M=1,NINT
+c-pea            if (xx(m).eq.NAN) then
+c-pea               val1=0.0d+00
+c-pea            else
+               VAL1 = XX(M)
+c-pea            end if
+c-pea	    if(.not.(val1.eq.val1)) val1=0.0d+00
+C
+                       NPACK = M
+                  IF(LABSIZ.GE.2) THEN
+*I32                     LABEL = IX( 2*NPACK - 1 )
+*I32                     IPACK = ISHFT( LABEL, -16 )
+*I32                     JPACK = IAND(  LABEL, 65535 )
+*I32                     LABEL = IX( 2*NPACK     )
+*I32                     KPACK = ISHFT( LABEL, -16 )
+*I32                     LPACK = IAND(  LABEL, 65535 )
+*I64                     LABEL = IX(NPACK)
+*I64                     IPACK = ISHFT( LABEL, -48 )
+*I64                     JPACK = IAND( ISHFT( LABEL, -32 ), 65535 )
+*I64                     KPACK = IAND( ISHFT( LABEL, -16 ), 65535 )
+*I64                     LPACK = IAND( LABEL, 65535 )
+                  else
+C     ----- ONE BYTE PER LABEL -----
+C
+C
+*I32                     LABEL = IX(NPACK)
+*I32                     IPACK = ISHFT( LABEL, -24 )
+*I32                     JPACK = IAND( ISHFT( LABEL, -16 ), 255 )
+*I32                     KPACK = IAND( ISHFT( LABEL,  -8 ), 255 )
+*I32                     LPACK = IAND( LABEL, 255 )
+*I64                     IF ( MOD(NPACK,2) .EQ. 0 ) THEN
+*I64                       LABEL = IX( NPACK/2 )
+*I64                       IPACK = IAND( ISHFT( LABEL, -24 ), 255 )
+*I64                       JPACK = IAND( ISHFT( LABEL, -16 ), 255 )
+*I64                       KPACK = IAND( ISHFT( LABEL,  -8 ), 255 )
+*I64                       LPACK = IAND( LABEL, 255 )
+*I64                     ELSE
+*I64                       LABEL = IX( (NPACK/2)+1 )
+*I64                       IPACK = ISHFT( LABEL, -56 )
+*I64                       JPACK = IAND( ISHFT( LABEL, -48 ), 255 )
+*I64                       KPACK = IAND( ISHFT( LABEL, -40 ), 255 )
+*I64                       LPACK = IAND( ISHFT( LABEL, -32 ), 255 )
+*I64                     END IF
+C
+                   end if
+      ji = IPACK
+      jj = JPACK
+      jip = KPACK
+      jjp = LPACK
+      jap=1
+      do 240 ja=1,noc
+      do 230 jr=1,no
+c-pea      do 230 jr=1,4
+c-pea      if(jr.gt.noa.or.jr.eq.ja) then
+c-pea       do 220 jrp=1,3
+       do 220 jrp=1,nnorb
+c        check for NaN in val1 (skip if found)
+c-pea         if (val1.eq.val1) then
+c            write(iw,*) 'ovrlpint(', ji,jj,jip,jjp,')',val1
+c-pea            write(iw,*) 'ce(',ja,ji,')=',ce( (ja-1)*nbf+ji),
+c-pea     *         ' ce(',jr,jj,')=',ce( (jr-1)*nbf+jj)
+c-pea            write(iw,*) 'cn(',jap,jip,')=',cn( (jap-1)*numnb+jip),
+c-pea     *         ' cn(',jrp,jjp,')=',cn( (jrp-1)*numnb+jjp)
+c-pea            emult=2.0
+c-pea            pmult=2.0
+c-pea            if(ji.eq.jj) emult=1.0
+c-pea            if(jip.eq.jjp) pmult=1.0
+c-pea            stmp= emult*pmult*val1
+c
+c           i=j and i'=j' so only need (ii|i'i')
+c
+            if ((ji.eq.jj).and.(jip.eq.jjp)) then
+            stmp= val1
+     *      * ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +ji )
+     *      * cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jip)
+c
+c           i=j so only need (ii|i'j') & (ii|j'i')
+c
+            else if (ji.eq.jj) then
+            stmp= val1
+     *      *(ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +ji ))
+     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+     *      + cn((jap-1)*numnb+jjp) * cn((jrp-1)*numnb+jip))
+c
+c           i'=j' so only need (ij|i'i') & (ji|i'i')
+c
+            else if (jip.eq.jjp) then
+            stmp= val1
+     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jip))
+     *      *(ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +jj )
+     *      + ce((ja -1)*nbf  +jj ) * ce((jr -1)*nbf  +ji ))
+c
+c           need all (ij|i'j') & (ij|j'i') &(ji|i'j') & (ji|j'i')
+c
+            else
+            stmp= val1
+     *      *(ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +jj )
+     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+     *       +cn((jap-1)*numnb+jjp) * cn((jrp-1)*numnb+jip))
+     *      + ce((ja -1)*nbf  +jj ) * ce((jr -1)*nbf  +ji )
+     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+     *       +cn((jap-1)*numnb+jjp) * cn((jrp-1)*numnb+jip)))
+            end if
+c
+            isep=(ja-1)*no*nnorb+(jr-1)*nnorb+jrp
+            stmpb=sep(isep)
+            sep(isep)= stmp + stmpb
+c-pea            write(iw,*)'stmp',stmp 
+c-pea            write(iw,*)'sep(',(ja-1)*no*nnorb+(jr-1)*nnorb+jrp,')',
+c-pea     *        sep((ja-1)*no*nnorb+(jr-1)*nnorb+jrp)
+c-pea         end if
+c
+c           can compute xlhf here or later
+c
+            if((ja.eq.jr).and.(jrp.eq.1)) then
+               xlhf=xlhf+ 2.0d+00*stmp
+            end if
+  220  continue
+c-pea      end if
+  230 continue
+  240 continue
+C
+  250    CONTINUE
+C
+      IF(NXX.GT.0) GO TO 200
+
+c can compute xlhf here or above
+c-pea      xlhfsv=xlhf
+      xlhf=0.0d+00
+c-pea      write(iw,*)'xlhf',xlhf
+      do ja=1,noa
+c-pea        write(iw,*)'ja',ja
+c-pea        write(iw,*)'sep',sep((ja-1)*no*nnorb+1)
+c-pea        write(iw,*)'index',(ja-1)*no*nnorb+1
+        isep=(ja-1)*no*nnorb +(ja-1)*nnorb+1
+        xlhf=xlhf+ 2.0d+00*sep(isep)
+c-pea        write(iw,*)'xlhf',xlhf
+      enddo
+c-pea      xlhf=xlhfsv
+
+      xlep=0.0d+00
+      do 340 ja=1,noc
+      do 330 jr=noc+1,no
+      do 320 jrp=2,nnorb
+c-pea        write(iw,*)'ja jr jrp',ja,jr,jrp
+c-pea        write(iw,*)'sep',sep((ja-1)*no*nnorb+(jr-1)*nnorb+jrp)
+c-pea        write(iw,*)'cep',cep((ja-1)*no*nnorb+(jr-1)*nnorb+jrp)
+c-pea        write(iw,*)'index',(ja-1)*no*nnorb+(jr-1)*nnorb+jrp
+        isep=(ja-1)*no*nnorb+(jr-1)*nnorb+jrp
+        xlep=xlep + 2.0d+00*sep(isep)*cep(isep)
+c-pea        write(iw,*)'xlep',xlep
+  320 continue
+  330 continue
+  340 continue
+
+      RETURN
+      END
+C*MODULE neopos  *DECK neoDFTINT
+      SUBROUTINE neoDFTINT(idftovrlp)
+      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+C
+      LOGICAL DIRSCF,FDIFF,PACK2E,SOME,GOPARR,DSKWRK,MASWRK
+C
+      PARAMETER (MXATM=2000)
+C
+      COMMON /DFTPAR/ DFTTYP(20),EXENA,EXENB,EXENC,IDFT34,NAUXFUN,
+     *                                                    NAUXSHL
+      COMMON /FMCOM / X(1)
+      COMMON /INFOA / NAT,ICH,MUL,NUM,NQMT,NE,NA,NB,
+     *                ZAN(MXATM),C(3,MXATM),IAN(MXATM)
+      COMMON /INTFIL/ NINTMX,NHEX,NTUPL,PACK2E,INTTYP,IGRDTYP
+      COMMON /IOFILE/ IR,IW,IP,IS,IPK,IDAF,NAV,IODA(950)
+      COMMON /NEOSHL/ NGAUSS,NGAUSE,NGAUSN,NTSHEL,NNUCSH
+      COMMON /OPTSCF/ DIRSCF,FDIFF
+      COMMON /OUTPUT/ NPRINT,ITOL,ICUT,NORMF,NORMP,NOPK
+      COMMON /PAR   / ME,MASTER,NPROC,IBTYP,IPTIM,GOPARR,DSKWRK,MASWRK
+      COMMON /RUNOPT/ RUNTYP,EXETYP,NEVALS,NGLEVL,NHLEVL
+C
+      DATA CHECK  /8HCHECK   /
+C
+      SOME = MASWRK  .AND.  NPRINT.NE.-5
+      IF(SOME) WRITE(IW,9000)
+      L1 = NUM
+      L2 = (NUM*(NUM+1))/2
+C
+      IF(IDFTovrlp.NE.4) THEN
+         WRITE(IW,*) ' IDFTovrlp CONFUSED IN neoDFTINT'
+         CALL ABRT
+      END IF
+C
+C     -----DO FOUR CENTER INTEGRALS FOR neopos
+c     -----adapted from grid-free DFT method
+C
+      IF(IDFTovrlp .EQ. 4) THEN
+         IF(.NOT. DIRSCF) THEN
+            CALL VALFM(LOADFM)
+            ISCRN = LOADFM + 1
+c-pea            ITMP  = ISCRN  + (NSHELL*NSHELL+NSHELL)/2
+            ITMP  = ISCRN  + (NtSHeL*NtSHEL+NtSHEL)/2
+            ISS   = ITMP   + 15*15*15*15
+            ILOC  = ISS    + NINTMX
+            LAST  = ILOC   + NINTMX
+            NEED  = LAST - LOADFM - 1
+            CALL GETFM(NEED)
+            IF(EXETYP.NE.CHECK) THEN
+               CALL neoFORSCR(SOME,X(ISCRN),X(ITMP))
+               CALL neoFOURC(SOME,X(ISS),X(ILOC),X(ITMP),NINTMX)
+            END IF
+            CALL RETFM(NEED)
+         ELSE
+            CALL VALFM(LOADFM)
+            ISCRN=LOADFM+1
+            ITMP=ISCRN+(NtSHEL*NtSHEL+NtSHEL)/2
+            LAST=ITMP+15*15*15*15
+            NEED = LAST - LOADFM - 1
+            CALL GETFM(NEED)
+            IF(EXETYP.NE.CHECK) CALL neoFORSCR(SOME,X(ISCRN),X(ITMP))
+            CALL RETFM(NEED)
+         END IF
+      END IF
+C
+C     -----DO AUXILIARY FUNCITON INTEGRALS IF WANTED
+C          THIS WILL INCLUDE GRADIENT INTEGRALS
+C
+      IF(DFTTYP(20) .NE. 0.0D+00) THEN
+         CALL DFTAXDRV(SOME)
+         GO TO 800
+      END IF
+C
+C     ----- DO ELECTRON GRADIENT INTEGRALS FOR NON-LOCAL DFT
+C     ----- AND ALSO FOR THE CASE OF DFT NUCLEAR GRADIENTS
+C
+      CALL DERCHK(MAXDER)
+      IF ((DFTTYP(1).GE.2.0D+00)  .OR.
+     *    (DFTTYP(1).GE.1.0D+00  .AND.  MAXDER.GT.0)) THEN
+         CALL TSECND(TIM0)
+         CALL VALFM(LOADFM)
+         LDDX = LOADFM + 1
+         LDDY = LDDX   + L2
+         LDDZ = LDDY   + L2
+         LAST = LDDZ   + L2
+         NEED = LAST - LOADFM - 1
+         CALL GETFM(NEED)
+         IF (EXETYP .NE. CHECK) THEN
+            CALL DIPVEL(EXETYP,X(LDDX),X(LDDY),X(LDDZ),L1,L2)
+            CALL DAWRIT (IDAF,IODA,X(LDDX),L2,84,0)
+            CALL DAWRIT (IDAF,IODA,X(LDDY),L2,85,0)
+            CALL DAWRIT (IDAF,IODA,X(LDDZ),L2,86,0)
+         END IF
+         CALL RETFM(NEED)
+         CALL TSECND(TIM)
+         TIM = TIM-TIM0
+         IF(SOME) WRITE(IW,9030) TIM
+      END IF
+C
+  800 CONTINUE
+      IF(MASWRK) WRITE(IW,9050)
+c-pea      CALL TIMIT(1)
+      RETURN
+C
+ 9000 FORMAT(/10X,45(1H-)/10X,
+     *   'ELECTRON-POSITRON OVERLAP INTEGRAL EVALUATION'/10X,45(1H-))
+ 9030 FORMAT(1X,'TIME TO EVALUATE GRADIENT CORRECTION INTEGRALS=',F12.1)
+ 9050 FORMAT(1X,'..... END OF electron-positron overlap INTEGRALS.....')
+      END
+C*MODULE neopos  *DECK neoFOURC
+      SUBROUTINE neoFOURC(SOME,S,IX,TEMPS,NINTMX)
+      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+C
+      LOGICAL SAMECEN,SVDSKW,SOME,DSKWRK,MASWRK,GOPARR
+C
+      PARAMETER (MXSH=5000, MXGTOT=20000, MXATM=2000)
+C
+      COMMON /IOFILE/ IR,IW,IP,IJKO,IJKT,IDAF,NAV,IODA(950)
+      COMMON /INFOA / NAT,ICH,MUL,NUM,NQMT,NE,NA,NB,
+     *                ZAN(MXATM),C(3,MXATM),IAN(MXATM)
+      COMMON /NEOSHL/ NGAUSS,NGAUSE,NGAUSN,NTSHEL,NNUCSH
+      COMMON /NSHEL / EX(MXGTOT),CS(MXGTOT),CP(MXGTOT),CD(MXGTOT),
+     *                CF(MXGTOT),CG(MXGTOT),CH(MXGTOT),CI(MXGTOT),
+     *                KSTART(MXSH),KATOM(MXSH),KTYPE(MXSH),KNG(MXSH),
+     *                KLOC(MXSH),KMIN(MXSH),KMAX(MXSH),NSHELL
+      COMMON /OUTPUT/ NPRINT,ITOL,ICUT,NORMF,NORMP,NOPK
+      COMMON /PAR   / ME,MASTER,NPROC,IBTYP,IPTIM,GOPARR,DSKWRK,MASWRK
+      COMMON /PCKLAB/ LABSIZ
+      COMMON /SYMTRY/ MAPSHL(MXSH,48),MAPCTR(MXATM,48),
+     *                T(432),INVT(48),NT
+      COMMON /RESTAR/ TIMLIM,IREST,NREC,INTLOC,IST,JST,KST,LST
+C
+      DIMENSION S(NINTMX),IX(*),TEMPS(15*15*15*15)
+      DIMENSION DFAC(0:21),LDAT(35),MDAT(35),NDAT(35),
+     *          CONTA(35),CONTB(35),CONTC(35),CONTE(35),
+     *          A21(0:4*4*4*4),IDUMMY(0:4),MI(48),MJ(48),MK(48),
+     *          XXXX(-1:4,-1:4,-1:4,-1:4),
+     *          YYYY(-1:4,-1:4,-1:4,-1:4),
+     *          ZZZZ(-1:4,-1:4,-1:4,-1:4)
+C
+      PARAMETER (PI=3.141592653589793238462643D+00, RLN10=2.30258D+00)
+C
+C  X,Y,Z EXPONENTS OF CARTESIAN S,PX,PY,PZ,DXX,...
+C
+      DATA LDAT/0,1,0,0,2,0,0,1,1,0,3,0,0,2,2,1,0,1,0,1,4,0,0,3,3,
+     *          1,0,1,0,2,2,0,2,1,1/
+      DATA MDAT/0,0,1,0,0,2,0,1,0,1,0,3,0,1,0,2,2,0,1,1,0,4,0,1,0,
+     *          3,3,0,1,2,0,2,1,2,1/
+      DATA NDAT/0,0,0,1,0,0,2,0,1,1,0,0,3,0,1,0,1,2,2,1,0,0,4,0,1,
+     *          0,1,3,3,0,2,2,1,1,2/
+C
+C  CALCULATES IVALUE!!
+C     WARNING DFAC(0)=-1!!,DFAC(1)=0!!,DFAC(2)=1!! ETC.
+C
+      DATA DFAC/1.0D+00,1.0D+00,1.0D+00,2.0D+00,3.0D+00,8.0D+00,
+     *          15.0D+00,48.0D+00,105.0D+00,384.0D+00,945.0D+00,
+     *          3840.0D+00,10395.0D+00,46080.0D+00,135135.0D+00,
+     *          645120.0D+00,2027025.0D+00,10321920.0D+00,
+     *          34459425.0D+00,185794560.0D+00,
+     *          654729075.0D+00,3715891200.0D+00/
+C
+C     HELPS DEAL WITH L SHELLS (SHELL THAT ENDS ON 1 MIGHT START WITH 0)
+C
+      DATA IDUMMY/0,0,2,3,4/
+
+c-pea      write(iw,*)'nt in neoFOURC', nt
+c-pea      write(iw,*)'nshell in neoFOURC',nshell
+c-pea      write(iw,*)'ntshell in neoFOURC',ntshel
+C
+
+C   THIS ROUTINE CALCULATES THE ONE ELECTRON INTEGRAL
+C   <ABCE> FOR CARTESIAN GAUSSIANS.  (UP TO G-SHELLS)
+C
+      IF ((NORMF .EQ. 1 .OR. NORMP .EQ. 1).AND. MASWRK) THEN
+        WRITE(IW,*)' SORRY BUT THE FOUR CENTER ONE ELECTRON OVELAP'
+        WRITE(IW,*)' INTEGRALS USED FOR DFT DO NOT SUPPORT THE'
+        WRITE(IW,*)' NO NORMALIZATION OPTIONS'
+        CALL ABRT
+      END IF
+C
+C     ----- INITIALIZATION FOR PARALLEL WORK -----
+C
+      IPCOUNT = ME - 1
+      SVDSKW = DSKWRK
+      DSKWRK = .TRUE.
+C
+      IF(SOME) WRITE(IW,9000)
+C
+      CALL TSECND(TIM0)
+C
+      CUTOFF = 1.0D+00/(10.0D+00**ICUT)
+      TOL=ITOL*RLN10
+c-pea      write(iw,*)'tol cutoff',tol,cutoff
+      IWHERE=0
+      CALL VCLR(XXXX,1,6*6*6*6)
+      CALL VCLR(YYYY,1,6*6*6*6)
+      CALL VCLR(ZZZZ,1,6*6*6*6)
+      XXXX(0,0,0,0)=1.0D+00
+      YYYY(0,0,0,0)=1.0D+00
+      ZZZZ(0,0,0,0)=1.0D+00
+C
+      NSCHWZ=0
+      NREC=0
+      NINTS=0
+      MAXAO=255
+      LABSIZ = 1
+      IF(NUM.GT.MAXAO) LABSIZ = 2
+c-pea      write(6,*)'labsiz=',labsiz
+      CALL SEQOPN(21,'DFTINTS','UNKNOWN',.FALSE.,'UNFORMATTED')
+      CALL SEQREW(21)
+c-pea      write(6,*)'opened DFTINTS'
+C
+C    LOOP OVER SHELLS A B C AND E FOR <AB|CE>
+C
+      intshel=nshell+1
+      iashl=1
+      ibshl=1
+      icshl=intshel
+      ieshl=intshel
+      DO 100 IASHL=1,nshell
+C
+C     ----- CHECK CPU TIME -----
+C
+      CALL TSECND(TIM)
+      IF(TIM.GE.TIMLIM) THEN
+         WRITE(IW,*) 'NO TIME LEFT IN -FOURC-'
+         RETURN
+      END IF
+C
+C  TRY TO ELIMINATE A SHELL
+C
+      DO 1020 IT = 1,NT
+         ID = MAPSHL(IASHL,IT)
+         IF (ID .GT. IASHL) GO TO 100
+         MI(IT) = ID
+ 1020 CONTINUE
+C
+c-pea      KASHL=INDEX2(IASHL)
+C  POSITION OF THE SHELL'S ATOM
+      IAATOM=KATOM(IASHL)
+      AX=C(1,IAATOM)
+      AY=C(2,IAATOM)
+      AZ=C(3,IAATOM)
+C  INFO ABOUT THE PRIMATIVES
+      ISTARTA=KSTART(IASHL)
+      IENDA=ISTARTA+KNG(IASHL)-1
+C  INFO ABOUT THE SUBSHELLS
+      IAMAX=KMAX(IASHL)
+      IAMIN=KMIN(IASHL)
+      LOCA =KLOC(IASHL)-IAMIN
+C
+C  FIND THE HIGHEST SPIN VALUE IN THIS SHELL
+      KATYPE=KTYPE(IASHL)-1
+      JATYPE=1+IAMAX-IAMIN
+c-pea      write(iw,*)'iamax iamin loca katype jatype',
+c-pea     *   iamax,iamin,loca,katype,jatype
+C
+C   B SHELL
+C
+      DO 101 IBSHL=1,NSHELL
+C
+      DO 200 IT = 1,NT
+      ID = MI(IT)
+      JD = MAPSHL(IBSHL,IT)
+      MJ(IT) = JD
+      IF (ID .GE. JD) GO TO 1060
+      ND = ID
+      ID = JD
+      JD = ND
+ 1060 IF (ID-IASHL) 200,1080,101
+ 1080 IF (JD-IBSHL) 200,200,101
+  200 CONTINUE
+C
+c-pea      KBSHL=INDEX2(IBSHL)
+      IBATOM=KATOM(IBSHL)
+      BX=C(1,IBATOM)
+      BY=C(2,IBATOM)
+      BZ=C(3,IBATOM)
+      ISTARTB=KSTART(IBSHL)
+      IENDB=ISTARTB+KNG(IBSHL)-1
+      IBMAX=KMAX(IBSHL)
+      IBMIN=KMIN(IBSHL)
+      LOCB = KLOC(IBSHL)-IBMIN
+      KBTYPE=KTYPE(IBSHL)-1
+      JBTYPE=1+IBMAX-IBMIN
+      ABRR=(AX-BX)*(AX-BX)+(AY-BY)*(AY-BY)+(AZ-BZ)*(AZ-BZ)
+C
+C    C SHELL
+C
+      
+      DO 102 ICSHL=intshel,ntshel
+      DO 340 IT = 1,NT
+      ID = MI(IT)
+      JD = MJ(IT)
+      KD = MAPSHL(ICSHL,IT)
+      MK(IT) = KD
+c-pea 240 continue
+      IF (ID .GE. JD) GO TO 260
+      ND = ID
+      ID = JD
+      JD = ND
+  260 continue
+c-pea  260 IF (JD .GE. KD) GO TO 280
+c-pea      ND = JD
+c-pea      JD = KD
+c-pea      KD = ND
+c-pea      GO TO 240
+c-pea  280 continue
+      IF (ID-IASHL) 340,300,102
+  300 IF (JD-IBSHL) 340,320,102
+  320 IF (KD-ICSHL) 340,340,102
+  340 CONTINUE
+c-pea      KCSHL=INDEX2(ICSHL)
+      ICATOM=KATOM(ICSHL)
+      CX=C(1,ICATOM)
+      CY=C(2,ICATOM)
+      CZ=C(3,ICATOM)
+      ISTARTC=KSTART(ICSHL)
+      IENDC=ISTARTC+KNG(ICSHL)-1
+      ICMAX=KMAX(ICSHL)
+      ICMIN=KMIN(ICSHL)
+      LOCC = KLOC(ICSHL)-ICMIN
+      KCTYPE=KTYPE(ICSHL)-1
+      JCTYPE=1+ICMAX-ICMIN
+      ACRR=(AX-CX)*(AX-CX)+(AY-CY)*(AY-CY)+(AZ-CZ)*(AZ-CZ)
+      BCRR=(BX-CX)*(BX-CX)+(BY-CY)*(BY-CY)+(BZ-CZ)*(BZ-CZ)
+C
+C    E SHELL
+C
+      DO 103 IESHL=intshel,ntshel
+      N4 = 0
+      DO 540 IT = 1,NT
+      ID = MI(IT)
+      JD = MJ(IT)
+      KD = MK(IT)
+      LD = MAPSHL(IESHL,IT)
+c-pea      write(iw,*)'id jd kd ld iashl ibshl icshl ieshl',id,jd,kd,ld,
+c-pea     *   iashl,ibshl,icshl,ieshl
+c-pea  380 continue
+      IF (ID .GE. JD) GO TO 400
+      ND = ID
+      ID = JD
+      JD = ND
+  400 continue
+c-pea  400 IF (JD .GE. KD) GO TO 420
+c-pea      ND = JD
+c-pea      JD = KD
+c-pea      KD = ND
+c-pea      GO TO 380
+c-pea  420 continue
+      IF (KD .GE. LD) GO TO 440
+      ND = KD
+      KD = LD
+      LD = ND
+      GO TO 400
+  440 IF (ID-IASHL) 540,460,103
+  460 IF (JD-IBSHL) 540,480,103
+  480 IF (KD-ICSHL) 540,500,103
+  500 IF (LD-IESHL) 540,520,103
+  520 N4 = N4+1
+  540 CONTINUE
+      Q4=NT
+      Q4=Q4/N4
+C
+C     ----- GO PARALLEL! -----
+C
+      IF (GOPARR) THEN
+         IPCOUNT = IPCOUNT + 1
+         IF (MOD(IPCOUNT,NPROC).NE.0) GO TO 103
+      END IF
+C
+      IEATOM=KATOM(IESHL)
+      EXX=C(1,IEATOM)
+      EY=C(2,IEATOM)
+      EZ=C(3,IEATOM)
+      ISTARTE=KSTART(IESHL)
+      IENDE=ISTARTE+KNG(IESHL)-1
+      IEMAX=KMAX(IESHL)
+      IEMIN=KMIN(IESHL)
+      LOCE = KLOC(IESHL)-IEMIN
+      KETYPE=KTYPE(IESHL)-1
+      JETYPE=1+IEMAX-IEMIN
+      AERR=(AX-EXX)*(AX-EXX)+(AY-EY)*(AY-EY)+(AZ-EZ)*(AZ-EZ)
+      BERR=(BX-EXX)*(BX-EXX)+(BY-EY)*(BY-EY)+(BZ-EZ)*(BZ-EZ)
+      CERR=(CX-EXX)*(CX-EXX)+(CY-EY)*(CY-EY)+(CZ-EZ)*(CZ-EZ)
+      if ((aerr.gt.CUTOFF).or.(berr.gt.CUTOFF).or.(cerr.gt.CUTOFF).or.
+     *   (acrr.gt.CUTOFF).or.(bcrr.gt.CUTOFF).or.(abrr.gt.CUTOFF)) then
+         SAMECEN=.FALSE.
+      else
+         SAMECEN=.TRUE.
+      end if
+      ithisone=0
+      if (ithisone.eq.1) then
+      write(iw,*)'iashl ibshl icshl ieshl',
+     * iashl,ibshl,icshl,ieshl
+      write(iw,*)'iaatom ibatom icatom ieatom samecen',
+     *   iaatom, ibatom,icatom,ieatom,samecen
+      write(iw,*)'katype kbtype kctype ketype',
+     *   katype,kbtype,kctype,ketype
+      write(iw,*)'az bz cz ez',az,bz,cz,ez
+      end if
+c-pea      write(iw,*)'iamin ibmin icmin iemin',
+c-pea     *   iamin,ibmin,icmin,iemin
+c-pea      write(iw,*)'iamax ibmax icmax iemax',
+c-pea     *   iamax,ibmax,icmax,iemax
+c-pea      write(iw,*)'istarta ienda',
+c-pea     *   istarta,ienda
+c-pea      write(iw,*)'istartb iendb',
+c-pea     *   istartb,iendb
+c-pea      write(iw,*)'istartc iendc',
+c-pea     *   istartc,iendc
+c-pea      write(iw,*)'istarte iende',
+c-pea     *   istarte,iende
+C
+C END OF SHELLS
+C
+C
+c-pea disable schwartz screening
+C PRE-SCREEN THE THE INTEGRALS
+C
+c-pea      IF(SMAX(KASHL+IBSHL)*SMAX(KCSHL+IESHL) .LE. 1.0D-18 .OR.
+c-pea     *   SMAX(KASHL+ICSHL)*SMAX(KBSHL+IESHL) .LE. 1.0D-18 .OR.
+c-pea     *   SMAX(KASHL+IESHL)*SMAX(KBSHL+ICSHL) .LE. 1.0D-18) THEN
+c-pea      NSCHWZ=NSCHWZ+1
+c-pea      GO TO 103
+c-pea      END IF
+C
+C    CHECK TO SEE IF THEY ARE ALL ON THE SAME CENTER
+C
+c-pea      IF(IAATOM .EQ. IBATOM .AND. IAATOM .EQ. ICATOM .AND. IAATOM
+c-pea     *    .EQ. IEATOM) THEN
+      IF (SAMECEN) then
+        IF(  MOD(KATYPE+KBTYPE+KCTYPE+KETYPE,2).EQ.1 .AND.
+     *       .NOT.(IAMIN.EQ.1 .AND. IAMAX.EQ.4).AND.
+     *       .NOT.(IBMIN.EQ.1 .AND. IBMAX.EQ.4).AND.
+     *       .NOT.(ICMIN.EQ.1 .AND. ICMAX.EQ.4).AND.
+     *       .NOT.(IEMIN.EQ.1 .AND. IEMAX.EQ.4)) GO TO 103
+C            NO L SHELLS TO CONFUSE THINGS, AND TOTAL
+C            MOMENTUM IS ODD, THUS INTEGRALS ARE ZERO
+c-pea        SAMECEN=.TRUE.
+c-pea      ELSE
+c-pea        SAMECEN=.FALSE.
+      END IF
+C
+C    LOOP OVER GUASSIAN PRIMATIVES WHILE READING
+C          IN EXPONENTS AND CONTRACTIONS
+C
+C     DO SOMETHING SPECIAL FOR (SSSS) CASE
+C
+       IF(KATYPE.EQ.0 .AND. KBTYPE.EQ.0 .AND. KCTYPE.EQ.0 .AND.
+     *                                        KETYPE.EQ.0) THEN
+       TEMPS(1)=0.0D+00
+       IF (SAMECEN) THEN
+       DO 910 IAPRM=ISTARTA,IENDA
+        A1=EX(IAPRM)
+        SCONTA=CS(IAPRM)
+        DO 911 IBPRM=ISTARTB,IENDB
+         A2=EX(IBPRM)+A1
+         SCONTB=CS(IBPRM)*SCONTA
+         DO 912 ICPRM=ISTARTC,IENDC
+          A3=EX(ICPRM)+A2
+          SCONTC=CS(ICPRM)*SCONTB
+         DO 913 IEPRM=ISTARTE,IENDE
+          A5=EX(IEPRM)+A3
+          SCONTE=CS(IEPRM)*SCONTC
+c-pea          write(iw,*)'a1 a2 a3 a5',ex(iaprm),ex(ibprm),
+c-pea     *       ex(icprm),ex(ieprm)
+C
+            TEMPS(1)=TEMPS(1)+SCONTE/(A5*SQRT(A5))
+C
+  913    CONTINUE
+  912    CONTINUE
+  911   CONTINUE
+  910  CONTINUE
+       TEMPS(1)=TEMPS(1)*PI*SQRT(PI)
+      ELSE
+       DO 810 IAPRM=ISTARTA,IENDA
+        A1=EX(IAPRM)
+        SCONTA=CS(IAPRM)
+        DO 811 IBPRM=ISTARTB,IENDB
+         A2=EX(IBPRM)
+         IF(ABRR*A1*A2/(A1+A2) .GT. TOL) GO TO 811
+         SCONTB=CS(IBPRM)*SCONTA
+C
+C        GET INFO ABOUT A,B,AND P
+C
+            A6=A1+A2
+            PX=((A1*AX+A2*BX)/A6)
+            PY=((A1*AY+A2*BY)/A6)
+            PZ=((A1*AZ+A2*BZ)/A6)
+            ABK=-((A1*A2/A6)*
+     *          ((AX-BX)*(AX-BX)+(AY-BY)*(AY-BY)+(AZ-BZ)*(AZ-BZ)))
+C
+C
+         DO 812 ICPRM=ISTARTC,IENDC
+          A3=EX(ICPRM)
+          IF(ACRR*A1*A3/(A1+A3) .GT. TOL .OR.
+     *       BCRR*A2*A3/(A2+A3) .GT. TOL) GO TO 812
+          SCONTC=CS(ICPRM)*SCONTB
+         DO 813 IEPRM=ISTARTE,IENDE
+          A5=EX(IEPRM)
+          IF(AERR*A1*A5/(A1+A5) .GT. TOL .OR.
+     *       BERR*A2*A5/(A2+A5) .GT. TOL .OR.
+     *       CERR*A3*A5/(A3+A5) .GT. TOL) GO TO 813
+          SCONTE=CS(IEPRM)*SCONTC
+c-pea          write(iw,*)'a1 a2 a3 a5',ex(iaprm),ex(ibprm),
+c-pea     *       ex(icprm),ex(ieprm)
+C
+          A4=A1+A2+A3+A5
+          A4INV=1.0D+00/A4
+C
+            A7=A3+A5
+            A7INV=1.0D+00/A7
+            QX=(A3*CX+A5*EXX)*A7INV
+            QY=(A3*CY+A5*EY)*A7INV
+            QZ=(A3*CZ+A5*EZ)*A7INV
+C
+C   CALCULATE
+C
+            TEMPS(1)=TEMPS(1)+SCONTE*(((PI*A4INV)*SQRT(PI*A4INV))*
+     *                EXP(ABK
+     *                                 -((A3*A5*A7INV)*
+     *          ((CX-EXX)*(CX-EXX)+(CY-EY)*(CY-EY)+(CZ-EZ)*(CZ-EZ)))
+     *                                 -((A6*A7*A4INV)*
+     *          ((PX-QX)*(PX-QX)+(PY-QY)*(PY-QY)+(PZ-QZ)*(PZ-QZ)))))
+C
+  813    CONTINUE
+  812    CONTINUE
+  811   CONTINUE
+  810  CONTINUE
+      END IF
+C
+C      END SPECIAL (SSSS) CASE
+C
+       ELSE
+C
+       CALL VCLR(TEMPS,1,JATYPE*JBTYPE*JCTYPE*JETYPE)
+       DO 110 IAPRM=ISTARTA,IENDA
+        A1=EX(IAPRM)
+        CALL FORCNT(IAPRM,IAMAX,CONTA)
+        DO 111 IBPRM=ISTARTB,IENDB
+         A2=EX(IBPRM)
+         CALL FORCNT(IBPRM,IBMAX,CONTB)
+C
+C        GET INFO ABOUT A,B,AND P
+C
+          IF(.NOT. SAMECEN) THEN
+C
+            A6=A1+A2
+            PX=((A1*AX+A2*BX)/A6)
+            PY=((A1*AY+A2*BY)/A6)
+            PZ=((A1*AZ+A2*BZ)/A6)
+            ABK=(A1*A2/A6)*ABRR
+            IF (ABK .GT. TOL) GO TO 111
+          END IF
+C
+C
+         DO 112 ICPRM=ISTARTC,IENDC
+          A3=EX(ICPRM)
+          CALL FORCNT(ICPRM,ICMAX,CONTC)
+          IF(ACRR*A1*A3/(A1+A3) .GT. TOL .OR.
+     *       BCRR*A2*A3/(A2+A3) .GT. TOL) GO TO 112
+         DO 113 IEPRM=ISTARTE,IENDE
+          A5=EX(IEPRM)
+          CALL FORCNT(IEPRM,IEMAX,CONTE)
+C
+C   CALCULATE FINAL GAUSSIAN CENTER AND OTHER THINGS
+C   P=A AND B, Q=C AND E, D=FINAL CENTER
+C
+          A4=A1+A2+A3+A5
+          A4INV=1.0D+00/A4
+C
+          IF(.NOT. SAMECEN) THEN
+            IF(AERR*A1*A5/(A1+A5) .GT. TOL .OR.
+     *         BERR*A2*A5/(A2+A5) .GT. TOL .OR.
+     *         CERR*A3*A5/(A3+A5) .GT. TOL) GO TO 113
+C
+            A7=A3+A5
+            A7INV=1.0D+00/A7
+            A10=0.5D+00*A4INV
+C
+            QX=(A3*CX+A5*EXX)*A7INV
+            QY=(A3*CY+A5*EY)*A7INV
+            QZ=(A3*CZ+A5*EZ)*A7INV
+            DX=(A1*AX+A2*BX+A3*CX+A5*EXX)*A4INV
+            DY=(A1*AY+A2*BY+A3*CY+A5*EY)*A4INV
+            DZ=(A1*AZ+A2*BZ+A3*CZ+A5*EZ)*A4INV
+            DAX=DX-AX
+            DAY=DY-AY
+            DAZ=DZ-AZ
+            DBX=DX-BX
+            DBY=DY-BY
+            DBZ=DZ-BZ
+            DCX=DX-CX
+            DCY=DY-CY
+            DCZ=DZ-CZ
+            DEX=DX-EXX
+            DEY=DY-EY
+            DEZ=DZ-EZ
+            PQRR=(PX-QX)*(PX-QX)+(PY-QY)*(PY-QY)+(PZ-QZ)*(PZ-QZ)
+C
+C   CALCULATE KABC
+C
+            ABCK=((PI*A4INV)*SQRT(PI*A4INV))*EXP(-ABK
+     *                                 -((A3*A5*A7INV)*CERR)
+     *                                 -((A6*A7*A4INV)*PQRR))
+C
+C
+C   USE RECURSION TO GENERATE HIGHER ANGULAR MOMENTUM XXXX,ETC
+C
+C     RECURSION BASED ON J
+      DO 2000 J=1,KETYPE
+                  XXXX(J,0,0,0)= DEX*XXXX(J-1,0  ,0  ,0  )+A10*(
+     *                         (J-1)*XXXX(J-2,0  ,0  ,0  ))
+                  YYYY(J,0,0,0)= DEY*YYYY(J-1,0  ,0  ,0  )+A10*(
+     *                         (J-1)*YYYY(J-2,0  ,0  ,0  ))
+                  ZZZZ(J,0,0,0)= DEZ*ZZZZ(J-1,0  ,0  ,0  )+A10*(
+     *                         (J-1)*ZZZZ(J-2,0  ,0  ,0  ))
+ 2000 CONTINUE
+C      RECURSION BASED ON K
+       DO 2010 K=1,KCTYPE
+        DO 2010 J=0,KETYPE
+                  XXXX(J,K,0,0)= DCX*XXXX(J  ,K-1,0  ,0  )+A10*(
+     *                             J*XXXX(J-1,K-1,0  ,0  ) +
+     *                         (K-1)*XXXX(J  ,K-2,0  ,0  ))
+                  YYYY(J,K,0,0)= DCY*YYYY(J  ,K-1,0  ,0  )+A10*(
+     *                             J*YYYY(J-1,K-1,0  ,0  ) +
+     *                         (K-1)*YYYY(J  ,K-2,0  ,0  ))
+                  ZZZZ(J,K,0,0)= DCZ*ZZZZ(J  ,K-1,0  ,0  )+A10*(
+     *                             J*ZZZZ(J-1,K-1,0  ,0  ) +
+     *                         (K-1)*ZZZZ(J  ,K-2,0  ,0  ))
+ 2010  CONTINUE
+C       RECURSION BASED ON L
+        DO 2020 L=1,KBTYPE
+          DO 2020 K=0,KCTYPE
+            DO 2020 J=0,KETYPE
+                  XXXX(J,K,L,0)= DBX*XXXX(J  ,K  ,L-1,0  )+A10*(
+     *                             J*XXXX(J-1,K  ,L-1,0  ) +
+     *                             K*XXXX(J  ,K-1,L-1,0  ) +
+     *                         (L-1)*XXXX(J  ,K  ,L-2,0  ))
+                  YYYY(J,K,L,0)= DBY*YYYY(J  ,K  ,L-1,0  )+A10*(
+     *                             J*YYYY(J-1,K  ,L-1,0  ) +
+     *                             K*YYYY(J  ,K-1,L-1,0  ) +
+     *                         (L-1)*YYYY(J  ,K  ,L-2,0  ))
+                  ZZZZ(J,K,L,0)= DBZ*ZZZZ(J  ,K  ,L-1,0  )+A10*(
+     *                             J*ZZZZ(J-1,K  ,L-1,0  ) +
+     *                             K*ZZZZ(J  ,K-1,L-1,0  ) +
+     *                         (L-1)*ZZZZ(J  ,K  ,L-2,0  ))
+ 2020   CONTINUE
+C         RECURSION BASED ON I
+          DO 2030 I=1,KATYPE
+            DO 2030 L=0,KBTYPE
+              DO 2030 K=0,KCTYPE
+                DO 2030 J=0,KETYPE
+                  XXXX(J,K,L,I)= DAX*XXXX(J  ,K  ,L  ,I-1)+A10*(
+     *                         (I-1)*XXXX(J  ,K  ,L  ,I-2) +
+     *                             J*XXXX(J-1,K  ,L  ,I-1) +
+     *                             K*XXXX(J  ,K-1,L  ,I-1) +
+     *                             L*XXXX(J  ,K  ,L-1,I-1))
+                  YYYY(J,K,L,I)= DAY*YYYY(J  ,K  ,L  ,I-1)+A10*(
+     *                         (I-1)*YYYY(J  ,K  ,L  ,I-2) +
+     *                             J*YYYY(J-1,K  ,L  ,I-1) +
+     *                             K*YYYY(J  ,K-1,L  ,I-1) +
+     *                             L*YYYY(J  ,K  ,L-1,I-1))
+                  ZZZZ(J,K,L,I)= DAZ*ZZZZ(J  ,K  ,L  ,I-1)+A10*(
+     *                         (I-1)*ZZZZ(J  ,K  ,L  ,I-2) +
+     *                             J*ZZZZ(J-1,K  ,L  ,I-1) +
+     *                             K*ZZZZ(J  ,K-1,L  ,I-1) +
+     *                             L*ZZZZ(J  ,K  ,L-1,I-1))
+ 2030     CONTINUE
+C
+C    LOOP OVER SUBSHELLS TO GET VALUES OF THE INTEGRALS
+C
+          IMOVE=0
+          DO 120 IASUB=IAMIN,IAMAX
+C          THE X COORDINATE IN S(NUM,NUM,NUM,NUM)
+           IAPOSIT=LOCA+IASUB
+           L1=LDAT(IASUB)
+           M1=MDAT(IASUB)
+           N1=NDAT(IASUB)
+           CONTRA=ABCK*CONTA(IASUB)
+C
+           DO 121 IBSUB=IBMIN,IBMAX
+C           THE Y COORDINATE IN S(NUM,NUM,NUM,NUM)
+            IBPOSIT=LOCB+IBSUB
+            IF(IBPOSIT .GT. IAPOSIT) GO TO 120
+            L2=LDAT(IBSUB)
+            M2=MDAT(IBSUB)
+            N2=NDAT(IBSUB)
+            CONTRB=CONTRA*CONTB(IBSUB)
+C
+            DO 122 ICSUB=ICMIN,ICMAX
+C            THE Z COORDINATE IN S(NUM,NUM,NUM,NUM)
+             ICPOSIT=LOCC+ICSUB
+c-pea             IF(ICPOSIT .GT. IBPOSIT) GO TO 121
+             L3=LDAT(ICSUB)
+             M3=MDAT(ICSUB)
+             N3=NDAT(ICSUB)
+             CONTRC=CONTRB*CONTC(ICSUB)
+C
+            DO 123 IESUB=IEMIN,IEMAX
+C            THE E COORDINATE IN S(NUM,NUM,NUM,NUM)
+             IEPOSIT=LOCE+IESUB
+             IF(IEPOSIT .GT. ICPOSIT) GO TO 122
+             L5=LDAT(IESUB)
+             M5=MDAT(IESUB)
+             N5=NDAT(IESUB)
+             CONTRE=CONTRC*CONTE(IESUB)
+             IMOVE=IMOVE+1
+C
+              TEMPS(IMOVE) = TEMPS(IMOVE)
+     *            +CONTRE*XXXX(L5,L3,L2,L1)*
+     *               YYYY(M5,M3,M2,M1)*ZZZZ(N5,N3,N2,N1)
+C
+  123       CONTINUE
+  122       CONTINUE
+  121      CONTINUE
+  120     CONTINUE
+          call flshbf(iw)
+          ELSE
+C
+C         SPECIAL SAME CENTER CASE
+C
+          IMOVE=0
+          RADIAL=(PI*A4INV)*SQRT(PI*A4INV)
+          A20=SQRT(0.5D+00*A4INV)
+          IDUM1=IDUMMY(KATYPE)+IDUMMY(KBTYPE)+IDUMMY(KCTYPE)+
+     *         IDUMMY(KETYPE)
+          IDUM2=KATYPE+KBTYPE+KCTYPE+KETYPE
+          DO  I=IDUM1,IDUM2
+            A21(I)=A20**I
+          END DO
+          DO 220 IASUB=IAMIN,IAMAX
+C          THE X COORDINATE IN S(NUM,NUM,NUM,NUM)
+           IAPOSIT=LOCA+IASUB
+           L1=LDAT(IASUB)
+           M1=MDAT(IASUB)
+           N1=NDAT(IASUB)
+           CONTRA=CONTA(IASUB)*RADIAL
+C
+           DO 221 IBSUB=IBMIN,IBMAX
+C           THE Y COORDINATE IN S(NUM,NUM,NUM,NUM)
+            IBPOSIT=LOCB+IBSUB
+            IF(IBPOSIT .GT. IAPOSIT) GO TO 220
+            L2=L1+LDAT(IBSUB)
+            M2=M1+MDAT(IBSUB)
+            N2=N1+NDAT(IBSUB)
+            CONTRB=CONTRA*CONTB(IBSUB)
+C
+            DO 222 ICSUB=ICMIN,ICMAX
+C            THE Z COORDINATE IN S(NUM,NUM,NUM,NUM)
+             ICPOSIT=LOCC+ICSUB
+c-pea             IF(ICPOSIT .GT. IBPOSIT) GO TO 221
+             L3=L2+LDAT(ICSUB)
+             M3=M2+MDAT(ICSUB)
+             N3=N2+NDAT(ICSUB)
+             CONTRC=CONTRB*CONTC(ICSUB)
+C
+            DO 223 IESUB=IEMIN,IEMAX
+C            THE E COORDINATE IN S(NUM,NUM,NUM,NUM)
+             IEPOSIT=LOCE+IESUB
+             IF(IEPOSIT .GT. ICPOSIT) GO TO 222
+             IMOVE=IMOVE+1
+             L5=L3+LDAT(IESUB)
+             IF(MOD(L5,2) .EQ. 1) GO TO 223
+             M5=M3+MDAT(IESUB)
+             IF(MOD(M5,2) .EQ. 1) GO TO 223
+             N5=N3+NDAT(IESUB)
+             IF(MOD(N5,2) .EQ. 1) GO TO 223
+             CONTRE=CONTRC*CONTE(IESUB)
+C
+C          THE IF MOD(N5,2) GETS RID OF ODD EXPONENTS
+C
+            XYZI=DFAC(L5)*DFAC(M5)*DFAC(N5)*CONTRE*A21(L5+N5+M5)
+            TEMPS(IMOVE)=TEMPS(IMOVE)+XYZI
+C
+  223       CONTINUE
+  222       CONTINUE
+  221      CONTINUE
+  220     CONTINUE
+C
+C        END SPECIAL SAME CENTER CASE
+C
+          END IF
+C
+C
+  113    CONTINUE
+  112    CONTINUE
+  111   CONTINUE
+  110  CONTINUE
+C      END THE SSSS IF
+       END IF
+C
+C   LOOP OVER TEMPORARY MATRIX
+C
+c-pea         write(iw,*)'writing to DFTINTS'
+         IMOVE=0
+         DO 421 IAPOSIT=IAMIN+LOCA,IAMAX+LOCA
+C          MIN LETS US SKIP (5611) SINCE WE DO (6511)
+           DO 422 IBPOSIT=IBMIN+LOCB,MIN(IBMAX+LOCB,IAPOSIT)
+C
+c-pea            DO 423 ICPOSIT=ICMIN+LOCC,MIN(ICMAX+LOCC,IBPOSIT)
+            DO 423 ICPOSIT=ICMIN+LOCC,ICMAX+LOCC
+C
+             DO 424 IEPOSIT=IEMIN+LOCE,MIN(IEMAX+LOCE,ICPOSIT)
+              IMOVE=IMOVE+1
+C             POSTSCREEN THE INTEGRALS
+              IF(ABS(TEMPS(IMOVE)) .GT. CUTOFF) THEN
+               IWHERE=IWHERE+1
+               NPACK = IWHERE
+               IPACK = IAPOSIT
+               JPACK = IBPOSIT
+               KPACK = ICPOSIT
+               LPACK = IEPOSIT
+               IF (LABSIZ .EQ. 2) THEN
+*I32             LABEL1 = ISHFT( IPACK, 16 ) + JPACK
+*I32             LABEL2 = ISHFT( KPACK, 16 ) + LPACK
+*I32             IX( 2*NPACK-1 ) = LABEL1
+*I32             IX( 2*NPACK   ) = LABEL2
+*I64             LABEL = ISHFT( IPACK, 48 ) + ISHFT( JPACK, 32 ) +
+*I64 *                   ISHFT( KPACK, 16 ) + LPACK
+*I64             IX(NPACK) = LABEL
+               ELSE IF (LABSIZ .EQ. 1) THEN
+*I32             LABEL = ISHFT( IPACK, 24 ) + ISHFT( JPACK, 16 ) +
+*I32 *                   ISHFT( KPACK,  8 ) + LPACK
+*I32             IX(NPACK) = LABEL
+*I64             IF ( MOD(NPACK,2) .EQ. 0 ) THEN
+*I64               LABEL = ISHFT( IPACK, 24 ) + ISHFT( JPACK, 16 ) +
+*I64 *                     ISHFT( KPACK,  8 ) + LPACK
+*I64               IX( NPACK/2 ) = IX( NPACK/2 ) + LABEL
+*I64             ELSE
+*I64               LABEL = ISHFT( IPACK, 56 ) + ISHFT( JPACK, 48 ) +
+*I64 *                     ISHFT( KPACK, 40 ) + ISHFT( LPACK, 32 )
+*I64               IX( (NPACK/2)+1 ) = LABEL
+*I64             END IF
+               END IF
+C             TAKE INTO ACCOUNT SKIPPED INTERGRALS AND STORE
+              S(IWHERE)=TEMPS(IMOVE)*Q4
+              ithisone=0
+              if (ithisone.eq.1) then
+              write(iw,*)'i j k l ovrlpint',ipack,jpack,kpack,
+     *              lpack,s(iwhere)
+              end if
+C
+C                 WRITE OUT BUFFER OF INTEGRALS IF ITS FULL
+C
+              IF(IWHERE .EQ. NINTMX) THEN
+                CALL PWRIT(21,S,IX,NINTMX,NINTMX)
+                IWHERE=0
+                NREC=NREC+1
+                NINTS=NINTS+NINTMX
+              END IF
+C
+            END IF
+  424     CONTINUE
+  423    CONTINUE
+  422   CONTINUE
+  421  CONTINUE
+C
+  103 CONTINUE
+  102 CONTINUE
+  101 CONTINUE
+  100 CONTINUE
+C
+      call flshbf(iw)
+C     ----- END OF SHELL LOOPS -----
+C
+C     WRITE FINAL PARTIAL BUFFER LOAD OF INTEGRALS TO DISK
+C
+      NREC=NREC+1
+      NINTS=NINTS+IWHERE
+      IWHERE=-IWHERE
+      CALL PWRIT(21,S,IX,IWHERE,NINTMX)
+C
+      IF(GOPARR) THEN
+         CALL DDI_GSUMI(1055,NSCHWZ,1)
+         CALL DDI_GSUMI(1056,NINTS,1)
+         CALL DDI_GSUMI(1057,NRECS,1)
+      END IF
+      IF(SOME) WRITE(IW,9010) NINTS,NREC,21
+      IF(SOME) WRITE(IW,9020) NSCHWZ
+      CALL TSECND(TIM)
+      TIM = TIM-TIM0
+      IF(SOME) WRITE(IW,9030) TIM
+C
+      DSKWRK = SVDSKW
+      RETURN
+C
+ 9000 FORMAT(1X,'COMPUTING FOUR CENTER OVERLAP INTEGRALS (IJKL)')
+ 9010 FORMAT(1X,'TOTAL NUMBER OF NONZERO OVERLAP INTEGRALS=',I20/
+     *       1X,I10,' INTEGRAL RECORDS WERE STORED ON DISK FILE',I3,'.')
+ 9020 FORMAT(1X,'SCHWARZ INEQUALITY TEST SKIPPED',I10,
+     *    ' INTEGRAL BLOCKS.')
+ 9030 FORMAT(1X,'TIME TO EVALUATE (IJKL) OVERLAP INTEGRALS     =',F12.2)
+      END
+C*MODULE neopos  *DECK neoFORSCR
+      SUBROUTINE neoFORSCR(SOME,S,TEMPS)
+C
+      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+C
+      PARAMETER (MXSH=5000, MXGTOT=20000, MXATM=2000, MXAO=8192)
+C
+      LOGICAL GOPARR,DSKWRK,MASWRK,SOME
+C
+      COMMON /PAR   / ME,MASTER,NPROC,IBTYP,IPTIM,GOPARR,DSKWRK,MASWRK
+      COMMON /INFOA / NAT,ICH,MUL,NUM,NQMT,NE,NA,NB,
+     *                ZAN(MXATM),C(3,MXATM),IAN(MXATM)
+      COMMON /IOFILE/ IR,IW,IP,IJKO,IJKT,IDAF,NAV,IODA(950)
+      COMMON /NEOSHL/ NGAUSS,NGAUSE,NGAUSN,NTSHEL,NNUCSH
+      COMMON /NSHEL / EX(MXGTOT),CS(MXGTOT),CP(MXGTOT),CD(MXGTOT),
+     *                CF(MXGTOT),CG(MXGTOT),CH(MXGTOT),CI(MXGTOT),
+     *                KSTART(MXSH),KATOM(MXSH),KTYPE(MXSH),KNG(MXSH),
+     *                KLOC(MXSH),KMIN(MXSH),KMAX(MXSH),NSHELL
+      COMMON /OUTPUT/ NPRINT,ITOL,ICUT,NORMF,NORMP,NOPK
+      COMMON /IJPAIR/ INDEX2(MXAO)
+C
+      DIMENSION S((NTSHEL*NTSHEL+NTSHEL)/2),TEMPS(15*15*15*15)
+      DIMENSION LDAT(35),MDAT(35),NDAT(35),
+     *          CONTA(35),CONTB(35),CONTC(35),CONTE(35),
+     *          XXXX(-1:4,-1:4,-1:4,-1:4),
+     *          YYYY(-1:4,-1:4,-1:4,-1:4),
+     *          ZZZZ(-1:4,-1:4,-1:4,-1:4)
+C
+      PARAMETER (PI=3.141592653589793238462643D+00)
+      PARAMETER (RLN10=2.30258D+00)
+C
+C  X,Y,Z EXPONENTS OF CARTESIAN S,PX,PY,PZ,DXX,...
+C
+      DATA LDAT/0,1,0,0,2,0,0,1,1,0,3,0,0,2,2,1,0,1,0,1,4,0,0,3,3,
+     *          1,0,1,0,2,2,0,2,1,1/
+      DATA MDAT/0,0,1,0,0,2,0,1,0,1,0,3,0,1,0,2,2,0,1,1,0,4,0,1,0,
+     *          3,3,0,1,2,0,2,1,2,1/
+      DATA NDAT/0,0,0,1,0,0,2,0,1,1,0,0,3,0,1,0,1,2,2,1,0,0,4,0,1,
+     *          0,1,3,3,0,2,2,1,1,2/
+C
+c-pea      write(iw,*)'nshell in neoFORSCR',nshell
+c-pea      write(iw,*)'ntshel in neoFORSCR',ntshel
+      TOL=ITOL*RLN10
+C
+C     ----- INTIALIZE PARALLEL -----
+C
+      IPCOUNT = ME - 1
+c-pea      IF (GOPARR) CALL VCLR(S,1,NSHELL*(NSHELL+1)/2)
+      IF (GOPARR) CALL VCLR(S,1,NtSHEL*(NtSHEL+1)/2)
+C
+      CALL TSECND(TIM0)
+C
+      CALL VCLR(XXXX,1,6*6*6*6)
+      CALL VCLR(YYYY,1,6*6*6*6)
+      CALL VCLR(ZZZZ,1,6*6*6*6)
+      XXXX(0,0,0,0)=1.0D+00
+      YYYY(0,0,0,0)=1.0D+00
+      ZZZZ(0,0,0,0)=1.0D+00
+C
+C    LOOP OVER SHELLS A B FOR <AABB>
+C
+      intshel=nshell+1
+      DO 100 IASHL=intshel,NtSHEL
+      KASHL=INDEX2(IASHL)
+C  POSITION OF THE SHELL'S ATOM
+      IAATOM=KATOM(IASHL)
+      AX=C(1,IAATOM)
+      AY=C(2,IAATOM)
+      AZ=C(3,IAATOM)
+C  INFO ABOUT THE PRIMATIVES
+      ISTARTA=KSTART(IASHL)
+      IENDA=ISTARTA+KNG(IASHL)-1
+C  INFO ABOUT THE SUBSHELLS
+      IAMAX=KMAX(IASHL)
+      IAMIN=KMIN(IASHL)
+      LOCA =KLOC(IASHL)-IAMIN
+C
+C  FIND THE HIGHEST SPIN VALUE IN THIS SHELL
+      KATYPE=KTYPE(IASHL)-1
+      JATYPE=1+IAMAX-IAMIN
+c-pea      write(iw,*)'iashl x y z istarta ienda',
+c-pea     *   iashl,ax,ay,az,istarta,ienda
+c-pea      write(iw,*)'iamax iamin loca katype jatype',
+c-pea     *   iamax,iamin,loca,katype,jatype
+C
+C   B SHELL
+C
+      DO 101 IBSHL=intshel,IASHL
+C
+C     ----- GO PARALLEL! -----
+C
+      IF (GOPARR) THEN
+         IPCOUNT = IPCOUNT + 1
+         IF (MOD(IPCOUNT,NPROC).NE.0) GO TO 101
+      END IF
+      IBATOM=KATOM(IBSHL)
+      BX=C(1,IBATOM)
+      BY=C(2,IBATOM)
+      BZ=C(3,IBATOM)
+      ISTARTB=KSTART(IBSHL)
+      IENDB=ISTARTB+KNG(IBSHL)-1
+      IBMAX=KMAX(IBSHL)
+      IBMIN=KMIN(IBSHL)
+      LOCB = KLOC(IBSHL)-IBMIN
+      KBTYPE=KTYPE(IBSHL)-1
+      JBTYPE=1+IBMAX-IBMIN
+      ABRR=(AX-BX)*(AX-BX)+(AY-BY)*(AY-BY)+(AZ-BZ)*(AZ-BZ)
+C
+C END OF SHELLS
+C
+C    LOOP OVER GUASSIAN PRIMATIVES WHILE READING
+C          IN EXPONENTS AND CONTRACTIONS
+C
+       CALL VCLR(TEMPS,1,JATYPE*JBTYPE*JATYPE*JBTYPE)
+       DO 110 IAPRM=ISTARTA,IENDA
+        A1=EX(IAPRM)
+        CALL FORCNT(IAPRM,IAMAX,CONTA)
+        DO 111 ICPRM=ISTARTA,IENDA
+         A2=EX(ICPRM)
+         CALL FORCNT(ICPRM,IAMAX,CONTC)
+            A6=A1+A2
+C
+C
+         DO 112 IBPRM=ISTARTB,IENDB
+          A3=EX(IBPRM)
+          CALL FORCNT(IBPRM,IBMAX,CONTB)
+          IF(ABRR*A1*A3/(A1+A3) .GT. TOL .OR.
+     *       ABRR*A2*A3/(A2+A3) .GT. TOL) GO TO 112
+         DO 113 IEPRM=ISTARTB,IENDB
+          A5=EX(IEPRM)
+          CALL FORCNT(IEPRM,IBMAX,CONTE)
+C
+C
+          A4=A1+A2+A3+A5
+          A4INV=1.0D+00/A4
+C
+          IF(ABRR*A1*A5/(A1+A5) .GT. TOL .OR.
+     *       ABRR*A2*A5/(A2+A5) .GT. TOL) GO TO 113
+C
+            A7=A3+A5
+            A10=0.5D+00/A4
+C
+            DX=(A1*AX+A2*AX+A3*BX+A5*BX)*A4INV
+            DY=(A1*AY+A2*AY+A3*BY+A5*BY)*A4INV
+            DZ=(A1*AZ+A2*AZ+A3*BZ+A5*BZ)*A4INV
+            DAX=DX-AX
+            DAY=DY-AY
+            DAZ=DZ-AZ
+            DBX=DX-BX
+            DBY=DY-BY
+            DBZ=DZ-BZ
+C
+C   CALCULATE KABC
+C
+            ABCK=((PI*A4INV)*SQRT(PI*A4INV))*EXP(-ABRR*A6*A7*A4INV)
+C
+C   GENERATE HIGHER ANGULAR MOMENTUM XXXX,ETC
+C
+C     RECURSION BASED ON J
+C
+      DO 2000 J=1,KATYPE
+                  XXXX(0,J,0,0)= DAX*XXXX(0,J-1,0  ,0  )+A10*(
+     *                         (J-1)*XXXX(0,J-2,0  ,0  ))
+                  YYYY(0,J,0,0)= DAY*YYYY(0,J-1,0  ,0  )+A10*(
+     *                         (J-1)*YYYY(0,J-2,0  ,0  ))
+                  ZZZZ(0,J,0,0)= DAZ*ZZZZ(0,J-1,0  ,0  )+A10*(
+     *                         (J-1)*ZZZZ(0,J-2,0  ,0  ))
+ 2000 CONTINUE
+C
+C      RECURSION BASED ON K
+C
+       DO 2010 K=1,KBTYPE
+        DO 2010 J=0,KATYPE
+                  XXXX(0,J,K,0)= DBX*XXXX(0,J  ,K-1,0  )+A10*(
+     *                             J*XXXX(0,J-1,K-1,0  ) +
+     *                         (K-1)*XXXX(0,J  ,K-2,0  ))
+                  YYYY(0,J,K,0)= DBY*YYYY(0,J  ,K-1,0  )+A10*(
+     *                             J*YYYY(0,J-1,K-1,0  ) +
+     *                         (K-1)*YYYY(0,J  ,K-2,0  ))
+                  ZZZZ(0,J,K,0)= DBZ*ZZZZ(0,J  ,K-1,0  )+A10*(
+     *                             J*ZZZZ(0,J-1,K-1,0  ) +
+     *                         (K-1)*ZZZZ(0,J  ,K-2,0  ))
+ 2010  CONTINUE
+C
+C       RECURSION BASED ON L
+C
+        DO 2020 L=1,KBTYPE
+          DO 2020 K=0,KBTYPE
+            DO 2020 J=0,KATYPE
+                  XXXX(0,J,K,L)= DBX*XXXX(0,J  ,K  ,L-1)+A10*(
+     *                             J*XXXX(0,J-1,K  ,L-1) +
+     *                             K*XXXX(0,J  ,K-1,L-1) +
+     *                         (L-1)*XXXX(0,J  ,K  ,L-2))
+                  YYYY(0,J,K,L)= DBY*YYYY(0,J  ,K  ,L-1)+A10*(
+     *                             J*YYYY(0,J-1,K  ,L-1) +
+     *                             K*YYYY(0,J  ,K-1,L-1) +
+     *                         (L-1)*YYYY(0,J  ,K  ,L-2))
+                  ZZZZ(0,J,K,L)= DBZ*ZZZZ(0,J  ,K  ,L-1)+A10*(
+     *                             J*ZZZZ(0,J-1,K  ,L-1) +
+     *                             K*ZZZZ(0,J  ,K-1,L-1) +
+     *                         (L-1)*ZZZZ(0,J  ,K  ,L-2))
+ 2020   CONTINUE
+C
+C         RECURSION BASED ON I
+C
+          DO 2030 L=0,KBTYPE
+            DO 2030 K=0,KBTYPE
+              DO 2030 J=0,KATYPE
+                DO 2030 I=1,KATYPE
+                  XXXX(I,J,K,L)= DAX*XXXX(I-1,J  ,K  ,L  )+A10*(
+     *                         (I-1)*XXXX(I-2,J  ,K  ,L  ) +
+     *                             J*XXXX(I-1,J-1,K  ,L  ) +
+     *                             K*XXXX(I-1,J  ,K-1,L  ) +
+     *                             L*XXXX(I-1,J  ,K  ,L-1))
+                  YYYY(I,J,K,L)= DAY*YYYY(I-1,J  ,K  ,L  )+A10*(
+     *                         (I-1)*YYYY(I-2,J  ,K  ,L  ) +
+     *                             J*YYYY(I-1,J-1,K  ,L  ) +
+     *                             K*YYYY(I-1,J  ,K-1,L  ) +
+     *                             L*YYYY(I-1,J  ,K  ,L-1))
+                  ZZZZ(I,J,K,L)= DAZ*ZZZZ(I-1,J  ,K  ,L  )+A10*(
+     *                         (I-1)*ZZZZ(I-2,J  ,K  ,L  ) +
+     *                             J*ZZZZ(I-1,J-1,K  ,L  ) +
+     *                             K*ZZZZ(I-1,J  ,K-1,L  ) +
+     *                             L*ZZZZ(I-1,J  ,K  ,L-1))
+ 2030     CONTINUE
+C
+C
+C    LOOP OVER SUBSHELLS TO GET VALUES OF THE INTEGRALS
+C
+      IMOVE=0
+          DO 120 IASUB=IAMIN,IAMAX
+C          THE X COORDINATE IN S(NUM,NUM,NUM,NUM)
+           IAPOSIT=LOCA+IASUB
+           L1=LDAT(IASUB)
+           M1=MDAT(IASUB)
+           N1=NDAT(IASUB)
+           CONTRA=CONTA(IASUB)*CONTC(IASUB)
+C
+           DO 121 IBSUB=IBMIN,IBMAX
+C           THE Y COORDINATE IN S(NUM,NUM,NUM,NUM)
+            IBPOSIT=LOCB+IBSUB
+            IF(IBPOSIT .GT. IAPOSIT) GO TO 120
+            L2=LDAT(IBSUB)
+            M2=MDAT(IBSUB)
+            N2=NDAT(IBSUB)
+            CONTRE=CONTRA*CONTB(IBSUB)*CONTE(IBSUB)
+C
+              IMOVE=IMOVE+1
+              TEMPS(IMOVE) = TEMPS(IMOVE)
+     *            +ABCK*CONTRE*XXXX(L1,L1,L2,L2)*
+     *               YYYY(M1,M1,M2,M2)*ZZZZ(N1,N1,N2,N2)
+C
+  121      CONTINUE
+  120     CONTINUE
+C
+C
+  113    CONTINUE
+  112    CONTINUE
+  111   CONTINUE
+  110  CONTINUE
+C
+C   LOOP OVER TEMPORARY MATRIX
+C
+        DUM=0.0D+00
+         IMOVE=0
+         DO 421 IAPOSIT=IAMIN+LOCA,IAMAX+LOCA
+           DO 422 IBPOSIT=IBMIN+LOCB,MIN(IBMAX+LOCB,IAPOSIT)
+C
+              IMOVE=IMOVE+1
+              IF(TEMPS(IMOVE) .GT. DUM) DUM=TEMPS(IMOVE)
+  422   CONTINUE
+  421  CONTINUE
+       S(KASHL+IBSHL)=DUM
+C
+C     END SHELL LOOPS
+C
+  101 CONTINUE
+  100 CONTINUE
+C
+C     ----- SUM UP PARTIAL CONTRIBUTIONS IF PARALLEL -----
+C
+c-pea      IF(GOPARR)CALL DDI_GSUMF(1039,S,NSHELL*(NSHELL+1)/2)
+      IF(GOPARR)CALL DDI_GSUMF(1039,S,NtSHEL*(NtSHEL+1)/2)
+C
+c-pea      CALL DAWRIT(IDAF,IODA,S,NSHELL*(NSHELL+1)/2,342,0)
+      CALL DAWRIT(IDAF,IODA,S,NtSHEL*(NtSHEL+1)/2,342,0)
+C
+      CALL TSECND(TIM)
+      TIM = TIM-TIM0
+      IF(SOME) WRITE(IW,9000) TIM
+      RETURN
+C
+ 9000 FORMAT(1X,'(IIJJ) INTEGRAL SCHWARZ INEQUALITY OVERHEAD: T=',F12.2)
+c---      END
+c---C*MODULE neopos  *DECK getlambdafci
+c---      SUBROUTINE getlambdafci(is,xlfci,ce,cn,occe,occn,xx,ix,nintmx)
+c---C
+c---      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+c---C
+c---      PARAMETER (MXATM=2000)
+c---      PARAMETER (MXRT=100)
+c---C
+c---      COMMON /INFOA / NAT,ICH,MUL,NUM,NQMT,NE,NAINF,NBINF,
+c---     *                ZAN(MXATM),C(3,MXATM),IAN(MXATM)
+c---      COMMON /NUCMOI/ NUNIQN,IUNIQN(20),IUNIQT(20),NQMNUC,IQMNUC(20),
+c---     *                IQNTYP(20),NUMNB,NUCST,NAUXNB,IAUXNB(20),NUMULT,
+c---     *                NNA,NNB,NTAUXB
+c---      COMMON /DETWFN/ WSTATE(MXRT),SPINS(MXRT),CRIT,PRTTOL,S,SZ,
+c---     *                GRPDET,STSYM,GLIST,
+c---     *                NFLGDM(MXRT),IWTS(MXRT),NCORSV,NCOR,NACT,NORB,
+c---     *                NA,NB,K,KST,IROOT,IPURES,MAXW1,NITER,MAXP,NCI,
+c---     *                IGPDET,KSTSYM,NFTGCI
+c---      COMMON /DETNEO/ WSTATE_NEO(MXRT),SPINS_NU(MXRT),CRIT_NU,
+c---     *                PRTTOL_NEO,S_NU,SZ_NU,GRPDET_NU,STSYM_NU,
+c---     *                NFLGDM_NEO(MXRT),IWTS_NU(MXRT),NCORSV_NU,
+c---     *                NCOR_NU,NACT_NU,NORB_NU,NA_NU,NB_NU,
+c---     *                K_NEO,KST_NEO,IROOT_NEO,IPURES_NEO,MAXW1_NEO,
+c---     *                NITER_NEO,MAXP_NEO,NCI_NU,IGPDET_NU,KSTSYM_NU
+c---      COMMON /IOFILE/ IR,IW,IP,IJK,IPK,IDAF,NAV,IODA(950)
+c---      COMMON /PCKLAB/ LABSIZ
+c---
+c---c      DIMENSION IFA(0:30,0:30)
+c---      DIMENSION XX(nintmx),IX(NINTMX*4)
+c---      DIMENSION sep(norb*(norb+1)*norb_nu*(norb_nu+1)/4)
+c---      DIMENSION ce(norb*num),cn(norb_nu*numnb),occe(norb),occn(norb_nu)
+c---
+c---c      CALL BINOM6(IFA,30)      
+c---c      NALP = IFA(NACT,NA)
+c---c      NBLP = IFA(NACT,NB)
+c---cCSPW  NNALP = IFA(NACT_NU,NA_NU)
+c---c      NNBLP = IFA(NACT_NU,NB_NU)
+c---
+c---      write(iw,*) 'in getlambdafci'
+c---
+c---      ithisone=0
+c---      if (ithisone.eq.1) then
+c---         write(iw,*) ' '
+c---         write(iw,*) "-ELECTRON MOS-"
+c---         write(iw,*) ' '
+c---         do 20 i=1,norb
+c---            do 15 j=1,num
+c---               write(iw,*) "i j ce(i,j) = ",i,j,ce((i-1)*num+j)
+c---   15       continue
+c---   20    continue
+c---
+c---
+c---         write(iw,*) ' '
+c---         write(iw,*) "-POSITRON MOS-"
+c---         write(iw,*) ' '
+c---         do 35 i=1,norb_nu
+c---            do 30 j=1,numnb
+c---               write(iw,*) "i j cn(i,j) = ",i,j,cn((i-1)*numnb+j)
+c---   30       continue
+c---   35    continue
+c---      end if
+c---
+c---      write(iw,*)'made it here'
+c---      do 40 i=1,norb*(norb+1)*norb_nu*(norb_nu+1)/4
+c---        sep(i)=0.0d+00
+c---   40 continue
+c---      write(iw,*)'made it here, too'
+c---      
+c---
+c---c compute the overlap integrals over MOs
+c---c ovrlpints are stored in <ee|pp> order
+c---      CALL SEQREW(is)
+c---  200 CALL PREAD(is,XX,IX,NXX,NINTMX)
+c---c      write(iw,*) 'nxx=',nxx
+c---      IF(NXX.EQ.0) return
+c---      NINT=IABS(NXX)
+c---C
+c---C     ----- TWO BYTES PER LABEL -----
+c---C
+c---       DO 250 M=1,NINT
+c---c           if (xx(m).eq.NAN) then
+c---c              val1=0.0d+00
+c---c           else
+c---               VAL1 = XX(M)
+c---c           end if
+c---c-pea	    if(.not.(val1.eq.val1)) val1=0.0d+00
+c---C
+c---                       NPACK = M
+c---                  IF(LABSIZ.GE.2) THEN
+c---*I32                     LABEL = IX( 2*NPACK - 1 )
+c---*I32                     IPACK = ISHFT( LABEL, -16 )
+c---*I32                     JPACK = IAND(  LABEL, 65535 )
+c---*I32                     LABEL = IX( 2*NPACK     )
+c---*I32                     KPACK = ISHFT( LABEL, -16 )
+c---*I32                     LPACK = IAND(  LABEL, 65535 )
+c---*I64                     LABEL = IX(NPACK)
+c---*I64                     IPACK = ISHFT( LABEL, -48 )
+c---*I64                     JPACK = IAND( ISHFT( LABEL, -32 ), 65535 )
+c---*I64                     KPACK = IAND( ISHFT( LABEL, -16 ), 65535 )
+c---*I64                     LPACK = IAND( LABEL, 65535 )
+c---                  else
+c---C     ----- ONE BYTE PER LABEL -----
+c---C
+c---C
+c---*I32                     LABEL = IX(NPACK)
+c---*I32                     IPACK = ISHFT( LABEL, -24 )
+c---*I32                     JPACK = IAND( ISHFT( LABEL, -16 ), 255 )
+c---*I32                     KPACK = IAND( ISHFT( LABEL,  -8 ), 255 )
+c---*I32                     LPACK = IAND( LABEL, 255 )
+c---*I64                     IF ( MOD(NPACK,2) .EQ. 0 ) THEN
+c---*I64                       LABEL = IX( NPACK/2 )
+c---*I64                       IPACK = IAND( ISHFT( LABEL, -24 ), 255 )
+c---*I64                       JPACK = IAND( ISHFT( LABEL, -16 ), 255 )
+c---*I64                       KPACK = IAND( ISHFT( LABEL,  -8 ), 255 )
+c---*I64                       LPACK = IAND( LABEL, 255 )
+c---*I64                     ELSE
+c---*I64                       LABEL = IX( (NPACK/2)+1 )
+c---*I64                       IPACK = ISHFT( LABEL, -56 )
+c---*I64                       JPACK = IAND( ISHFT( LABEL, -48 ), 255 )
+c---*I64                       KPACK = IAND( ISHFT( LABEL, -40 ), 255 )
+c---*I64                       LPACK = IAND( ISHFT( LABEL, -32 ), 255 )
+c---*I64                     END IF
+c---C
+c---                   end if
+c---      ji = IPACK
+c---      jj = JPACK
+c---      jip = KPACK
+c---      jjp = LPACK
+c---      isep=1
+c---      do 240 ja=1,norb
+c---      do 230 jr=1,ja
+c---c-pea      do 230 jr=1,4
+c---c-pea      if(jr.gt.noa.or.jr.eq.ja) then
+c---c-pea       do 220 jrp=1,3
+c---       do 220 jap=1,norb_nu
+c---       do 210 jrp=1,jap
+c---c        check for NaN in val1 (skip if found)
+c---c-pea         if (val1.eq.val1) then
+c---c-pea            write(iw,*) 'ce(',ja,ji,')=',ce( (ja-1)*num+ji),
+c---c-pea     *         ' ce(',jr,jj,')=',ce( (jr-1)*num+jj)
+c---c-pea            write(iw,*) 'cn(',jap,jip,')=',cn( (jap-1)*numnb+jip),
+c---c-pea     *         ' cn(',jrp,jjp,')=',cn( (jrp-1)*numnb+jjp)
+c---c-pea            emult=2.0
+c---c-pea            pmult=2.0
+c---c-pea            if(ji.eq.jj) emult=1.0
+c---c-pea            if(jip.eq.jjp) pmult=1.0
+c---c-pea            stmp= emult*pmult*val1
+c---c i=j and i'=j' so only need (ii|i'i')
+c---            if ((ji.eq.jj).and.(jip.eq.jjp)) then
+c---c            write(iw,*)'i=j && ip=jp'
+c---            stmp= val1
+c---     *      * ce((ja -1)*num  +ji ) * ce((jr -1)*num  +ji )
+c---     *      * cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jip)
+c---c i=j so only need (ii|i'j') & (ii|j'i')
+c---            else if (ji.eq.jj) then
+c---c            write(iw,*)'i=j'
+c---            stmp= val1
+c---     *      *(ce((ja -1)*num  +ji ) * ce((jr -1)*num  +ji ))
+c---     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+c---     *      + cn((jap-1)*numnb+jjp) * cn((jrp-1)*numnb+jip))
+c---c i'=j' so only need (ij|i'i') & (ji|i'i')
+c---            else if (jip.eq.jjp) then
+c---c            write(iw,*)'ip=jp'
+c---            stmp= val1
+c---     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jip))
+c---     *      *(ce((ja -1)*num  +ji ) * ce((jr -1)*num  +jj )
+c---     *      + ce((ja -1)*num  +jj ) * ce((jr -1)*num  +ji ))
+c---c need all (ij|i'j') & (ij|j'i') &(ji|i'j') & (ji|j'i')
+c---            else
+c---            stmp= val1*
+c---     *      ( ce((ja -1)*num  +ji ) * ce((jr -1)*num  +jj )
+c---     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+c---     *       +cn((jap-1)*numnb+jjp) * cn((jrp-1)*numnb+jip))
+c---     *      + ce((ja -1)*num  +jj ) * ce((jr -1)*num  +ji )
+c---     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+c---     *       +cn((jap-1)*numnb+jjp) * cn((jrp-1)*numnb+jip)))
+c---            end if
+c---c
+c---            stmpb=sep(isep)
+c---            sep(isep)= stmp + stmpb
+c---c-pea            write(iw,*)'stmp',stmp 
+c---c-pea            write(iw,*)'sep(',(ja-1)*no*nnorb+(jr-1)*nnorb+jrp,')',
+c---c-pea     *        sep((ja-1)*no*nnorb+(jr-1)*nnorb+jrp)
+c---c-pea         end if
+c---c can compute xlhf here or later
+c---      ithisone=0
+c---      if (ithisone.eq.1) then
+c---      if (ja.eq.1.and.jr.eq.1.and.jap.eq.1.and.jrp.eq.1) then
+c---       write(iw,7000) ji,jj,jip,jjp,val1
+c---      end if
+c---      end if
+c--- 7000 FORMAT('ovrlpint(',I4,I4,I4,I4,')',F14.8) 
+c---c      if((ja.eq.jr).and.(jap.eq.1).and.(jrp.eq.1).and.(ja.le.na)) then
+c---c        xlhf=xlhf+ 2.0d+00*stmp
+c---c      end if
+c---         xlfci=xlfci+stmp*occe(ja)*occe(jr)*occn(jap)*occn(jrp)
+c---         isep=isep+1
+c---  210  continue
+c---  220  continue
+c---c-pea      end if
+c---  230 continue
+c---  240 continue
+c---C
+c---  250 CONTINUE
+c---C
+c---      IF(NXX.GT.0) GO TO 200
+c---
+c---      xlfcisv=xlfci
+c---      xlfci=0.0d+00
+c---      isep=1
+c---      do 340 ja=1,norb
+c---      do 330 jr=1,ja
+c---       do 320 jap=1,norb_nu
+c---       do 310 jrp=1,jap
+c---         xlfci=xlfci+sep(isep)*occe(ja)*occe(jr)*occn(jap)*occn(jrp)
+c---         isep=isep+1
+c---  310  continue
+c---  320  continue
+c---  330 continue
+c---  340 continue
+c---      xlfci=xlfcisv
+c---
+c---
+c---c      MIXDET = NCI*NCI_NU
+c---c      DO 300 K=1,MIXDET
+c---c            INN=(I-1)*MIXDET+K
+c---c            CALL NDINDX(K,INDA,INDB,INNDA,INNDB,NALP,NBLP,NNBLP)
+c---c      WRITE (iw,7010) INNDA,INNDB,INDA,INDB,K,CIVECT(INN)
+c---c  300 continue
+c---c 7010 FORMAT(I4,I4,I4,I4,' for det # ',I4) 
+c---c     write(iw,*)'xlhf',xlhf
+c---
+c---c can compute xlhf here or above
+c---c      xlhfsv=xlhf
+c---c      xlhf=0.0d+00
+c---cc-pea      write(iw,*)'xlhf',xlhf
+c---c      do 300 ja=1,noa
+c---cc-pea        write(iw,*)'ja',ja
+c---cc-pea        write(iw,*)'sep',sep((ja-1)*no*nnorb+1)
+c---cc-pea        write(iw,*)'index',(ja-1)*no*nnorb+1
+c---c        isep=(ja-1)*no*nnorb +(ja-1)*nnorb+1
+c---c        xlhf=xlhf+ 2.0d+00*sep(isep)
+c---cc-pea        write(iw,*)'xlhf',xlhf
+c---c  300 continue
+c---cc      xlhf=xlhfsv
+c---c
+c---c      xlep=0.0d+00
+c---cc-pea      write(iw,*)'xlep',xlep
+c---c      do 340 ja=1,noc
+c---c      do 330 jr=noc+1,no
+c---c      do 320 jrp=2,nnorb
+c---cc-pea        write(iw,*)'ja jr jrp',ja,jr,jrp
+c---cc-pea        write(iw,*)'sep',sep((ja-1)*no*nnorb+(jr-1)*nnorb+jrp)
+c---cc-pea        write(iw,*)'cep',cep((ja-1)*no*nnorb+(jr-1)*nnorb+jrp)
+c---cc-pea        write(iw,*)'index',(ja-1)*no*nnorb+(jr-1)*nnorb+jrp
+c---c        isep=(ja-1)*no*nnorb+(jr-1)*nnorb+jrp
+c---c        xlep=xlep + 2.0d+00*sep(isep)*cep(isep)
+c---c-pea        write(iw,*)'xlep',xlep
+c---c  320 continue
+c---c  330 continue
+c---c  340 continue
+c---
+c---      RETURN
+c---      END
+c---C*MODULE neopos  *DECK getmp2energy
+c---      SUBROUTINE getmp2energy(it,xeep,ce,cn,
+c---     *   eige,eign,xx,ix,nintmx,cep)
+c---C
+c---      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+c---C
+c---      COMMON /IOFILE/ IR,IW,IP,IJK,IPK,IDAF,NAV,IODA(950)
+c---      COMMON /MP2PAR/ OSPT,CODEMP,SCSPT,TOL,METHOD,NWDMP2,MEMPRI,MPPROP,
+c---     *                NACORE,NBCORE,NOA,NOB,NO,NBF,NOMIT,MOCPHF,MAXITC
+c---      COMMON /NUCMOI/ NUNIQN,IUNIQN(20),IUNIQT(20),NQMNUC,IQMNUC(20),
+c---     *                IQNTYP(20),NUMNB,NUCST,NAUXNB,IAUXNB(20),NUMULT,
+c---     *                NNA,NNB,NTAUXB
+c---      COMMON /PCKLAB/ LABSIZ
+c---
+c---      DIMENSION XX(nintmx),IX(NINTMX*4)
+c---      DIMENSION cep(noa*no*numnb)
+c---      DIMENSION ce(*),cn(*),eige(*),eign(*)
+c---
+c---c     debug subroutine to recompute the e-p MP2 energy
+c---
+c---      noc=noa
+c---      nnorb=numnb
+c---      
+c---      xeep=0.0d+00
+c---      ithisone=0
+c---      if(ithisone.eq.1) then
+c---         write(iw,*) ' '
+c---         write(iw,*) "-ELECTRON EIGENVALUES-"
+c---         write(iw,*) ' '
+c---         do 10 i=1,no
+c---            write(iw,7010) i,eige(i)
+c---   10    continue
+c--- 7010 FORMAT(1X,'eige(',I4,')=',F14.8)
+c---
+c---         write(iw,*) ' '
+c---         write(iw,*) "-ELECTRON MOS-"
+c---         write(iw,*) ' '
+c---         do 20 i=1,no
+c---            do 15 j=1,nbf
+c---               write(iw,7020) i,j,ce((i-1)*nbf+j)
+c---   15       continue
+c---   20    continue
+c--- 7020 FORMAT(1X,'ce(',I4,',',I4')=',F14.8)
+c---
+c---         write(iw,*) ' '
+c---         write(iw,*) "-POSITRON EIGENVALUES-"
+c---         write(iw,*) ' '
+c---         do 25 i=1,nnorb
+c---            write(iw,7025) i,eign(i)
+c---   25    continue
+c--- 7025 FORMAT(1X,'eign(',I4,')=',F14.8)
+c---
+c---         write(iw,*) ' '
+c---         write(iw,*) "-POSITRON MOS-"
+c---         write(iw,*) ' '
+c---         do 35 i=1,nnorb
+c---            do 30 j=1,numnb
+c---               write(iw,7035) i,j,cn((i-1)*numnb+j)
+c---   30       continue
+c---   35    continue
+c---      end if
+c--- 7035 FORMAT(1X,'cn(',I4,',',I4')=',F14.8)
+c---
+c---      do i=1,noc*no*nnorb
+c---        cep(i)=0.0d+00
+c---      enddo
+c---
+c---c           get the epa matrix and compute the ep mp2 energy
+c---c           epa integrals stored in <pp|ee> order
+c---      CALL SEQREW(it)
+c---  110 CALL PREAD(it,XX,IX,NXX,NINTMX)
+c---      IF(NXX.EQ.0) go to 180
+c---      NINT=IABS(NXX)
+c---C
+c---       DO 150 M=1,NINT
+c---          VAL1 = XX(M)
+c---c          if(.not.(val1.eq.val1)) val1=0.0d+00
+c---C
+c---                       NPACK = M
+c---
+c---C     ----- TWO BYTES PER LABEL -----
+c---C
+c---                  IF(LABSIZ.GE.2) THEN
+c---*I32                     LABEL = IX( 2*NPACK - 1 )
+c---*I32                     IPACK = ISHFT( LABEL, -16 )
+c---*I32                     JPACK = IAND(  LABEL, 65535 )
+c---*I32                     LABEL = IX( 2*NPACK     )
+c---*I32                     KPACK = ISHFT( LABEL, -16 )
+c---*I32                     LPACK = IAND(  LABEL, 65535 )
+c---*I64                     LABEL = IX(NPACK)
+c---*I64                     IPACK = ISHFT( LABEL, -48 )
+c---*I64                     JPACK = IAND( ISHFT( LABEL, -32 ), 65535 )
+c---*I64                     KPACK = IAND( ISHFT( LABEL, -16 ), 65535 )
+c---*I64                     LPACK = IAND( LABEL, 65535 )
+c---                  else
+c---C     ----- ONE BYTE PER LABEL -----
+c---C
+c---C
+c---*I32                     LABEL = IX(NPACK)
+c---*I32                     IPACK = ISHFT( LABEL, -24 )
+c---*I32                     JPACK = IAND( ISHFT( LABEL, -16 ), 255 )
+c---*I32                     KPACK = IAND( ISHFT( LABEL,  -8 ), 255 )
+c---*I32                     LPACK = IAND( LABEL, 255 )
+c---*I64                     IF ( MOD(NPACK,2) .EQ. 0 ) THEN
+c---*I64                       LABEL = IX( NPACK/2 )
+c---*I64                       IPACK = IAND( ISHFT( LABEL, -24 ), 255 )
+c---*I64                       JPACK = IAND( ISHFT( LABEL, -16 ), 255 )
+c---*I64                       KPACK = IAND( ISHFT( LABEL,  -8 ), 255 )
+c---*I64                       LPACK = IAND( LABEL, 255 )
+c---*I64                     ELSE
+c---*I64                       LABEL = IX( (NPACK/2)+1 )
+c---*I64                       IPACK = ISHFT( LABEL, -56 )
+c---*I64                       JPACK = IAND( ISHFT( LABEL, -48 ), 255 )
+c---*I64                       KPACK = IAND( ISHFT( LABEL, -40 ), 255 )
+c---*I64                       LPACK = IAND( ISHFT( LABEL, -32 ), 255 )
+c---*I64                     END IF
+c---C
+c---                   end if
+c---      jip = IPACK
+c---      jjp = JPACK
+c---      ji = KPACK
+c---      jj = LPACK
+c---      jap=1
+c---      do 140 ja=1,noc
+c---      do 130 jr=noc+1,no
+c---      do 120 jrp=2,nnorb
+c---c        check for NaN in val1 (skip if found)
+c---c-pea         denomlim = 1.0D-08
+c---c         if (val1.eq.val1) then
+c---c-pea           if(denom.gt.denomlim) then
+c---c-pea            write(iw,*) 'ce(',ja,ji,')=',ce( (ja-1)*nbf+ji),
+c---c-pea     *         ' ce(',jr,jj,')=',ce( (jr-1)*nbf+jj)
+c---c-pea            write(iw,*) 'cn(',jap,jip,')=',cn( (jap-1)*numnb+jip),
+c---c-pea     *         ' cn(',jrp,jjp,')=',cn( (jrp-1)*numnb+jjp)
+c---c-pea            write(iw,*) 'epa(',ji,jj,jip,jjp,')=',val1
+c---c-pea            emult=2.0
+c---c-pea            pmult=2.0
+c---c-pea            if(ji.eq.jj) then
+c---c-pea               emult=1.0
+c---c-pea            end if
+c---c-pea            if(jip.eq.jjp) then
+c---c-pea               pmult=1.0
+c---c-pea            end if
+c---c-pea        write(iw,*)'before cep(',ja,jr,jrp,')',
+c---c-pea     *     cep((ja-1)*no*nnorb+(jr-1)*nnorb+jrp)
+c---c-pea            write(iw,*)'denom',denom
+c---            icep=(ja-1)*no*nnorb+(jr-1)*nnorb+jrp
+c---            ctmpa=cep(icep)
+c---            if ((ji.eq.jj).and.(jip.eq.jjp)) then
+c---            ctmp= val1
+c---     *      * ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +jj )
+c---     *      * cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+c---            else if (ji.eq.jj) then
+c---            ctmp= val1
+c---     *      *(ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +jj ))
+c---     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+c---     *      + cn((jap-1)*numnb+jjp) * cn((jrp-1)*numnb+jip))
+c---            else if (jip.eq.jjp) then
+c---            ctmp= val1
+c---     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp))
+c---     *      *(ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +jj )
+c---     *      + ce((ja -1)*nbf  +jj ) * ce((jr -1)*nbf  +ji ))
+c---            else
+c---            ctmp= val1
+c---     *      *(ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +jj )
+c---     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+c---     *       +cn((jap-1)*numnb+jjp) * cn((jrp-1)*numnb+jip))
+c---     *      + ce((ja -1)*nbf  +jj ) * ce((jr -1)*nbf  +ji )
+c---     *      *(cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)
+c---     *       +cn((jap-1)*numnb+jjp) * cn((jrp-1)*numnb+jip)))
+c---            end if
+c---            cep(icep) = ctmpa + ctmp
+c---c-pea     *      + emult*pmult*val1
+c---c-pea     *      * ce((ja -1)*nbf  +ji ) * ce((jr -1)*nbf  +jj )
+c---c-pea     *      * cn((jap-1)*numnb+jip) * cn((jrp-1)*numnb+jjp)/denom
+c---c-pea        write(iw,*)'after cep(',ja,jr,jrp,')',
+c---c-pea     *     cep((ja-1)*no*nnorb+(jr-1)*nnorb+jrp)
+c---c-pea           end if
+c---c         end if
+c---  120 continue 
+c---  130 continue
+c---  140 continue
+c---C
+c---C
+c---  150    CONTINUE
+c---C
+c---      IF(NXX.GT.0) GO TO 110
+c---  180 continue
+c---
+c---      jap=1
+c---      xeep=0
+c---      do 240 ja=1,noc
+c---      do 230 jr=noc+1,no
+c---      do 220 jrp=2,nnorb
+c---          icep=(ja-1)*no*nnorb+(jr-1)*nnorb+jrp
+c---          denom = eige(ja)+eign(jap)-eige(jr)-eign(jrp)
+c---          xeep=xeep+cep(icep)*cep(icep)/denom
+c---          icep=icep+1
+c---  220 continue 
+c---  230 continue
+c---  240 continue
+c---
+c---      RETURN
+      END

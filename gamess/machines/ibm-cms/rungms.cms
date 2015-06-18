@@ -1,0 +1,283 @@
+/* 12 Oct 91 - MWS
+ 
+   REXX script to execute GAMESS under VM/CMS,
+   using the proprietary VMBATCH batch facility.
+ 
+   This is a "load and go" type of job, running off a TXTLIB.
+ 
+   If the first argument is "VMBATCH", then this EXEC is running
+   in batch mode.  If it is anything else, the EXEC is running
+   interactively and the first argument is the name of the input
+   deck.  In this case, the EXEC submits itself as a batch job.
+*/
+PARSE UPPER ARG job .
+IF (job='VMBATCH') THEN mode = 'BATCH'
+                   ELSE mode = 'SUBMIT'
+ 
+/* Set some site specific variables */
+gmsid   = 'NU070347'    /* ID of user who owns GAMESS source disk    */
+gmsaddr = 193           /* Virtual address of GAMESS source minidisk */
+gmspswd = 'SCHMIDT'     /* Read access password to GAMESS minidisk   */
+ 
+/*    help forgetful users   */
+IF (job='?') | (job='HELP') | (job='') THEN DO
+   VMFCLEAR
+   SAY "The syntax to submit GAMESS jobs to VMBATCH under CMS is"
+   SAY "      RUNGMS deck (options)"
+   SAY "Where 'deck' is the name of your filetype=INP input file."
+   SAY ""
+   SAY "Valid options are:   (minimal abbreviation indicated by *)"
+   SAY "T*IME mmm - wall clock time, in minutes.  Default is mmm=1600."
+   SAY "            mmm <=5  gives class A, NOHOLD,  10 disk cylinders."
+   SAY "            mmm <=60 gives class B, NOHOLD,  50 disk cylinders."
+   SAY "            mmm  >60 gives class C,   HOLD, 300 disk cylinders."
+   SAY "DAS*ORT ddd - number of DASORT records.  The default is ddd=200"
+   SAY "              N.B.  You must specify 3000 or so for GUGA runs."
+   SAY ""
+   SAY "---> At NDSU, type VMBHELP for help with VMBATCH commands."
+   EXIT 0
+END
+ 
+/*   This code prepares to submit the VMBATCH job... */
+/*---------------------------------------------------*/
+IF (mode='SUBMIT') THEN DO
+ 
+   /*   make sure the input file exists   */
+   CP SET EMSG OFF
+   ESTATE job 'INP *'
+   src = rc
+   CP SET EMSG ON
+   IF (src>0) THEN DO
+      SAY 'I cannot find your input deck' job 'INP anywhere, so'
+      SAY 'no job was submitted. Type "RUNGMS ?" if you need help.'
+      EXIT 100
+   END
+ 
+   /*   decode options    */
+   PARSE UPPER ARG '(' options ')'
+   CALL decode_options options
+ 
+   /*   create option list and submit job */
+   hour = time%60
+   min = time - 60*hour
+   IF (min<9) THEN min = '0'min
+   username  = userid()
+ 
+   SAY 'Submitting' job 'INP to VMBATCH, class' jobclas',' ,
+        hldstat', 'time' min, 'diskcyl' cyl, DASORT='extents'.'
+ 
+   files = 'RUNGMS EXEC *' job 'INP *'
+ 
+/*
+        "USER191 NO" means there is no need to link the user's A disk.
+        "FILERETN CANCEL" returns files only if job is canceled.
+*/
+ 
+   opts = 'STORAGE 12M FILERETN CANCEL USER191 NO NAME' job ,
+          'WORKDISK' diskcyl'-3380' 'TIME' hour':'min':00' ,
+          'CLASS' jobclas hldstat 'PUNCH 50000 NOSTATUS'
+ 
+   cmd = "COMMAND 'EXEC RUNGMS VMBATCH" job extents username "'"
+ 
+   VMBATCH SUBMIT files '(' opts cmd ')'
+   EXIT
+END
+ 
+ 
+/* From here down, we are executing in batch mode...  */
+/*----------------------------------------------------*/
+ 
+PARSE UPPER ARG . job extents username
+CP MSG username 'VMBATCH execution of GAMESS job' job 'is beginning.'
+ 
+/*   prevent lots of wiggles from appearing in the log file */
+SET BLIP OFF
+ 
+/*   this is a trick to name the LOG file, CONT overrides CLOSE  */
+'CP SPOOL CONSOLE START CONT TO' username
+'CP CLOSE CONSOLE NAME' job 'LOG'
+SAY 'JOB LOG FOR GAMESS EXECUTION OF JOB' job 'FOR USER' username
+SAY 'GAMESS EXECUTION BEGUN AT' TIME()',' DATE()
+ 
+/*   same trick to name the PUNCH output  */
+'CP SPOOL PUNCH CONT TO' username
+'EXECIO 1 PUNCH (STRING This is the PUNCH output for GAMESS job' job'.'
+'CP CLOSE PUNCH NAME' job 'PUNCH'
+ 
+/*   Readonly access to the system minidisk with VS FORTRAN libraries */
+'CP LINK VSF2FORT 193 112 RR'
+'ACCESS 112 F'
+ 
+/*   Readonly access to the minidisk with the GAMESS object code */
+ADDRESS COMMAND 'CP LINK' gmsid gmsaddr '188 RR' gmspswd
+'ACCESS 188 B'
+ 
+/*   Make a card image copy of the input   */
+COPYFILE job 'INP A'   job 'INPUT A (REP RECFM F LRECL 80)'
+   ERASE job 'INP A'
+ 
+/*   Define all disk files potentially used by GAMESS  */
+FILEDEF 'IRCDATA  DISK' job 'IRCDATA A (LRECL 80)'
+FILEDEF 'INPUT    DISK' job 'INPUT   A (LRECL 80)'
+FILEDEF 'FT06F001 TERMINAL'
+FILEDEF 'PUNCH    PUNCH'
+FILEDEF 'AOINTS   DISK' job 'AOINTS  A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'MOINTS   DISK' job 'MOINTS  A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'DICTNRY  DISK' job 'DICTNRY A (XTENT 1000 DSORG DA)'
+FILEDEF 'DRTFILE  DISK' job 'DRTFILE A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'CIVECTR  DISK' job 'CIVECTR A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'NTNFMLA  DISK' job 'NTNFMLA A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'CIINTS   DISK' job 'CIINTS  A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'WORK15   DISK' job 'WORK15  A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'WORK16   DISK' job 'WORK16  A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'CSFSAVE  DISK' job 'CSFSAVE A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'FOCKDER  DISK' job 'FOCKDER A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'DASORT   DISK' job 'DASORT  A (XTENT' extents 'DSORG DA)'
+FILEDEF 'JKFILE   DISK' job 'JKFILE  A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'ORDINT   DISK' job 'ORDINT  A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'EFPIND   DISK' job 'EFPIND  A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'PCMDATA  DISK' job 'PCMDATA A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'PCMINTS  DISK' job 'PCMINTS A (RECFM VBS BLKSIZE 23476)'
+FILEDEF 'DAFL30   DISK' job 'DAFL30  A (XTENT 500 DSORG DA)'
+/*
+    there are many files for MCQDPT not included here.
+    See PROG.DOC for details: .F50 is direct access, 51-62
+    are sequential access, 63-64 are formatted output files.
+*/
+ 
+/*    Define the various TXTLIB's of object code.          */
+/*    Use the next line if you don't have an IBM VF.       */
+'GLOBAL TXTLIB GAMESS VSF2FORT CMSLIB'
+/*    Use the next line if you do have an IBM VF.       */
+/*
+'GLOBAL TXTLIB GAMESS ESVVLIB VSF2FORT CMSLIB'
+*/
+'GLOBAL LOADLIB VSF2LOAD'
+ 
+/*   reserve room for many subroutine names  */
+SET LDRTBLS 10
+ 
+/*
+     Link the program in memory, the options are
+     if you have VM/SP or VM/HPO, xaopt=''
+     if you have VM/XA or VM/ESA, xaopt='RMODE ANY AMODE 31'
+*/
+xaopt=''
+'LOAD GAMESS (CLEAR MAP LIBE NODUP NOAUTO NOTYPE' xaopt ')'
+IF (rc>0) THEN DO
+   SAY 'The return code from the link step is' rc
+   SAY 'Failure to link GAMESS - check load map for error.'
+   'SENDFILE LOAD MAP A TO' username
+   CP MSG username 'VMBATCH job' job 'bombed!'
+   EXIT 20
+END
+'ERASE LOAD MAP A'
+ 
+/*   Execute the program, after letting the GAMESS minidisk go  */
+'RELEASE B (DET)'
+'START GAMESS'
+CP MSG username 'VMBATCH execution of GAMESS job' job 'is ended.'
+ 
+/*   Show disk usage, return results to user  */
+SAY ''
+SAY 'DISK USAGE:'
+LISTFILE job '* A (FORMAT ALLOC)'
+SAY 'VMBATCH JOB ENDED AT' TIME()',' DATE()
+CP SPOOL CONSOLE NOCONT STOP CLOSE
+CP SPOOL PUNCH   NOCONT CLOSE
+ 
+/*    If run created IRCDATA, return that too  */
+CP SET EMSG OFF
+ESTATE job 'IRCDATA A'
+IF (rc=0) THEN EXEC SENDFILE job 'IRCDATA A TO' username
+CP SET EMSG ON
+ 
+ERASE job '* A'
+EXIT
+ 
+/*-----------------------------------------------------------*/
+/* Subroutine: => DECODE_OPTIONS                             */
+/*                                                           */
+/* Function: => Parses and interprets option string.         */
+/*-----------------------------------------------------------*/
+ 
+decode_options:  PROCEDURE,
+                 EXPOSE jobclas hldstat time diskcyl extents
+ 
+time=1600        /* in minutes  */
+hldstat='HOLD'
+jobclas = 'C'
+diskcyl = 300    /* this is max available at NDSU */
+extents = 200    /* DASORT records, appropriate to HF level jobs */
+ 
+PARSE UPPER ARG options
+ 
+num_words = WORDS(options)
+wrd_cnt   = 1
+ 
+DO WHILE wrd_cnt <= num_words
+   option = WORD(options,wrd_cnt)
+ 
+   SELECT
+ 
+/*                    undocumented way to beat the HOLD default */
+      WHEN (option='NOHUG') THEN DO
+         hldstat = 'NOHOLD'
+         wrd_cnt = wrd_cnt+1
+      END
+ 
+      WHEN ABBREV('TIME',option,1) THEN DO
+         wrd_cnt = wrd_cnt+1
+ 
+         IF (wrd_cnt > num_words) THEN DO
+            SAY 'Value for TIME not specified.'
+            EXIT 10
+         END
+ 
+         time = WORD(options,wrd_cnt)
+         IF ^(DATATYPE(time,'NUMBER')) THEN DO
+            SAY 'Invalid value specified for TIME.'
+            EXIT 10
+         END
+         wrd_cnt = wrd_cnt+1
+ 
+      END
+ 
+      WHEN ABBREV('DASORT',option,3) THEN DO
+         wrd_cnt = wrd_cnt+1
+ 
+         IF (wrd_cnt > num_words) THEN DO
+            SAY 'Value for DASORT was not specified.'
+            EXIT 10
+         END
+ 
+         extents = WORD(options,wrd_cnt)
+         IF ^(DATATYPE(time,'NUMBER')) THEN DO
+            SAY 'Invalid value specified for DASORT.'
+            EXIT 10
+         END
+         wrd_cnt = wrd_cnt+1
+ 
+      END
+ 
+      OTHERWISE DO
+         SAY 'An invalid option >' option '< was specified.'
+         SAY 'Type "RUNGMS ?" if you need help.'
+         EXIT 10
+      END
+ 
+   END
+END
+ 
+/*    at NDSU, the smaller time limit VMBATCH jobs have less disk */
+IF (time<=60) THEN DO
+   jobclas = 'B'
+   hldstat = 'NOHOLD'
+   diskcyl = 50
+END
+IF (time<=5) THEN DO
+   jobclas = 'A'
+   hldstat = 'NOHOLD'
+   diskcyl  = 50
+END
+RETURN

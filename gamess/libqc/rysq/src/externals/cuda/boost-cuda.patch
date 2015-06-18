@@ -1,0 +1,40 @@
+--- boost/mpl/size_t_fwd.hpp~	2009-10-08 05:29:14.000000000 -0500
++++ boost/mpl/size_t_fwd.hpp	2010-04-21 01:43:45.000000000 -0500
+@@ -20,7 +20,12 @@
+ 
+ BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN
+ 
++#if defined(__CUDACC__)
++typedef std::size_t std_size_t;
++template< std_size_t N > struct size_t;
++#else
+ template< std::size_t N > struct size_t;
++#endif
+ 
+ BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_CLOSE
+ BOOST_MPL_AUX_ADL_BARRIER_DECL(size_t)
+--- boost/mpl/size_t.hpp~	2009-10-08 05:29:14.000000000 -0500
++++ boost/mpl/size_t.hpp	2010-04-21 01:49:08.000000000 -0500
+@@ -16,10 +16,22 @@
+ 
+ #include <boost/mpl/size_t_fwd.hpp>
+ 
++
++#if defined(__CUDACC__)
++
++//typedef std::size_t std_size_t;
++#define AUX_WRAPPER_VALUE_TYPE std_size_t
++#define AUX_WRAPPER_NAME size_t
++#define AUX_WRAPPER_PARAMS(N) std_size_t N
++
++#else
++
+ #define AUX_WRAPPER_VALUE_TYPE std::size_t
+ #define AUX_WRAPPER_NAME size_t
+ #define AUX_WRAPPER_PARAMS(N) std::size_t N
+ 
++#endif
++
+ #include <boost/mpl/aux_/integral_wrapper.hpp>
+ 
+ #endif // BOOST_MPL_SIZE_T_HPP_INCLUDED

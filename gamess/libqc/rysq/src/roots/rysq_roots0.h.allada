@@ -1,0 +1,238 @@
+// -*- C++ -*- 
+
+#ifndef _RYSQ_ROOTS0_H
+#define _RYSQ_ROOTS0_H
+
+#include <math.h>
+
+#ifdef __CUDACC__
+#define decls __host__ __device__ 
+#define const __constant__ 
+#else
+#define decls static inline
+#endif
+
+#ifdef const
+#undef const
+#endif
+
+
+// Polynomial Coefficients - Parallelize root calculations
+
+static double const C15_33[] = { -6.0156581186480998977e-5,
+				 -4.9695241464489997574e-1,
+				 1.9623264149430000303e-1 };
+
+
+static double const C10_15[] = { -2.1916512131607000959e-5,
+				 -4.9893752514047001734e-1,
+				 2.2991849164985000975e-1,
+				 -1.8784686463511998666e-1 };
+
+static double const C5_10[] = { -3.1501078774085e-6,
+				-.49984072848436,
+				.24645596956002,
+				-.32883030418398,
+				.53689283271887,
+				-.69955602298985,
+				.46897511375022};
+
+static double const C3_5[] = { .0528406320615584,
+			       -.0175257821619926,
+			       .00433207949514611,
+			       -8.81947375894379e-4,
+			       1.526537461148e-4,
+			       -2.290098979647e-5,
+			       3.022556449731e-6,
+			       -3.553558319675e-7,
+			       3.760256799971e-8,
+			       -3.614965656163e-9,
+			       3.24031041623823e-10,
+			       -2.62453564772299e-11};
+
+static double const C1_3[] = {.115702180856167,
+			      -.0529428148329736,
+			      .0161723488664661,
+			      -.00379490003707156,
+			      7.24888732052332e-4,
+			      -1.16740298039895e-4,
+			      1.62429321438911e-5,
+			      -1.98850171329371e-6,
+			      2.17216556336318e-7,
+			      -2.14234468198419e-8,
+			      1.96215250865776e-9,
+			      -1.61702782425558e-10};
+
+static double const C0_1[] = {.333333333333318,
+			      -.199999999997023,
+			      .0714285713298222,
+			      -.0185185172458485,
+			      .00378787044215009,
+			      -6.40994113129432e-4,
+			      9.25197374512647e-5,
+			      -1.15662609053481e-5,
+			      1.21222603512827e-6,
+			      -8.36313918003957e-8};
+			      
+decls double Ghondo_roots0_x33toInf(double const X) {
+    return sqrt(.785398163397448 / X);
+}
+
+decls double Ghondo_roots0_x15to33(double const X) {
+    double xinv = 1/X;
+    double e = exp(-X);
+    return ((xinv*.1962326414943 - .4969524146449)*xinv - 
+	    6.0156581186481e-5)*e + sqrt(xinv*.785398163397448);
+}
+
+decls double Ghondo_roots0_x10to15(double const X) {
+    double e = exp(-X);
+    double xinv = 1. / X;
+    return (((xinv*-.18784686463512 + .22991849164985)*xinv - 
+	     .49893752514047)*xinv - 2.1916512131607e-5)*e + sqrt(xinv*.785398163397448);
+}
+
+decls double Ghondo_roots0_x5to10(double const X) {
+    double e = exp(-X);
+    double xinv = 1. / X;
+    return ((((((xinv*.46897511375022 - .69955602298985)*xinv + .53689283271887)*xinv -
+	       .32883030418398)*xinv + .24645596956002)*xinv - .49984072848436)*xinv -
+	    3.1501078774085e-6)*e + sqrt(xinv*.785398163397448);
+}
+
+decls double Ghondo_roots0_x3to5(double const X) {
+    double y = X - 4.;
+    double f1 = ((((((((((y*-2.62453564772299e-11 + 3.24031041623823e-10)*y -
+			 3.614965656163e-9)*y + 3.760256799971e-8)*y - 3.553558319675e-7)*y + 
+		      3.022556449731e-6)*y - 2.290098979647e-5)*y + 1.526537461148e-4)*y -
+		   8.81947375894379e-4)*y + .00433207949514611)*y - .0175257821619926)*y + .0528406320615584;
+    return (X + X) * f1 + exp(-X);
+}
+
+
+decls double Ghondo_roots0_x1to3(double const X) {
+    double y = X - 2.;
+    double f1 = ((((((((((y * -1.61702782425558e-10 +
+			  1.96215250865776e-9) * y - 2.14234468198419e-8) * y +
+			2.17216556336318e-7) * y - 1.98850171329371e-6) * y +
+		      1.62429321438911e-5) * y - 1.16740298039895e-4) * y +
+		    7.24888732052332e-4) * y - .00379490003707156) * y +
+		  .0161723488664661) * y - .0529428148329736) * y +
+	.115702180856167;
+    return (X + X) * f1 + exp(-X);
+}
+
+
+decls double Ghondo_roots0_x0to1(double const X) {
+    double f1 = ((((((((X * -8.36313918003957e-8 + 1.21222603512827e-6) *
+		       X - 1.15662609053481e-5) * X + 9.25197374512647e-5) *
+		     X - 6.40994113129432e-4) * X + .00378787044215009) *
+		   X - .0185185172458485) * X + .0714285713298222) * X -
+		 .199999999997023) * X + .333333333333318;
+    return (X + X) * f1 + exp(-X);
+}
+
+
+decls double Ghondo_Rysq_roots0(double const X) {
+  
+    //#if defined (USE_GHONDO)
+  
+    if (X > 33.) {
+	return Ghondo_roots0_x33toInf(X);
+    }
+    if (X > 15.) {
+	return Ghondo_roots0_x15to33(X);
+    }
+    if (X > 10.) {
+	return Ghondo_roots0_x10to15(X);
+    }
+    if (X > 5.) {
+	return Ghondo_roots0_x5to10(X);
+    }
+    if (X > 3.) {
+	return Ghondo_roots0_x3to5(X);
+    }
+    if (X > 1.) {
+	return Ghondo_roots0_x1to3(X);
+    }
+    if (X > 3e-7) {
+	return Ghondo_roots0_x0to1(X);
+    }
+    return (1. - X / 3.);
+}  
+    //#else // Explicit Polynomial Expansion
+decls double Rysq_roots0(double const X) { 
+    
+    double e = exp(-X);
+    double W = 0.0;
+    
+    if(X > 5.) {
+	double x1 = 1.0/X;
+	double x1i = 1.0;
+	double sqrtinvX = sqrt(.785398163397448 / X);
+	
+	if(X > 33.) {
+	    ;
+	}
+	else if(X > 15.) {
+	    int lsize = sizeof(C15_33)/sizeof(double);
+	    for(int i = 0; i < lsize; ++i) {
+		W += x1i*C15_33[i];
+		x1i *= x1;
+	    }
+	}
+	else if(X > 10.) {
+	    int lsize = sizeof(C10_15)/sizeof(double);
+	    for(int i = 0; i < lsize; ++i) {
+		W += x1i*C10_15[i];
+		x1i *= x1;
+	    }
+	}
+	else {
+	    int lsize = sizeof(C5_10)/sizeof(double);
+	    for(int i = 0; i < lsize; ++i) {
+		W += x1i*C5_10[i];
+		x1i *= x1;
+	    }
+	}
+	return W*e + sqrtinvX;
+    }
+    else if(X > 3e-7) {
+	double yi = 1.0;
+	double x2 = X + X;
+	double y = 0.0;
+	if(X > 3.0) {
+	    y =  X - 4.;
+	    int lsize = sizeof(C3_5)/sizeof(double);
+	    for(int i = 0; i < lsize;  ++i) {
+		W += C3_5[i]*yi;
+		yi *= y;
+	    }
+	}
+	else if(X > 1.0) {
+	    y = X - 2.;
+	    int lsize = sizeof(C1_3)/sizeof(double);
+	    for(int i = 0; i < lsize;  ++i) {
+		W += C1_3[i]*yi;
+		yi *= y;
+	    }
+	}
+	else {
+	    y = X;
+	    int lsize = sizeof(C0_1)/sizeof(double);
+	    for(int i = 0; i < lsize; ++i) {
+		W += C0_1[i]*yi;
+		yi *= y;
+	    }
+	}
+	return (x2*W + e);
+    }
+    else {
+	return (1. - X / 3.);
+    }
+    //#endif // USE_GHONDO
+}
+
+#undef decls
+
+#endif // _RYSQ_ROOTS0_H

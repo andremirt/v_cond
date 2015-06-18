@@ -1,0 +1,104 @@
+     Step-by-step directions for VMS compilation.  
+    These directions were updated on Sept 5, 1994
+
+This assumes you have read the "installation overview" 
+in PROG.DOC, and that you have read the VMS section in 
+IRON.DOC.  If you haven't, please do so before following 
+these steps:
+
+1) Organize your VMS directory to hold the documentation,
+   the source code, the control language, sample inputs,
+   and graphics codes as follows:
+
+     [MIKE.GAMESS]          - *.DOC, extra copies of *.COM
+     [MIKE.GAMESS.SOURCE]   - *.SRC, *.C, *.ASM
+     [MIKE.GAMESS.TOOLS]    - ACTVTE.*,MBLDR.*,CARTIC.*,CLENMO.*
+     [MIKE.GAMESS.MACHINES] - *.COM, *.CSH, *.MVS, *.CMS
+     [MIKE.GAMESS.TESTS]    - EXAM*.INP, BENCH*.INP
+     [MIKE.GAMESS.GRAPHICS] - *.MAN, *.CODE, XWINDOWS.C, ...
+
+   SOURCE is GAMESS itself.  TOOLS holds utility programs,
+   MACHINES is control language for all possible machines,
+   TESTS contains many test input decks, and GRAPHICS will
+   hold X-windows and PostScript graphics codes.  Although 
+   you will keep a copy of *.COM files in MACHINES, please 
+   modify and use only the extra copies in your top GAMESS 
+   directory, while in this top directory.
+
+2) Assign the logical names by, for example, putting this
+   type of command in your LOGIN.COM
+
+     $ ASSIGN DUA0:[MIKE.GAMESS]          GAMESS:
+     $ ASSIGN DUA0:[MIKE.GAMESS.TOOLS]    TOOLS:
+     $ ASSIGN DUA0:[MIKE.GAMESS.GRAPHICS] PLT:
+     $ ASSIGN DUA1:[SCRATCH.MIKE]         SCR:  (any large work disk)
+
+   These logical names are used throughout the command procedures,
+   but are not used internally by GAMESS or any of its utility.
+
+3) Compile and link the source activator with the commands
+
+     $ SET DEFAULT GAMESS:
+     $ EDIT/TPU TOOLS:ACTVTE.CODE
+        <DO key>
+        REPLACE "*VMS " "     "   (note, 5 character strings)
+        ALL
+        <DO key>
+        WRITE ACTVTE.FOR
+        <DO key>
+        QUIT
+     $ FORTRAN ACTVTE
+     $ LINK ACTVTE
+     $ DELETE ACTVTE.FOR;*
+     $ DELETE ACTVTE.OBJ;*
+
+4) Modify COMPALL.COM, COMP.COM, and LKED.COM to select the machine
+   architecture type, choosing from ALPHA or VAX.
+   Modify COMPALL.COM and RUNALL.COM to select the batch queue
+   names used at your site.  The queue you choose must be one that
+   runs only one job at a time, so that the jobs run in sequential
+   order.  All of these changes are very near the tops of these files.
+
+5) Compile GAMESS by
+     $ SET DEFAULT GAMESS:
+     $ @COMPALL
+   Wait for all of these compile jobs to end.
+
+6) Link the program to executable form, by
+     $ SET DEFAULT GAMESS:
+     $ SUBMIT LKED/PARAM=GAMESS
+   Wait for this job to end successfully.  Check the log
+   file for this job to ensure that there are no unresolved 
+   external references.
+
+7) Verify the program, by executing the EXAM.INP files:
+     $ SET DEFAULT GAMESS:
+     $ @RUNALL
+   The correct answers are given in each *.INP file,
+   so you can check the numerical results carefully.
+   You should run all of the short EXAM jobs, and you may
+   want to run some of the longer BENCH jobs as well.
+
+8) GAMESS itself is now ready for use.  
+   The file RUNGMS.COM should be modified to remove the
+   reference to [.TESTS] in the COPY command, and at its
+   bottom so that the two results files are not DELETE'd.
+   This single file can then be used by all users on your 
+   system to run GAMESS jobs.  They will need to have the
+   GAMESS: and SCR: logical variables.
+
+9) You may wish to explore the DECwindows and PostScript 
+   graphics codes in PLT:, and the utility programs such
+   as the model builder MBLDR in TOOLS:.
+
+============================================================
+We have had a report in Jan 1997 that the SOSCF converger in
+$MCSCF does not work on VMS.  Correct results for EXAM06 and 
+EXAM09 and any other MCSCF run can still be obtained by using
+the FULLNR=.TRUE. converger instead of SOSCF in $MCSCF.
+
+Similarly, it appears that EXAM28 does not get the correct
+answer, so RUNTYP=MOROKUMA is apparently unreliable on VMS.
+
+If anyone else finds these examples run correctly, or figures
+out how to make run them correctly, please let me know.

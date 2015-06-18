@@ -1,0 +1,215 @@
+/* #-*- C++-Cheetah -*-
+#compiler-settings
+directiveStartToken = %
+commentStartToken = ///
+#end compiler-settings
+*/
+
+/** @file 
+@warning template generated
+*/
+
+#include "curysq_int2d.h"
+#include "vec.h"
+
+#include <assert.h>
+
+/**
+   @brief
+   @private
+*/
+typedef struct{
+    double *a1;
+    double *a2;
+    double *c;
+    int K;
+} cuRysq_shell2_t;
+
+
+
+
+%from shell import Shell
+%set LMAX = int($CURYSQ_LMAX)
+///
+%for B in Shell.range(last = LMAX)
+%for A in Shell.range(last = LMAX)
+%set minN = (A.L + B.L)/2 + 1
+%set maxN = (A.L + B.L + 2*LMAX)/2 + 1
+%for N in range(minN, maxN+1)
+%set abN = str(A) + str(B) + str(N)
+///
+/**
+   @brief
+*/
+template <class T>
+__global__ void cuRysq_int2d_$(abN)(cuRysq_shell2_t bra, cuRysq_shell2_t ket,
+				    double *dev_rij, double *dev_rkl, int n, int *dev_index4, 
+				    T *dev_Ix, T *dev_Iy, T *dev_Iz) {
+
+    int t = threadIdx.x + blockDim.x*(threadIdx.y + blockDim.y*(threadIdx.z));
+//     int num_t = blockDim.x*blockDim.y*blockDim.z;
+//     int bid = blockIdx.x + gridDim.x*(blockIdx.y + gridDim.y*(blockIdx.z));
+//     int num_b = gridDim.x*gridDim.y*gridDim.z;
+
+    /**
+       @brief 
+       @private
+    */
+    typedef struct {
+	double ri[3];
+	double rj[3];
+	double rk[3];
+	double rl[3];
+	
+	double rij2;
+	double rkl2;
+	
+	double ak;
+	double al;
+	double rB[3];
+	double rBk[3];
+	double B;
+	double B1;
+	double ekl;
+	
+	double ai;
+	double aj;
+	double A;
+	double A1;
+	double AB1;
+	double eij;
+	double e;
+	double rA[3];
+	double rAi[3];
+	double rAB[3];
+	
+	double rho;
+	double X;
+	double t2[$(N)];
+	double W[$(N)];
+	double AB2;
+    } int2d_$(abN)_t;
+    
+    __shared__ int2d_$(abN)_t sh;
+    
+    if( t == 0) {
+	sh.rij2 = Vec_dist2(sh.ri, sh.rj);
+	sh.rkl2 = Vec_dist2(sh.rk, sh.rl);
+    }
+
+    for(int Kkl = 0; Kkl < ket.K; ++Kkl) {
+	if( t == 0 ) {
+	    sh.ak = ket.a1[Kkl];
+	    sh.al = ket.a2[Kkl];
+	    sh.B = sh.ak + sh.al;
+	    sh.B1 = 1/sh.B;
+	    sh.ekl = exp(-sh.ak*sh.al*sh.B1*sh.rkl2);
+	    
+	    Vec_cm3(sh.ak, sh.rk, sh.al, sh.rl, sh.rB, sh.B1);
+	    Vec_diff3(sh.rB, sh.rk, sh.rBk);
+	}
+
+	for(int Kij = 0; Kij < bra.K; ++Kij) {
+	    if( t == 0) {
+		sh.ai = bra.a1[Kij];
+		sh.aj = bra.a2[Kij];
+		sh.A = sh.ai + sh.aj;
+		sh.A1 = 1/sh.A;
+		sh.AB1 = 1/(sh.A + sh.B);
+		sh.eij = exp(-sh.ai*sh.aj*sh.A1*sh.rij2);
+
+		sh.e = sh.ekl*sh.eij;
+
+		Vec_cm3(sh.ai, sh.ri, sh.aj, sh.rj, sh.rA, sh.A1);
+		Vec_diff3(sh.rA, sh.ri, sh.rAi);
+		Vec_diff3(sh.rA, sh.rB, sh.rAB);
+
+		sh.rho = sh.A*sh.B*sh.AB1;
+	    
+		sh.X = sh.rho*Vec_dot3(sh.rAB);
+
+		//	    cuRysq_roots(N, sh.X, sh.t2, sh.W);
+		
+		sh.AB2 = sh.A1*sh.B1*sqrt(sh.AB1);
+		Vec_scale($(N), sh.e*sh.AB2, sh.W);
+		Vec_scale($(N), sh.AB1, sh.t2);
+	    }
+
+	    //	    cuRysq_recurrence();
+
+	    //	    cuRysq_transfer();
+	    
+	}
+    }
+}
+
+%end for
+%end for
+%end for
+
+/** @see curysq_int2d.h */
+template <class T> int cuRysq_int2d(Rysq_shell_t a, Rysq_shell_t b, 
+				    Rysq_shell_t c, Rysq_shell_t d,
+				    double *dev_rij, double *dev_rkl,
+				    int n, int dev_index4[],
+				    T *dev_Ix, T *dev_Iy, T *dev_Iz) {
+
+    int N = (a.L + b.L + c.L + d.L)/2 + 1;
+
+    int dev;
+    struct cudaDeviceProp prop;
+    assert(cudaGetDevice(&dev) == cudaSuccess);
+    assert(cudaGetDeviceProperties(&prop,dev) == cudaSuccess);
+    int maxGrid = prop.maxGridSize[0];
+
+    dim3 dimG = dim3(maxGrid,ceil(float(n)/maxGrid));
+    dim3 dimB = dim3(N, a.L+1, b.L+1);
+
+    int num_shared = 0;
+    //add on structure type data into shared count
+    num_shared += 44 + N*2;
+
+    cuRysq_shell2_t bra;
+    bra.K = a.K*b.K;
+    //AB.c = new double[];
+    bra.a1 = new double[bra.K];
+    bra.a2 = new double[bra.K];
+//     for(int j = 0; j < b.K; ++j) {
+// 	Vec_copy(a.K, a.a, AB.a1+j*a.K);
+//     }
+//     for(int i = 0; i < a.K; ++i) {
+// 	Vec_copy(b.K, b.a, AB.a2+i*b.K);
+//     }
+        
+    cuRysq_shell2_t ket;
+    ket.K = c.K*d.K;
+    //    CD.c = new double[];
+    ket.a1 = new double[ket.K];
+    ket.a2 = new double[ket.K];
+//     for(int l = 0; l < d.K; ++l) {
+// 	Vec_copy(c.K, c.a, CD.a1+l*c.K);
+//     }
+//     for(int k = 0; k < c.K; ++k) {
+// 	Vec_copy(d.K, d.a, CD.a2+k*d.K);
+//     }
+
+    
+%for B in Shell.range(last = LMAX)
+%for A in Shell.range(last = LMAX)
+%set minN = (A.L + B.L)/2 + 1
+%set maxN = (A.L + B.L + 2*LMAX)/2 + 1
+%for N in range(minN, maxN+1)
+%set abN = str(A) + str(B) + str(N)
+    if(b.type == RYSQ_TYPE_$B.upper() && 
+       a.type == RYSQ_TYPE_$A.upper() &&
+       N == $N) {
+	cuRysq_int2d_$(abN)<<< dimG, dimB, num_shared*sizeof(double)>>>
+	    (bra, ket, dev_rij, dev_rkl, n, dev_index4, dev_Ix, dev_Iy, dev_Iz);
+    }
+%end for
+%end for
+%end for
+
+    return 0;
+}
+

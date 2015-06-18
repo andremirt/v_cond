@@ -1,0 +1,177 @@
+/*  4 Apr 91 - MWS
+     REXX script to compile (and assemble) GAMESS under VMBATCH.
+     Submit this job by typing "COMPALL SUBMIT".
+ 
+     At the conclusion of this job, you will have a file named
+     GAMESS.TXTLIB in your reader.  Receive this onto the GAMESS
+     minidisk, by the follwowing RDRLIST command:
+        RECEIVE / /NT m
+     where m is the filemode you use for the GAMESS minidisk.
+*/
+ 
+/*   Set site specific variables */
+gmsid   = 'NU070347'    /* ID of user who owns GAMESS source disk    */
+gmsaddr = '193'         /* virtual address of GAMESS source minidisk */
+gmspswd = 'SCHMIDT'     /* read access password to GAMESS minidisk   */
+ 
+/*   Determine operating mode - SUBMIT or BATCH. */
+/*-----------------------------------------------*/
+PARSE UPPER ARG mode .
+ 
+IF (mode <> 'SUBMIT') & (mode <> 'BATCH') THEN DO
+   SAY 'Submit the GAMESS COMPALL job to VMBATCH by "COMPALL SUBMIT".'
+   EXIT 4
+END
+ 
+/*  We are running interactively, to submit the job and quit. */
+/*------------------------------------------------------------*/
+IF mode = 'SUBMIT' THEN DO
+   username  = userid()
+   VMBATCH SUBMIT 'COMPALL EXEC * (NAME COMPALL ',
+                  'CLASS B TIME 00:59:00 STORAGE 3M PUNCH 99999',
+                  'WORKDISK 50-3380 USER191 NO FILERETN NEVER',
+                  "COMMAND 'EXEC COMPALL BATCH" username || "')"
+   EXIT 0
+END
+ 
+/*  From here on, we are compiling in batch mode */
+/*-----------------------------------------------*/
+PARSE UPPER ARG . username
+ 
+/*   prevent lots of wiggles from appearing in the log file */
+SET BLIP OFF
+ 
+/*   this is a trick to name the LOG file, CONT overrides CLOSE  */
+'CP SPOOL CONSOLE START CONT TO' userid
+'CP CLOSE CONSOLE NAME COMPALL LOG'
+SAY 'VMBATCH job COMPALL started at' TIME()',' DATE()
+ 
+/* Access the system minidisk containing VS FORTRAN */
+'CP LINK VSF2FORT 193 112 RR'
+'ACCESS 112 F'
+ 
+/* Access the minidisk containing GAMESS source code */
+ADDRESS COMMAND 'CP LINK' gmsid gmsaddr '188 RR' gmspswd
+'ACCESS 188 B'
+ 
+/* Copy source code to a scratch disk as card images */
+'COPY    * SRC B    = FORTRAN A    (LRECL 80 RECFM F)'
+IF rc ^= 0 THEN DO
+   SAY 'Difficulty in reading *.SRC files - process terminating'
+   status=12
+   SIGNAL BOTTOM
+END
+/*  Delete source code which is not needed.   */
+/*  If you don't have a IBM VF, erase VECTOR.FORTRAN   */
+ERASE VECTOR FORTRAN A
+/*  If you do have a IBM VF, erase BLAS.FORTRAN   */
+/*
+ERASE BLAS FORTRAN A
+*/
+ 
+/*
+    Choose compile time options.
+    If you don't have a IBM VF, set vecopt=''
+    If you have a IBM VF,       set vecopt='VECTOR(NOREPORT)'
+    If you don't have VM/XA,    set xaopt=''
+    If you have VM/XA,          set xaopt='DC(FMCOM)'
+*/
+compopt='OPT(3) XREF MAP GOSTMT NOSDUMP TERMINAL'
+vecopt=''
+xaopt=''
+ 
+/* Make a list of all FORTRAN files in a memory buffer.             */
+/* Activate each with XEDIT (thus ACTVTE is not used), and compile. */
+bomb='FALSE'
+'LISTFILE * FORTRAN A (STACK FIFO)'
+ 
+DO UNTIL QUEUED() = 0
+   PARSE UPPER PULL module filetype filemode
+ 
+   SAY 'Activating:' module
+   MAKEBUF
+   QUEUE 'SET ZONE 1 4'
+   QUEUE 'CHANGE /*IBM/    / *'
+   QUEUE 'FILE'
+   XEDIT module filetype filemode '(NOPROF)'
+   DROPBUF
+ 
+   SAY 'Compiling:' module
+   vopt=vecopt
+               /* next one has bug with VS FORTRAN 2.5.0 */
+   IF (module='ECP')    THEN vopt='NOVECTOR'
+               /* next ones run faster in scalar */
+   IF (module='INT2A')  THEN vopt='NOVECTOR'
+   IF (module='GRD2A')  THEN vopt='NOVECTOR'
+   IF (module='GRD2B')  THEN vopt='NOVECTOR'
+   IF (module='GUGEM')  THEN vopt='NOVECTOR'
+   FORTVS2 module '('vopt xaopt compopt')'
+   IF (rc>0) THEN DO
+      SAY 'Error compiling file: =>' module
+      SENDFILE module 'LISTING A TO' username
+      bomb='TRUE'
+   END
+   'ERASE' module 'LISTING A'
+   'ERASE' module 'FORTRAN A'
+END
+'ERASE STUB TEXT A'
+ 
+/* Now assemble the IBM timing routines */
+'GLOBAL MACLIB CMSLIB OSMACRO'
+'COPYFILE ZDATE ASM B    = ASSEMBLE A   (LRECL 80 RECFM F)'
+'COPYFILE ZTIME ASM B    = ASSEMBLE A   (LRECL 80 RECFM F)'
+'LISTFILE * ASSEMBLE A (STACK FIFO)'
+ 
+DO UNTIL QUEUED() = 0
+   PARSE UPPER PULL filename filetype filemode
+   SAY 'Assembling:' filename
+   ASSEMBLE filename
+   IF (rc>0) THEN DO
+      SAY 'Error assembling file: =>' filename
+      SENDFILE filename 'LISTING A TO' username
+      bomb='TRUE'
+   END
+   ERASE filename 'LISTING A'
+   ERASE filename 'ASSEMBLE A'
+END
+ 
+/*    Quit if some compile didn't get perfect condition code */
+IF (bomb='TRUE') THEN DO
+   SAY 'At least one of the GAMESS source files did not compile.'
+   SAY 'Check the listing(s) in your reader, and fix the errors.'
+   SAY 'COMPALL job is quitting...'
+   status=16
+   SIGNAL BOTTOM
+END
+ 
+/* Create object code library from the main program file */
+'TXTLIB GEN GAMESS GAMESS'
+'ERASE GAMESS TEXT A'
+ 
+/*  put VECTOR in next, just behind the GAMESS object code.  */
+/*  Uncomment out the next 2 lines if you have a IBM VF. */
+/*
+TXTLIB ADD GAMESS VECTOR
+ERASE VECTOR TEXT A
+*/
+ 
+/*    now loop to ADD all other object code files */
+'LISTFILE * TEXT A (STACK FIFO)'
+DO UNTIL QUEUED() = 0
+   PARSE UPPER PULL module filetype filemode
+   'TXTLIB ADD GAMESS' module
+END
+ 
+/*    Write a map of all the members in the TXTLIB   */
+'TXTLIB MAP GAMESS (DISK)'
+ 
+/*    All done, send TXTLIB back to the user's reader */
+'SENDFILE GAMESS TXTLIB A TO' username
+'SENDFILE GAMESS MAP    A TO' username
+SAY 'The GAMESS COMPALL job has successfully completed!'
+status=0
+ 
+BOTTOM:
+SAY 'VMBATCH job ended at' TIME()',' DATE()
+CP SPOOL CONSOLE NOCONT STOP CLOSE
+EXIT status

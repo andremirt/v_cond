@@ -1,0 +1,592 @@
+// -*- C++ -*-
+
+#ifndef _RYSQ_ROOTS1_H
+#define _RYSQ_ROOTS1_H
+
+#include <math.h>
+#include <stdio.h>
+
+
+#ifdef __CUDACC__
+#define decls __device__
+#else
+#define decls static inline
+#endif
+
+#define r12 .275255128608411
+#define pie4 .785398163397448
+#define r22 2.72474487139158
+#define w22 .0917517095361369
+#define r13 .190163509193487
+#define r23 1.78449274854325
+#define w23 .177231492083829
+#define r33 5.52534374226326
+#define w33 .00511156880411248
+
+// decls void Rysq_roots1_x33toINF(double const X, double *t2, double *W);
+// decls void Rysq_roots1_x15to33(double const X, double *t2, double *W);
+// decls void Rysq_roots1_x10to15(double const X, double *t2, double *W);
+// decls void Rysq_roots1_x5to10(double const X, double *t2, double *W);
+// decls void Rysq_roots1_x3to5(double const X, double *t2, double *W);
+// decls void Rysq_roots1_x1to3(double const X, double *t2, double *W);
+// decls void Rysq_roots1_x0to1(double const X, double *t2, double *W);
+
+decls void Ghondo_roots1_x33toINF(double const X, double *t2, double *W) {
+    W[0] = sqrt(pie4 / X);
+    t2[0] = .5 / (X - .5);
+}
+
+decls void Ghondo_roots1_x15to33(double const X, double *t2, double *W) {
+    double e = exp(-X);
+    W[0] = ((.1962326414943 / X - .4969524146449) / X - 
+	    6.0156581186481e-5) * e + sqrt(pie4 / X);
+    double f1 = (W[0] - e) / (X + X);
+    t2[0] = f1 / (W[0] - f1);
+}
+
+decls void Ghondo_roots1_x10to15(double const X, double *t2, double *W) {
+    double e = exp(-X);
+    W[0] = (((-.18784686463512 / X + .22991849164985) / X - 
+	     .49893752514047) / X - 2.1916512131607e-5) * e + sqrt(pie4 
+								   / X);
+    double f1 = (W[0] - e) / (X + X);
+    t2[0] = f1 / (W[0] - f1);
+}
+
+decls void Ghondo_roots1_x5to10(double const X, double *t2, double *W) {
+    double e = exp(-X);
+    W[0] = ((((((.46897511375022 / X - .69955602298985) / X + 
+		.53689283271887) / X - .32883030418398) / X + 
+	      .24645596956002) / X - .49984072848436) / X - 
+	    3.1501078774085e-6) * e + sqrt(pie4 / X);
+    double f1 = (W[0] - e) / (X + X);
+    t2[0] = f1 / (W[0] - f1);
+}
+
+decls void Ghondo_roots1_x3to5(double const X, double *t2, double *W) {
+    double y = X - 4.;
+    double f1 = ((((((((((y * -2.62453564772299e-11 + 3.24031041623823e-10) * y - 
+			 3.614965656163e-9) * y + 3.760256799971e-8) * y - 
+		       3.553558319675e-7) * y + 3.022556449731e-6) * y - 
+		     2.290098979647e-5) * y + 1.526537461148e-4) * y - 
+		   8.81947375894379e-4) * y + .00433207949514611) * y - 
+		 .0175257821619926) * y + .0528406320615584;
+    W[0] = (X + X) * f1 + exp(-X);
+    t2[0] = f1 / (W[0] - f1);
+}
+
+decls void Ghondo_roots1_x1to3(double const X, double *t2, double *W) {
+    double y = X - 2.;
+    double f1 = ((((((((((y * -1.61702782425558e-10 + 1.96215250865776e-9) * y - 
+			 2.14234468198419e-8) * y + 2.17216556336318e-7) * y - 
+		       1.98850171329371e-6) * y + 1.62429321438911e-5) * y - 
+		     1.16740298039895e-4) * y + 7.24888732052332e-4) * y - 
+		   .00379490003707156) * y + .0161723488664661) * y - 
+		 .0529428148329736) * y + .115702180856167;
+    W[0] = (X + X) * f1 + exp(-X);
+    t2[0] = f1 / (W[0] - f1);
+}
+
+decls void Ghondo_roots1_x0to1(double const X, double *t2, double *W) {
+    double f1 = ((((((((X * -8.36313918003957e-8 + 1.21222603512827e-6) * 
+		       X - 1.15662609053481e-5) * X + 9.25197374512647e-5) 
+		     * X - 6.40994113129432e-4) * X + .00378787044215009)
+		   * X - .0185185172458485) * X + .0714285713298222) *
+		 X - .199999999997023) * X + .333333333333318;
+    W[0] = (X + X) * f1 + exp(-X);
+    t2[0] = f1 / (W[0] - f1);
+}
+
+
+static double C15_33[3] = {  -6.0156581186481e-5,
+			     -0.4969524146449,
+			     0.1962326414943 };
+
+static double C10_15[4] = { -.49893752514047,
+			    .22991849164985,
+			    -.18784686463512,
+			    -2.1916512131607e-5 };
+
+static double C5_10[7] = { -0.49984072848436,
+			   0.24645596956002,
+			   -0.32883030418398,
+			   0.53689283271887,
+			   -0.69955602298985,
+			   0.46897511375022,
+			   -3.1501078774085e-6 };
+
+static double C3_5[12] = {0.0528406320615584,
+			  -0.0175257821619926,
+			  0.00433207949514611,
+			  -8.81947375894379e-4,
+			  1.526537461148e-4,
+			  -2.290098979647e-5,
+			  3.022556449731e-6,
+			  -3.553558319675e-7,
+			  3.760256799971e-8,
+			  -3.614965656163e-9,
+			  3.24031041623823e-10,
+			  -2.62453564772299e-11};
+
+static double C1_3[12] = {.115702180856167,
+			  -.0529428148329736,
+			  .0161723488664661,
+			  -.00379490003707156,
+			  7.24888732052332e-4,
+			  -1.16740298039895e-4,
+			  1.62429321438911e-5,
+			  -1.98850171329371e-6,
+			  2.17216556336318e-7,
+			  -2.14234468198419e-8,
+			  1.96215250865776e-9,
+			  -1.61702782425558e-10 };
+
+static double  C0_1[10] = {.333333333333318,
+			   -.199999999997023,
+			   .0714285713298222,
+			   -.0185185172458485,
+			   .00378787044215009,
+			   -6.40994113129432e-4,
+			   9.25197374512647e-5,
+			   -1.15662609053481e-5,
+			   1.21222603512827e-6,
+			   -8.36313918003957e-8 };
+
+decls void Rysq_roots1(double const X, double *t2, double *W) {
+
+#if defined(USE_GHONDO)
+  
+  if (X > 33.) {
+    Ghondo_roots1_x33toINF(X, t2, W);
+  }
+  else if(X > 15.) {
+    Ghondo_roots1_x15to33(X, t2, W);
+  }
+  else if (X > 10.) {
+    Ghondo_roots1_x10to15(X, t2, W);
+  }
+  else if (X > 5.) {
+    Ghondo_roots1_x5to10(X, t2, W);
+  }
+  else if (X > 3.) {
+    Ghondo_roots1_x3to5(X, t2, W);
+  }
+  else if (X > 1.) {
+    Ghondo_roots1_x1to3(X, t2, W);
+  }
+  else if (X > 3e-7) {
+    Ghondo_roots1_x0to1(X, t2, W);
+  }
+  /*     X IS APPROXIMATELY ZERO.         NROOTS=1 */
+  else {
+    t2[0] = .5 - X / 5.;
+    W[0] = 1. - X / 3.;
+  }
+  
+  for(int i = 0; i < 1; ++i) {
+    t2[i] = t2[i]/(1.0 + t2[i]);
+  }
+  return;
+
+#else 
+  double sqrtX = sqrt(pie4 / X);  
+  double e = exp(-X);
+  double x2 = X + X;
+  double f1 = 0.0;
+  double yi = 1.0;
+  
+  if (X > 33.) {
+    W[0] = sqrtX;
+    t2[0] = .5 / (X - .5);
+  }
+  else if(X > 15.) {
+    int lsize = sizeof(C15_33)/sizeof(double);
+    W[0] = C15_33[lsize - 1];
+    double X2i = pow(X,-2);
+    for(int i = lsize - 2; i >= 0; --i) {
+      W[0] += C15_33[i]*X2i;
+      X2i *= X;
+    }
+    W[0] = W[0]*e + sqrtX;
+    double f1 = (W[0] - e) / x2;
+    t2[0] = f1 / (W[0] - f1);
+  }
+  else if (X > 10.) {
+    int lsize = sizeof(C10_15)/sizeof(double);
+    W[0] = C10_15[lsize - 1];
+    double X3i = pow(X,-3);
+    for(int i = lsize - 2; i >=0 ; --i) {
+      W[0] += C10_15[i]*X3i;
+      X3i *= X;
+    }
+    W[0] = W[0]*e + sqrtX;
+    double f1 = (W[0] - e) / x2;
+    t2[0] = f1 / (W[0] - f1);
+  }
+  else if (X > 5.) {
+    int lsize = sizeof(C5_10)/sizeof(double);
+    W[0] = C5_10[lsize - 1];
+    double X6i = pow(X,-6);
+    for(int i = lsize - 2; i >= 0; --i) {
+      W[0] += C5_10[i]*X6i;
+      X6i *= X;
+    }
+    W[0] = W[0]*e + sqrtX;
+    double f1 = (W[0] - e) / x2;
+    t2[0] = f1 / (W[0] - f1);
+  }
+  else if (X > 3.) {
+    double y = X - 4.;
+    int lsize = sizeof(C3_5)/sizeof(double);
+    for(int i = 0; i < lsize; ++i) {
+      f1 += C3_5[i]*yi;
+      yi *= y;
+    }
+    W[0] = x2*f1 + e;
+    t2[0] = f1 / (W[0] - f1);
+  }
+  else if (X > 1.) {
+    double y = X - 2.;
+    int lsize = sizeof(C1_3)/sizeof(double);
+    for(int i = 0; i < lsize; ++i) {
+      f1 += C1_3[i]*yi;
+      yi *= y;
+    }
+    W[0] = x2*f1 + e;
+    t2[0] = f1 / (W[0] - f1);
+  }
+  else if (X > 3e-7) {
+    double y = X;
+    int lsize = sizeof(C0_1)/sizeof(double);
+    for(int i = 0; i < lsize; ++i) {
+      f1 += C0_1[i]*yi;
+      yi *= y;
+    }
+    
+    W[0] = x2 *f1 + e;
+    t2[0] = f1 / (W[0] - f1);
+  }
+  /*     X IS APPROXIMATELY ZERO.         NROOTS=1 */
+  else {
+    t2[0] = .5 - X / 5.;
+    W[0] = 1. - X / 3.;
+  }
+  
+  for(int i = 0; i < 1; ++i) {
+    t2[i] = t2[i]/(1.0 + t2[i]);
+  }
+  return;
+#endif
+
+}
+
+#undef r12
+#undef pie4
+#undef r22
+#undef w22
+#undef r13
+#undef r23
+#undef w23
+#undef r33
+#undef w33
+
+#undef decls
+
+#endif // _RYSQ_ROOTS1_H
+
+
+// // decls void Rysq_roots1(double const X, double *t2, double *W) {
+
+// //     if (X > 33.) {
+// // 	Rysq_roots1_x33toINF(X, t2, W);
+// //     }
+// //     else if(X > 15.) {
+// // 	Rysq_roots1_x15to33(X, t2, W);
+// //     }
+// //     else if (X > 10.) {
+// // 	Rysq_roots1_x10to15(X, t2, W);
+// //     }
+// //     else if (X > 5.) {
+// // 	Rysq_roots1_x5to10(X, t2, W);
+// //     }
+// //     else if (X > 3.) {
+// // 	Rysq_roots1_x3to5(X, t2, W);
+// //     }
+// //     else if (X > 1.) {
+// // 	Rysq_roots1_x1to3(X, t2, W);
+// //     }
+// //     else if (X > 3e-7) {
+// // 	Rysq_roots1_x0to1(X, t2, W);
+// //     }
+// //     /*     X IS APPROXIMATELY ZERO.         NROOTS=1 */
+// //     else {
+// // 	t2[0] = .5 - X / 5.;
+// // 	W[0] = 1. - X / 3.;
+// //     }
+
+// //     for(int i = 0; i < 1; ++i) {
+// // 	t2[i] = t2[i]/(1.0 + t2[i]);
+// //     }
+// //     return;
+// // }
+
+// decls void Rysq_roots1_x33toINF(double const X, double *t2, double *W) {
+//     W[0] = sqrt(pie4 / X);
+//     t2[0] = .5 / (X - .5);
+// }
+
+// decls void Rysq_roots1_x15to33(double const X, double *t2, double *W) {
+//     double C15_33[3] = {  -6.0156581186481e-5,
+// 			  -0.4969524146449,
+// 			  0.1962326414943 };
+    
+// //     double C15_33[3] = { -6.0156581186480998977e-5,
+// // 			 -4.9695241464489997574e-1,
+// // 			 1.9623264149430000303e-1};
+    
+//     double x1 = 1.0/X;
+//     double x1i = 1.0;
+//     for(int i = 0; i < 3; ++i) {
+// 	W[0] += C15_33[i]*x1i;
+// 	x1i *= x1;
+//     }
+    
+//     double e = exp(-X);
+//     double sqrtX = sqrt(pie4*x1);
+    
+//     W[0] = W[0]*e + sqrtX;
+//     double f1 = (W[0] - e) / (X + X);
+//     t2[0] = f1 / (W[0] - f1);
+// }
+
+// decls void Rysq_roots1_x10to15(double const X, double *t2, double *W) {
+//   double C10_15[4] = { -.49893752514047,
+// 		       .22991849164985,
+// 		       -.18784686463512,
+// 		       -2.1916512131607e-5 };
+  
+// //     double C10_15[4] = { -4.9893752514047001734e-1,
+// // 			 2.2991849164985000975e-1,
+// // 			 -1.8784686463511998666e-1,
+// // 			 -2.1916512131607000959e-5};
+    
+//     //     double x1 = 1.0/X;
+//     //     double x1i = 1.0;
+//     //     for(int i = 0; i < 4; ++i) {
+//     // 	W[0] += C10_15[i]*x1i;
+//     // 	x1i *= x1;
+//     //     }
+    
+//     for(int i = 2; i >=0 ; --i) {
+// 	W[0] = (W[0] + C10_15[i])/X;
+//     }
+    
+//     W[0] += C10_15[3];
+    
+//     double e = exp(-X);
+//     double sqrtX = sqrt(pie4/X);
+//     W[0] = W[0]*e + sqrtX;
+    
+//     double f1 = (W[0] - e) / (X + X);
+//     t2[0] = f1 / (W[0] - f1);
+    
+// }
+
+// decls void Rysq_roots1_x5to10(double const X, double *t2, double *W) {
+
+//     double C5_10[7] = { -0.49984072848436,
+//     			0.24645596956002,
+//     			-0.32883030418398,
+//     			0.53689283271887,
+//     			-0.69955602298985,
+// 			0.46897511375022,
+// 			-3.1501078774085e-6 };
+    
+// //     double C5_10[7] = {-3.1501078774085e-6,
+// // 		       0.46897511375022,
+// // 		       -0.69955602298985,
+// // 		       0.53689283271887,
+// // 		       -0.32883030418398,
+// // 		       0.24645596956002,
+// // 		       -0.49984072848436};
+		       
+// //     double C5_10[7] = {-3.1501078774085000720e-6,
+// // 		       4.6897511375021999624e-1 ,
+// // 		       -6.9955602298984997933e-1,
+// // 		       5.3689283271887000559e-1,
+// // 		       -3.2883030418398001560e-1,
+// // 		       2.4645596956001999955e-1,
+// // 		       -4.9984072848436000847e-1};
+	
+//     double x1 = X;
+//     double x2 = (X*X);
+//     double x3 = (x2*X);
+//     double X3 = x3;
+//     double X6i = pow(X,-6);
+//     double x1i = X;
+    
+//     W[0] = 0.0;
+//     double W0 = C5_10[6];
+//     W[0] = W0;
+//     for(int i = 5; i >= 0; --i) {
+// 	W[0] += C5_10[i]*X6i;
+	
+// 	// 	W[0] += C5_10[i]/x1;
+// 	// 	W[0] += C5_10[i+1]/x2;
+// 	// 	W[0] += C5_10[i+2]/x3;
+// 	// 	//	x1i *= x1;
+// 	// 	x1 *= X3;
+// 	// 	x2 *= X3;
+// 	// 	x3 *= X3;
+// 	X6i *= X;
+
+//     }
+//     //    W[0] += W0;
+// //     for(int i = 5; i >=0 ; --i) {
+// // 	W[0] = (W[0] + C5_10[i])*x1;
+// //     }
+    
+// //     W[0] = W[0] + C5_10[6];
+//     double e = exp(-X);    
+//     double sqrtX = sqrt(pie4/X);
+//     W[0] = W[0]*e + sqrtX;
+    
+//     double f1 = (W[0] - e) / ( X + X);
+//     t2[0] = f1 / (W[0] - f1);
+// }
+
+
+// decls void Rysq_roots1_x3to5(double const X, double *t2, double *W) {
+//     double y = X - 4.;
+//     double C3_5[12] = {0.0528406320615584,
+// 		       -0.0175257821619926,
+// 		       0.00433207949514611,
+// 		       -8.81947375894379e-4,
+// 		       1.526537461148e-4,
+// 		       -2.290098979647e-5,
+// 		       3.022556449731e-6,
+// 		       -3.553558319675e-7,
+// 		       3.760256799971e-8,
+// 		       -3.614965656163e-9,
+// 		       3.24031041623823e-10,
+// 		       -2.62453564772299e-11};
+
+// //     double C3_5[12] = { 5.2840632061558402699e-2,
+// // 			-1.7525782161992600056e-2,
+// // 			4.3320794951461098418e-3,
+// // 			-8.8194737589437899577e-4,
+// // 			1.5265374611480000597e-4,
+// // 			-2.2900989796469999559e-5,
+// // 			3.0225564497309999860e-6,
+// // 			-3.5535583196749997633e-7,
+// // 			3.7602567999710000952e-8,
+// // 			-3.6149656561629999749e-9,
+// // 			3.2403104162382300672e-10,
+// // 			-2.6245356477229899948e-11};
+    
+//     double f1 = 0.0;
+//     double yi = 1.0;
+//     for(int i = 0; i < 12; ++i) {
+// 	f1 += C3_5[i]*yi;
+// 	yi *= y;
+//     }
+//     double e = exp(-X);
+//     W[0] = (X + X)*f1 + e;
+//     t2[0] = f1 / (W[0] - f1);
+    
+    
+// }
+
+// decls void Rysq_roots1_x1to3(double const X, double *t2, double *W) {
+//     double y = X - 2.;
+    
+//     double C1_3[12] = {.115702180856167,
+// 		       -.0529428148329736,
+// 		       .0161723488664661,
+// 		       -.00379490003707156,
+// 		       7.24888732052332e-4,
+// 		       -1.16740298039895e-4,
+// 		       1.62429321438911e-5,
+// 		       -1.98850171329371e-6,
+// 		       2.17216556336318e-7,
+// 		       -2.14234468198419e-8,
+// 		       1.96215250865776e-9,
+// 		       -1.61702782425558e-10 };
+    
+    
+//     //     double C1_3[12] = { 1.1570218085616700010e-1,
+//     // 			-5.2942814832973597583e-2,
+//     // 			1.6172348866466099843e-2,
+//     // 			-3.7949000370715601539-3,
+//     // 			7.2488873205233197734e-4,
+//     // 			-1.1674029803989500673e-4,
+//     // 			1.6242932143891098329e-5,
+//     // 			-1.9885017132937098046e-6,
+//     // 			2.1721655633631798813e-7,
+//     // 			-2.14234468198419e-8,
+//     // 			1.9621525086577601855e-9,
+//     // 			-1.6170278242555799223e-10};
+    
+//     double f1 = 0.0;
+//     double yi = 1.0;
+//     for(int i = 0; i < 12; ++i) {
+// 	f1 += C1_3[i]*yi;
+// 	yi *= y;
+//     }
+    
+//     //    doubel f1 = (((y * -1.61702782425558e-10 + 1.96215250865776e-9) * y + f2 ;
+		  
+//     double e = exp(-X);
+//     W[0] = (X + X) * f1 + e;
+//     t2[0] = f1 / (W[0] - f1);
+// }
+
+// decls void Rysq_roots1_x0to1(double const X, double *t2, double *W) {
+    
+//     double  C0_1[10] = {.333333333333318,
+//     		       -.199999999997023,
+//     		       .0714285713298222,
+//     		       -.0185185172458485,
+//     		       .00378787044215009,
+//     		       -6.40994113129432e-4,
+//     		       9.25197374512647e-5,
+//     		       -1.15662609053481e-5,
+//     		       1.21222603512827e-6,
+//     		       -8.36313918003957e-8 };
+
+// //     double C0_1[9] = { 3.3333333333331799375e-1,
+// // 		       -1.9999999999702300357e-1,
+// // 		       7.1428571329822193592e-2,
+// // 		       -1.8518517245848499508e-2,
+// // 		       3.7878704421500900175e-3,
+// // 		       -6.4099411312943201970e-4,
+// // 		       9.2519737451264699442e-5,
+// // 		       1.4020922598549239794e-11,
+// // 		       -9.6730249744076635150e-13 };
+    
+//     double f1 = 0.0;
+//     double xi = 1.0;
+//     for(int i = 0; i < 10; ++i) {
+// 	f1 += C0_1[i]*xi;
+// 	xi *= X;
+//     }
+    
+//     double e = exp(-X);
+//     W[0] = (X + X) *f1 + e;
+//     t2[0] = f1 / (W[0] - f1);
+
+// }
+
+// #undef r12
+// #undef pie4
+// #undef r22
+// #undef w22
+// #undef r13
+// #undef r23
+// #undef w23
+// #undef r33
+// #undef w33
+
+// #undef decls
+
+// #endif // _RYSQ_ROOTS1_H_MINE

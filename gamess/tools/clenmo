@@ -1,0 +1,40 @@
+#!/bin/csh
+#
+#  Execute CLENMO
+#
+set JOB=$1
+#
+if (null$JOB == null) then
+   echo " "
+   echo The syntax to execute CLENMO is 
+   echo "     clenmo XXX"
+   echo where XXX is the name of your XXX.vec input file.
+   echo " "
+   echo A XXX.vec file should contain any number of \'comment cards\',
+   echo which can be actual GAMESS input cards if you like, followed
+   echo by a \' \$VEC\' card.  Any preceeding cards will be copied to
+   echo the output, and will be followed by the clean \$VEC group.
+   echo Thus your \$VEC group should be the LAST THING in XXX.vec,
+   echo and if it contains fewer MOs than AOs, the input \$VEC should
+   echo not contain a \$END card.  Be prepared to tell CLENMO how many
+   echo atomic orbitals your molecule is using.
+   echo " "
+   exit
+endif
+#
+if (-e $JOB.vec) then
+else
+   echo I could not find $JOB.vec in your current directory.
+   echo Bombing out...
+   exit
+endif
+#
+setenv MOIN  $JOB.vec
+setenv MOOUT $JOB.moout
+#
+clenmo.x
+echo The cleaned up MOs are now in file $JOB.moout
+#
+unsetenv MOIN
+unsetenv MOOUT
+exit

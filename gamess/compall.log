@@ -1,0 +1,1293 @@
+Wed Jan 26 15:33:02 CET 2011
+======================== blas ==============================
+Wed Jan 26 15:33:02 CET 2011
+Copying source code, blas.src does not require activation.
+Wed Jan 26 15:33:05 CET 2011
+2.553u 0.113s 0:02.69 98.8%	0+0k 0+976io 0pf+0w
+======================== aldeci ==============================
+Wed Jan 26 15:33:05 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   9741 CARDS READ,  30 CARDS ACTIVATED
+Wed Jan 26 15:33:14 CET 2011
+8.981u 0.213s 0:09.24 99.4%	0+0k 600+5496io 0pf+0w
+======================== algnci ==============================
+Wed Jan 26 15:33:14 CET 2011
+Copying source code, algnci.src does not require activation.
+Wed Jan 26 15:33:23 CET 2011
+8.400u 0.164s 0:08.59 99.6%	0+0k 0+4584io 0pf+0w
+======================== basccn ==============================
+Wed Jan 26 15:33:23 CET 2011
+Copying source code, basccn.src does not require activation.
+Wed Jan 26 15:33:37 CET 2011
+13.255u 0.525s 0:13.82 99.6%	0+0k 0+16416io 0pf+0w
+======================== basecp ==============================
+Wed Jan 26 15:33:37 CET 2011
+Copying source code, basecp.src does not require activation.
+Wed Jan 26 15:33:40 CET 2011
+2.797u 0.130s 0:02.96 98.6%	0+0k 0+1880io 0pf+0w
+======================== basext ==============================
+Wed Jan 26 15:33:40 CET 2011
+Copying source code, basext.src does not require activation.
+Wed Jan 26 15:33:41 CET 2011
+1.631u 0.092s 0:01.74 98.8%	0+0k 0+1424io 0pf+0w
+======================== basg3l ==============================
+Wed Jan 26 15:33:42 CET 2011
+Copying source code, basg3l.src does not require activation.
+Wed Jan 26 15:33:42 CET 2011
+0.818u 0.081s 0:00.92 96.7%	0+0k 0+784io 0pf+0w
+======================== bashuz ==============================
+Wed Jan 26 15:33:42 CET 2011
+Copying source code, bashuz.src does not require activation.
+Wed Jan 26 15:33:44 CET 2011
+1.655u 0.079s 0:01.75 98.2%	0+0k 0+1144io 0pf+0w
+======================== bashz2 ==============================
+Wed Jan 26 15:33:44 CET 2011
+Copying source code, bashz2.src does not require activation.
+Wed Jan 26 15:33:45 CET 2011
+0.903u 0.089s 0:01.00 98.0%	0+0k 0+1024io 0pf+0w
+======================== baskar ==============================
+Wed Jan 26 15:33:45 CET 2011
+Copying source code, baskar.src does not require activation.
+Wed Jan 26 15:33:47 CET 2011
+1.774u 0.081s 0:01.88 98.4%	0+0k 0+1352io 0pf+0w
+======================== basn21 ==============================
+Wed Jan 26 15:33:47 CET 2011
+Copying source code, basn21.src does not require activation.
+Wed Jan 26 15:33:49 CET 2011
+1.734u 0.094s 0:01.85 98.3%	0+0k 0+1296io 0pf+0w
+======================== basn31 ==============================
+Wed Jan 26 15:33:49 CET 2011
+Copying source code, basn31.src does not require activation.
+Wed Jan 26 15:33:50 CET 2011
+1.410u 0.096s 0:01.52 98.6%	0+0k 0+1256io 0pf+0w
+======================== baspcn ==============================
+Wed Jan 26 15:33:50 CET 2011
+Copying source code, baspcn.src does not require activation.
+Wed Jan 26 15:33:54 CET 2011
+3.615u 0.147s 0:03.79 98.9%	0+0k 0+2928io 0pf+0w
+======================== bassto ==============================
+Wed Jan 26 15:33:54 CET 2011
+Copying source code, bassto.src does not require activation.
+Wed Jan 26 15:33:55 CET 2011
+0.735u 0.083s 0:00.84 96.4%	0+0k 0+720io 0pf+0w
+======================== ccaux ==============================
+Wed Jan 26 15:33:55 CET 2011
+Copying source code, ccaux.src does not require activation.
+Wed Jan 26 15:33:57 CET 2011
+2.304u 0.098s 0:02.41 99.1%	0+0k 0+1304io 0pf+0w
+======================== ccddi ==============================
+Wed Jan 26 15:33:57 CET 2011
+Copying source code, ccddi.src does not require activation.
+Wed Jan 26 15:34:03 CET 2011
+5.309u 0.186s 0:05.52 99.2%	0+0k 0+3464io 0pf+0w
+======================== ccqaux ==============================
+Wed Jan 26 15:34:03 CET 2011
+Copying source code, ccqaux.src does not require activation.
+Wed Jan 26 15:34:09 CET 2011
+5.847u 0.125s 0:06.00 99.3%	0+0k 0+1536io 0pf+0w
+======================== ccquad ==============================
+Wed Jan 26 15:34:09 CET 2011
+Copying source code, ccquad.src does not require activation.
+Wed Jan 26 15:34:12 CET 2011
+3.295u 0.178s 0:03.49 99.1%	0+0k 0+2992io 0pf+0w
+======================== ccsdt ==============================
+Wed Jan 26 15:34:12 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   3660 CARDS READ,  18 CARDS ACTIVATED
+Wed Jan 26 15:34:17 CET 2011
+4.460u 0.176s 0:04.67 99.1%	0+0k 232+2888io 0pf+0w
+======================== ceeis ==============================
+Wed Jan 26 15:34:17 CET 2011
+Copying source code, ceeis.src does not require activation.
+Wed Jan 26 15:34:18 CET 2011
+1.071u 0.093s 0:01.17 99.1%	0+0k 0+920io 0pf+0w
+======================== chgpen ==============================
+Wed Jan 26 15:34:18 CET 2011
+Copying source code, chgpen.src does not require activation.
+Wed Jan 26 15:34:22 CET 2011
+3.193u 0.084s 0:03.30 99.0%	0+0k 0+1504io 0pf+0w
+======================== cisgrd ==============================
+Wed Jan 26 15:34:22 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   3648 CARDS READ,  36 CARDS ACTIVATED
+Wed Jan 26 15:34:26 CET 2011
+4.372u 0.139s 0:04.54 99.1%	0+0k 224+2336io 0pf+0w
+======================== cosmo ==============================
+Wed Jan 26 15:34:26 CET 2011
+Copying source code, cosmo.src does not require activation.
+Wed Jan 26 15:34:29 CET 2011
+2.726u 0.145s 0:02.89 98.9%	0+0k 0+2632io 0pf+0w
+======================== cosprt ==============================
+Wed Jan 26 15:34:29 CET 2011
+Copying source code, cosprt.src does not require activation.
+Wed Jan 26 15:34:29 CET 2011
+0.105u 0.052s 0:00.17 88.2%	0+0k 0+176io 0pf+0w
+======================== cphf ==============================
+Wed Jan 26 15:34:29 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   7014 CARDS READ, 103 CARDS ACTIVATED
+Wed Jan 26 15:34:36 CET 2011
+6.176u 0.189s 0:06.41 99.0%	0+0k 448+4120io 0pf+0w
+======================== cpmchf ==============================
+Wed Jan 26 15:34:36 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+  15068 CARDS READ,  18 CARDS ACTIVATED
+Wed Jan 26 15:34:54 CET 2011
+17.785u 0.402s 0:18.24 99.6%	0+0k 984+9784io 0pf+0w
+======================== cprohf ==============================
+Wed Jan 26 15:34:54 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   2237 CARDS READ,  36 CARDS ACTIVATED
+Wed Jan 26 15:34:57 CET 2011
+3.202u 0.165s 0:03.40 98.8%	0+0k 152+1584io 0pf+0w
+======================== dccc ==============================
+Wed Jan 26 15:34:57 CET 2011
+Copying source code, dccc.src does not require activation.
+Wed Jan 26 15:34:59 CET 2011
+2.004u 0.114s 0:02.13 99.0%	0+0k 0+1400io 0pf+0w
+======================== dcgues ==============================
+Wed Jan 26 15:34:59 CET 2011
+Copying source code, dcgues.src does not require activation.
+Wed Jan 26 15:35:01 CET 2011
+1.223u 0.087s 0:01.33 97.7%	0+0k 0+1144io 0pf+0w
+======================== dcint2 ==============================
+Wed Jan 26 15:35:01 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   1191 CARDS READ,  12 CARDS ACTIVATED
+Wed Jan 26 15:35:02 CET 2011
+1.347u 0.073s 0:01.44 97.9%	0+0k 80+648io 0pf+0w
+======================== dclib ==============================
+Wed Jan 26 15:35:02 CET 2011
+Copying source code, dclib.src does not require activation.
+Wed Jan 26 15:35:04 CET 2011
+2.154u 0.105s 0:02.27 99.1%	0+0k 0+1760io 0pf+0w
+======================== dcmp2 ==============================
+Wed Jan 26 15:35:04 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   4034 CARDS READ,  36 CARDS ACTIVATED
+Wed Jan 26 15:35:10 CET 2011
+5.687u 0.142s 0:05.87 99.1%	0+0k 264+2424io 0pf+0w
+======================== dcscf ==============================
+Wed Jan 26 15:35:10 CET 2011
+Copying source code, dcscf.src does not require activation.
+Wed Jan 26 15:35:15 CET 2011
+4.098u 0.214s 0:04.34 99.0%	0+0k 0+2184io 0pf+0w
+======================== dctran ==============================
+Wed Jan 26 15:35:15 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   1682 CARDS READ,  36 CARDS ACTIVATED
+Wed Jan 26 15:35:17 CET 2011
+2.642u 0.107s 0:02.78 98.5%	0+0k 112+984io 0pf+0w
+======================== ddilib ==============================
+Wed Jan 26 15:35:17 CET 2011
+Copying source code, ddilib.src does not require activation.
+Wed Jan 26 15:35:18 CET 2011
+0.104u 0.054s 0:00.18 83.3%	0+0k 0+128io 0pf+0w
+======================== delocl ==============================
+Wed Jan 26 15:35:18 CET 2011
+Copying source code, delocl.src does not require activation.
+Wed Jan 26 15:35:20 CET 2011
+1.810u 0.080s 0:01.91 98.9%	0+0k 0+752io 0pf+0w
+======================== demrpt ==============================
+Wed Jan 26 15:35:20 CET 2011
+Copying source code, demrpt.src does not require activation.
+Wed Jan 26 15:35:49 CET 2011
+29.149u 0.423s 0:29.72 99.4%	0+0k 0+5560io 0pf+0w
+======================== dft ==============================
+Wed Jan 26 15:35:49 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   2227 CARDS READ,  96 CARDS ACTIVATED
+Wed Jan 26 15:35:51 CET 2011
+1.144u 0.124s 0:01.30 96.9%	0+0k 160+1352io 0pf+0w
+======================== dftaux ==============================
+Wed Jan 26 15:35:51 CET 2011
+Copying source code, dftaux.src does not require activation.
+Wed Jan 26 15:35:54 CET 2011
+3.007u 0.068s 0:03.09 99.0%	0+0k 0+1552io 0pf+0w
+======================== dftdis ==============================
+Wed Jan 26 15:35:54 CET 2011
+Copying source code, dftdis.src does not require activation.
+Wed Jan 26 15:35:57 CET 2011
+3.113u 0.207s 0:03.33 99.3%	0+0k 0+11048io 0pf+0w
+======================== dftfun ==============================
+Wed Jan 26 15:35:57 CET 2011
+Copying source code, dftfun.src does not require activation.
+Wed Jan 26 15:36:11 CET 2011
+13.637u 0.201s 0:13.87 99.7%	0+0k 0+1640io 0pf+0w
+======================== dftgrd ==============================
+Wed Jan 26 15:36:11 CET 2011
+Copying source code, dftgrd.src does not require activation.
+Wed Jan 26 15:36:16 CET 2011
+4.591u 0.153s 0:04.77 99.3%	0+0k 0+2584io 0pf+0w
+======================== dftint ==============================
+Wed Jan 26 15:36:16 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   2673 CARDS READ,  24 CARDS ACTIVATED
+Wed Jan 26 15:36:18 CET 2011
+2.308u 0.123s 0:02.46 98.3%	0+0k 168+1648io 0pf+0w
+======================== dftxca ==============================
+Wed Jan 26 15:36:18 CET 2011
+Copying source code, dftxca.src does not require activation.
+Wed Jan 26 15:36:20 CET 2011
+2.186u 0.115s 0:02.32 98.7%	0+0k 0+2640io 0pf+0w
+======================== dftxcb ==============================
+Wed Jan 26 15:36:20 CET 2011
+Copying source code, dftxcb.src does not require activation.
+Wed Jan 26 15:37:02 CET 2011
+40.788u 0.529s 0:41.38 99.8%	0+0k 0+7152io 0pf+0w
+======================== dftxcc ==============================
+Wed Jan 26 15:37:02 CET 2011
+Copying source code, dftxcc.src does not require activation.
+Wed Jan 26 15:37:03 CET 2011
+1.270u 0.102s 0:01.40 97.8%	0+0k 216+1224io 0pf+0w
+======================== dftxcd ==============================
+Wed Jan 26 15:37:03 CET 2011
+Copying source code, dftxcd.src does not require activation.
+Wed Jan 26 15:37:11 CET 2011
+7.555u 0.221s 0:07.81 99.4%	0+0k 168+1344io 0pf+0w
+======================== dftxce ==============================
+Wed Jan 26 15:37:11 CET 2011
+Copying source code, dftxce.src does not require activation.
+Wed Jan 26 15:37:28 CET 2011
+16.719u 0.211s 0:16.99 99.5%	0+0k 448+4000io 0pf+0w
+======================== dftxcf ==============================
+Wed Jan 26 15:37:28 CET 2011
+Copying source code, dftxcf.src does not require activation.
+Wed Jan 26 15:37:30 CET 2011
+1.593u 0.129s 0:01.76 97.1%	0+0k 368+1872io 0pf+0w
+======================== dftxcg ==============================
+Wed Jan 26 15:37:30 CET 2011
+Copying source code, dftxcg.src does not require activation.
+Wed Jan 26 15:37:36 CET 2011
+5.875u 0.173s 0:06.07 99.5%	0+0k 176+1464io 0pf+0w
+======================== dgeev ==============================
+Wed Jan 26 15:37:36 CET 2011
+Copying source code, dgeev.src does not require activation.
+Wed Jan 26 15:37:41 CET 2011
+4.619u 0.111s 0:04.77 98.9%	0+0k 448+2416io 0pf+0w
+======================== dgesvd ==============================
+Wed Jan 26 15:37:41 CET 2011
+Copying source code, dgesvd.src does not require activation.
+Wed Jan 26 15:37:45 CET 2011
+4.053u 0.164s 0:04.25 99.0%	0+0k 648+3272io 0pf+0w
+======================== dmulti ==============================
+Wed Jan 26 15:37:45 CET 2011
+Copying source code, dmulti.src does not require activation.
+Wed Jan 26 15:37:49 CET 2011
+4.187u 0.146s 0:04.36 99.0%	0+0k 208+1656io 0pf+0w
+======================== drc ==============================
+Wed Jan 26 15:37:49 CET 2011
+Copying source code, drc.src does not require activation.
+Wed Jan 26 15:37:51 CET 2011
+1.177u 0.095s 0:01.30 96.9%	0+0k 72+760io 0pf+0w
+======================== eaipcc ==============================
+Wed Jan 26 15:37:51 CET 2011
+Copying source code, eaipcc.src does not require activation.
+Wed Jan 26 15:38:05 CET 2011
+14.157u 0.496s 0:14.70 99.5%	0+0k 848+9168io 0pf+0w
+======================== ecp ==============================
+Wed Jan 26 15:38:05 CET 2011
+Copying source code, ecp.src does not require activation.
+Wed Jan 26 15:38:08 CET 2011
+2.634u 0.115s 0:02.79 98.2%	0+0k 160+1240io 0pf+0w
+======================== ecpder ==============================
+Wed Jan 26 15:38:08 CET 2011
+Copying source code, ecpder.src does not require activation.
+Wed Jan 26 15:38:20 CET 2011
+11.965u 0.144s 0:12.15 99.5%	0+0k 168+1600io 0pf+0w
+======================== ecplib ==============================
+Wed Jan 26 15:38:20 CET 2011
+Copying source code, ecplib.src does not require activation.
+Wed Jan 26 15:38:22 CET 2011
+1.642u 0.107s 0:01.79 97.2%	0+0k 192+1416io 0pf+0w
+======================== ecppot ==============================
+Wed Jan 26 15:38:22 CET 2011
+Copying source code, ecppot.src does not require activation.
+Wed Jan 26 15:38:22 CET 2011
+0.139u 0.071s 0:00.22 90.9%	0+0k 176+440io 0pf+0w
+======================== efchtr ==============================
+Wed Jan 26 15:38:22 CET 2011
+Copying source code, efchtr.src does not require activation.
+Wed Jan 26 15:38:28 CET 2011
+5.518u 0.164s 0:05.72 99.1%	0+0k 360+3192io 0pf+0w
+======================== efdrvr ==============================
+Wed Jan 26 15:38:28 CET 2011
+Copying source code, efdrvr.src does not require activation.
+Wed Jan 26 15:38:29 CET 2011
+1.111u 0.074s 0:01.21 97.5%	0+0k 136+848io 0pf+0w
+======================== efelec ==============================
+Wed Jan 26 15:38:29 CET 2011
+Copying source code, efelec.src does not require activation.
+Wed Jan 26 15:38:35 CET 2011
+5.751u 0.222s 0:06.01 99.3%	0+0k 928+4608io 0pf+0w
+======================== efgrd2 ==============================
+Wed Jan 26 15:38:35 CET 2011
+Copying source code, efgrd2.src does not require activation.
+Wed Jan 26 15:38:40 CET 2011
+4.325u 0.159s 0:04.53 98.6%	0+0k 160+1344io 0pf+0w
+======================== efgrda ==============================
+Wed Jan 26 15:38:40 CET 2011
+Copying source code, efgrda.src does not require activation.
+Wed Jan 26 15:38:41 CET 2011
+0.995u 0.081s 0:01.12 95.5%	0+0k 96+816io 0pf+0w
+======================== efgrdb ==============================
+Wed Jan 26 15:38:41 CET 2011
+Copying source code, efgrdb.src does not require activation.
+Wed Jan 26 15:38:43 CET 2011
+2.137u 0.109s 0:02.29 97.3%	0+0k 144+1400io 0pf+0w
+======================== efgrdc ==============================
+Wed Jan 26 15:38:43 CET 2011
+Copying source code, efgrdc.src does not require activation.
+Wed Jan 26 15:38:48 CET 2011
+5.139u 0.119s 0:05.27 99.4%	0+0k 296+2616io 0pf+0w
+======================== efinp ==============================
+Wed Jan 26 15:38:48 CET 2011
+Copying source code, efinp.src does not require activation.
+Wed Jan 26 15:38:56 CET 2011
+7.254u 0.287s 0:07.60 99.0%	0+0k 672+6576io 0pf+0w
+======================== efinta ==============================
+Wed Jan 26 15:38:56 CET 2011
+Copying source code, efinta.src does not require activation.
+Wed Jan 26 15:38:58 CET 2011
+1.855u 0.107s 0:01.99 97.9%	0+0k 176+1272io 0pf+0w
+======================== efintb ==============================
+Wed Jan 26 15:38:58 CET 2011
+Copying source code, efintb.src does not require activation.
+Wed Jan 26 15:38:59 CET 2011
+1.201u 0.099s 0:01.31 98.4%	0+0k 152+984io 0pf+0w
+======================== efmo ==============================
+Wed Jan 26 15:38:59 CET 2011
+Copying source code, efmo.src does not require activation.
+Wed Jan 26 15:39:00 CET 2011
+0.362u 0.061s 0:00.45 93.3%	0+0k 72+448io 0pf+0w
+======================== efpaul ==============================
+Wed Jan 26 15:39:00 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   7763 CARDS READ,  54 CARDS ACTIVATED
+Wed Jan 26 15:39:11 CET 2011
+11.121u 0.360s 0:11.51 99.7%	0+0k 560+4856io 0pf+0w
+======================== efpcm ==============================
+Wed Jan 26 15:39:11 CET 2011
+Copying source code, efpcm.src does not require activation.
+Wed Jan 26 15:39:12 CET 2011
+0.453u 0.070s 0:00.55 94.5%	0+0k 40+280io 0pf+0w
+======================== efpcov ==============================
+Wed Jan 26 15:39:12 CET 2011
+Copying source code, efpcov.src does not require activation.
+Wed Jan 26 15:39:15 CET 2011
+3.172u 0.137s 0:03.33 99.0%	0+0k 192+1976io 0pf+0w
+======================== efpfmo ==============================
+Wed Jan 26 15:39:15 CET 2011
+Copying source code, efpfmo.src does not require activation.
+Wed Jan 26 15:39:17 CET 2011
+1.891u 0.101s 0:02.02 98.5%	0+0k 200+1360io 0pf+0w
+======================== eftei ==============================
+Wed Jan 26 15:39:17 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   1740 CARDS READ,  12 CARDS ACTIVATED
+Wed Jan 26 15:39:18 CET 2011
+0.737u 0.082s 0:00.85 95.2%	0+0k 120+896io 0pf+0w
+======================== eigen ==============================
+Wed Jan 26 15:39:18 CET 2011
+Copying source code, eigen.src does not require activation.
+Wed Jan 26 15:39:20 CET 2011
+2.032u 0.087s 0:02.14 98.5%	0+0k 168+928io 0pf+0w
+======================== elglib ==============================
+Wed Jan 26 15:39:20 CET 2011
+Copying source code, elglib.src does not require activation.
+Wed Jan 26 15:39:21 CET 2011
+0.407u 0.081s 0:00.52 92.3%	0+0k 40+416io 0pf+0w
+======================== elgloc ==============================
+Wed Jan 26 15:39:21 CET 2011
+Copying source code, elgloc.src does not require activation.
+Wed Jan 26 15:39:25 CET 2011
+4.356u 0.125s 0:04.51 99.1%	0+0k 152+2024io 0pf+0w
+======================== elgscf ==============================
+Wed Jan 26 15:39:25 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   9899 CARDS READ, 144 CARDS ACTIVATED
+Wed Jan 26 15:39:39 CET 2011
+13.047u 0.302s 0:13.40 99.5%	0+0k 656+6472io 0pf+0w
+======================== eomcc ==============================
+Wed Jan 26 15:39:39 CET 2011
+Copying source code, eomcc.src does not require activation.
+Wed Jan 26 15:39:47 CET 2011
+8.508u 0.259s 0:08.82 99.2%	0+0k 536+5176io 0pf+0w
+======================== ewald ==============================
+Wed Jan 26 15:39:47 CET 2011
+Copying source code, ewald.src does not require activation.
+Wed Jan 26 15:39:49 CET 2011
+1.134u 0.096s 0:01.26 96.8%	0+0k 240+1200io 0pf+0w
+======================== ffield ==============================
+Wed Jan 26 15:39:49 CET 2011
+Copying source code, ffield.src does not require activation.
+Wed Jan 26 15:39:50 CET 2011
+0.964u 0.097s 0:01.08 97.2%	0+0k 120+1048io 0pf+0w
+======================== fmo ==============================
+Wed Jan 26 15:39:50 CET 2011
+Copying source code, fmo.src does not require activation.
+Wed Jan 26 15:39:59 CET 2011
+8.697u 0.320s 0:09.14 98.5%	0+0k 600+4104io 0pf+0w
+======================== fmocp ==============================
+Wed Jan 26 15:39:59 CET 2011
+Copying source code, fmocp.src does not require activation.
+Wed Jan 26 15:40:00 CET 2011
+1.058u 0.087s 0:01.17 96.5%	0+0k 144+856io 0pf+0w
+======================== fmoesd ==============================
+Wed Jan 26 15:40:00 CET 2011
+Copying source code, fmoesd.src does not require activation.
+Wed Jan 26 15:40:03 CET 2011
+3.019u 0.090s 0:03.13 99.0%	0+0k 272+1760io 0pf+0w
+======================== fmogrd ==============================
+Wed Jan 26 15:40:03 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   3200 CARDS READ,   0 CARDS ACTIVATED
+Wed Jan 26 15:40:05 CET 2011
+1.941u 0.119s 0:02.07 99.0%	0+0k 224+1944io 0pf+0w
+======================== fmohss ==============================
+Wed Jan 26 15:40:05 CET 2011
+Copying source code, fmohss.src does not require activation.
+Wed Jan 26 15:40:06 CET 2011
+0.724u 0.089s 0:00.85 94.1%	0+0k 72+600io 0pf+0w
+======================== fmoint ==============================
+Wed Jan 26 15:40:06 CET 2011
+Copying source code, fmoint.src does not require activation.
+Wed Jan 26 15:40:09 CET 2011
+2.653u 0.113s 0:02.80 98.5%	0+0k 400+2400io 0pf+0w
+======================== fmoio ==============================
+Wed Jan 26 15:40:09 CET 2011
+Copying source code, fmoio.src does not require activation.
+Wed Jan 26 15:40:13 CET 2011
+4.230u 0.186s 0:04.45 99.1%	0+0k 368+3864io 0pf+0w
+======================== fmolib ==============================
+Wed Jan 26 15:40:13 CET 2011
+Copying source code, fmolib.src does not require activation.
+Wed Jan 26 15:40:17 CET 2011
+3.149u 0.126s 0:03.30 98.7%	0+0k 424+3144io 0pf+0w
+======================== fmopbc ==============================
+Wed Jan 26 15:40:17 CET 2011
+Copying source code, fmopbc.src does not require activation.
+Wed Jan 26 15:40:17 CET 2011
+0.342u 0.070s 0:00.43 95.3%	0+0k 48+352io 0pf+0w
+======================== fmoprp ==============================
+Wed Jan 26 15:40:17 CET 2011
+Copying source code, fmoprp.src does not require activation.
+Wed Jan 26 15:40:19 CET 2011
+1.507u 0.088s 0:01.63 96.9%	0+0k 232+1792io 0pf+0w
+======================== frfmt ==============================
+Wed Jan 26 15:40:19 CET 2011
+Copying source code, frfmt.src does not require activation.
+Wed Jan 26 15:40:19 CET 2011
+0.526u 0.056s 0:00.62 91.9%	0+0k 48+408io 0pf+0w
+======================== fsodci ==============================
+Wed Jan 26 15:40:19 CET 2011
+Copying source code, fsodci.src does not require activation.
+Wed Jan 26 15:40:42 CET 2011
+22.641u 0.399s 0:23.10 99.6%	0+0k 1272+9704io 0pf+0w
+======================== g3 ==============================
+Wed Jan 26 15:40:43 CET 2011
+Copying source code, g3.src does not require activation.
+Wed Jan 26 15:40:43 CET 2011
+0.599u 0.072s 0:00.71 92.9%	0+0k 104+800io 0pf+0w
+======================== gamess ==============================
+Wed Jan 26 15:40:43 CET 2011
+Copying source code, gamess.src does not require activation.
+Wed Jan 26 15:40:44 CET 2011
+0.946u 0.102s 0:01.06 98.1%	0+0k 264+1520io 0pf+0w
+======================== globop ==============================
+Wed Jan 26 15:40:44 CET 2011
+Copying source code, globop.src does not require activation.
+Wed Jan 26 15:40:46 CET 2011
+1.725u 0.117s 0:01.87 97.8%	0+0k 176+1296io 0pf+0w
+======================== gmcpt ==============================
+Wed Jan 26 15:40:46 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+  19739 CARDS READ, 175 CARDS ACTIVATED
+Wed Jan 26 15:41:04 CET 2011
+17.462u 0.493s 0:18.00 99.7%	0+0k 1352+11248io 0pf+0w
+======================== gradex ==============================
+Wed Jan 26 15:41:04 CET 2011
+Copying source code, gradex.src does not require activation.
+Wed Jan 26 15:41:10 CET 2011
+5.187u 0.207s 0:05.44 98.8%	0+0k 152+1664io 0pf+0w
+======================== grd1 ==============================
+Wed Jan 26 15:41:10 CET 2011
+Copying source code, grd1.src does not require activation.
+Wed Jan 26 15:41:12 CET 2011
+2.343u 0.110s 0:02.49 98.3%	0+0k 200+1400io 0pf+0w
+======================== grd2a ==============================
+Wed Jan 26 15:41:12 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   4287 CARDS READ,  18 CARDS ACTIVATED
+Wed Jan 26 15:41:16 CET 2011
+3.357u 0.183s 0:03.56 99.1%	0+0k 296+2504io 0pf+0w
+======================== grd2b ==============================
+Wed Jan 26 15:41:16 CET 2011
+Copying source code, grd2b.src does not require activation.
+Wed Jan 26 15:41:31 CET 2011
+14.962u 0.496s 0:15.50 99.6%	0+0k 216+2304io 0pf+0w
+======================== grd2c ==============================
+Wed Jan 26 15:41:31 CET 2011
+Copying source code, grd2c.src does not require activation.
+Wed Jan 26 15:41:38 CET 2011
+6.794u 0.154s 0:07.01 99.0%	0+0k 352+1176io 1pf+0w
+======================== guess ==============================
+Wed Jan 26 15:41:38 CET 2011
+Copying source code, guess.src does not require activation.
+Wed Jan 26 15:41:39 CET 2011
+0.425u 0.077s 0:00.54 90.7%	0+0k 304+2112io 0pf+0w
+======================== gugdga ==============================
+Wed Jan 26 15:41:39 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   1935 CARDS READ,  26 CARDS ACTIVATED
+Wed Jan 26 15:41:40 CET 2011
+1.448u 0.121s 0:01.58 98.7%	0+0k 136+1072io 0pf+0w
+======================== gugdgb ==============================
+Wed Jan 26 15:41:40 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   1524 CARDS READ,  21 CARDS ACTIVATED
+Wed Jan 26 15:41:42 CET 2011
+1.140u 0.085s 0:01.26 96.8%	0+0k 104+784io 0pf+0w
+======================== gugdm ==============================
+Wed Jan 26 15:41:42 CET 2011
+Copying source code, gugdm.src does not require activation.
+Wed Jan 26 15:41:42 CET 2011
+0.677u 0.081s 0:00.79 94.9%	0+0k 64+528io 0pf+0w
+======================== gugdm2 ==============================
+Wed Jan 26 15:41:42 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   1683 CARDS READ,  72 CARDS ACTIVATED
+Wed Jan 26 15:41:44 CET 2011
+1.201u 0.119s 0:01.37 95.6%	0+0k 112+1104io 0pf+0w
+======================== gugdrt ==============================
+Wed Jan 26 15:41:44 CET 2011
+Copying source code, gugdrt.src does not require activation.
+Wed Jan 26 15:41:46 CET 2011
+2.364u 0.126s 0:02.52 98.4%	0+0k 200+1880io 0pf+0w
+======================== gugem ==============================
+Wed Jan 26 15:41:46 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   1376 CARDS READ,  10 CARDS ACTIVATED
+Wed Jan 26 15:41:47 CET 2011
+0.619u 0.092s 0:00.74 94.5%	0+0k 80+888io 0pf+0w
+======================== gugsrt ==============================
+Wed Jan 26 15:41:47 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   1163 CARDS READ,  36 CARDS ACTIVATED
+Wed Jan 26 15:41:48 CET 2011
+0.861u 0.087s 0:00.98 95.9%	0+0k 72+776io 0pf+0w
+======================== gvb ==============================
+Wed Jan 26 15:41:48 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   4173 CARDS READ,  31 CARDS ACTIVATED
+Wed Jan 26 15:41:52 CET 2011
+3.467u 0.172s 0:03.67 98.9%	0+0k 264+2464io 0pf+0w
+======================== hess ==============================
+Wed Jan 26 15:41:52 CET 2011
+Copying source code, hess.src does not require activation.
+Wed Jan 26 15:41:57 CET 2011
+5.034u 0.161s 0:05.23 99.2%	0+0k 376+3464io 0pf+0w
+======================== hss1a ==============================
+Wed Jan 26 15:41:57 CET 2011
+Copying source code, hss1a.src does not require activation.
+Wed Jan 26 15:41:58 CET 2011
+0.898u 0.085s 0:01.01 96.0%	0+0k 88+776io 0pf+0w
+======================== hss1b ==============================
+Wed Jan 26 15:41:58 CET 2011
+Copying source code, hss1b.src does not require activation.
+Wed Jan 26 15:42:00 CET 2011
+1.912u 0.104s 0:02.03 99.0%	0+0k 120+1040io 0pf+0w
+======================== hss2a ==============================
+Wed Jan 26 15:42:00 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   3390 CARDS READ,  18 CARDS ACTIVATED
+Wed Jan 26 15:42:02 CET 2011
+2.231u 0.126s 0:02.37 99.1%	0+0k 192+1760io 0pf+0w
+======================== hss2b ==============================
+Wed Jan 26 15:42:02 CET 2011
+Copying source code, hss2b.src does not require activation.
+Wed Jan 26 15:42:06 CET 2011
+3.771u 0.116s 0:03.93 98.7%	0+0k 248+2216io 0pf+0w
+======================== inputa ==============================
+Wed Jan 26 15:42:06 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   5456 CARDS READ,   0 CARDS ACTIVATED
+Wed Jan 26 15:42:14 CET 2011
+7.033u 0.268s 0:07.34 99.3%	0+0k 392+3832io 0pf+0w
+======================== inputb ==============================
+Wed Jan 26 15:42:14 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   3149 CARDS READ,   0 CARDS ACTIVATED
+Wed Jan 26 15:42:15 CET 2011
+1.795u 0.107s 0:01.93 97.9%	0+0k 208+2040io 0pf+0w
+======================== inputc ==============================
+Wed Jan 26 15:42:16 CET 2011
+Copying source code, inputc.src does not require activation.
+Wed Jan 26 15:42:17 CET 2011
+0.954u 0.083s 0:01.07 96.2%	0+0k 64+632io 0pf+0w
+======================== int1 ==============================
+Wed Jan 26 15:42:17 CET 2011
+Copying source code, int1.src does not require activation.
+Wed Jan 26 15:42:18 CET 2011
+1.682u 0.113s 0:01.82 98.3%	0+0k 168+1016io 0pf+0w
+======================== int2a ==============================
+Wed Jan 26 15:42:18 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   4470 CARDS READ,  30 CARDS ACTIVATED
+Wed Jan 26 15:42:21 CET 2011
+2.502u 0.125s 0:02.69 97.3%	0+0k 288+2472io 0pf+0w
+======================== int2b ==============================
+Wed Jan 26 15:42:21 CET 2011
+Copying source code, int2b.src does not require activation.
+Wed Jan 26 15:42:23 CET 2011
+1.983u 0.133s 0:02.14 98.5%	0+0k 168+1752io 0pf+0w
+======================== int2c ==============================
+Wed Jan 26 15:42:23 CET 2011
+Copying source code, int2c.src does not require activation.
+Wed Jan 26 15:42:29 CET 2011
+5.719u 0.228s 0:06.00 98.8%	0+0k 256+2144io 0pf+0w
+======================== int2d ==============================
+Wed Jan 26 15:42:29 CET 2011
+Copying source code, int2d.src does not require activation.
+Wed Jan 26 15:42:55 CET 2011
+25.739u 0.355s 0:26.17 99.6%	0+0k 824+7656io 0pf+0w
+======================== int2f ==============================
+Wed Jan 26 15:42:55 CET 2011
+Copying source code, int2f.src does not require activation.
+Wed Jan 26 15:43:15 CET 2011
+18.746u 0.410s 0:19.22 99.6%	0+0k 672+6416io 0pf+0w
+======================== int2g ==============================
+Wed Jan 26 15:43:15 CET 2011
+Copying source code, int2g.src does not require activation.
+Wed Jan 26 15:43:22 CET 2011
+6.694u 0.255s 0:06.99 99.2%	0+0k 280+2728io 0pf+0w
+======================== int2r ==============================
+Wed Jan 26 15:43:22 CET 2011
+Copying source code, int2r.src does not require activation.
+Wed Jan 26 15:43:39 CET 2011
+16.842u 0.242s 0:17.13 99.7%	0+0k 568+6056io 0pf+0w
+======================== int2s ==============================
+Wed Jan 26 15:43:39 CET 2011
+Copying source code, int2s.src does not require activation.
+Wed Jan 26 15:43:46 CET 2011
+6.678u 0.310s 0:07.09 98.4%	0+0k 376+5816io 0pf+0w
+======================== int2t ==============================
+Wed Jan 26 15:43:46 CET 2011
+Copying source code, int2t.src does not require activation.
+Wed Jan 26 15:44:03 CET 2011
+16.489u 0.446s 0:17.10 98.9%	0+0k 512+7768io 0pf+0w
+======================== int2u ==============================
+Wed Jan 26 15:44:03 CET 2011
+Copying source code, int2u.src does not require activation.
+Wed Jan 26 15:44:18 CET 2011
+14.303u 0.588s 0:14.95 99.5%	0+0k 736+10848io 0pf+0w
+======================== int2v ==============================
+Wed Jan 26 15:44:18 CET 2011
+Copying source code, int2v.src does not require activation.
+Wed Jan 26 15:44:29 CET 2011
+10.544u 0.467s 0:11.06 99.4%	0+0k 616+8832io 0pf+0w
+======================== int2w ==============================
+Wed Jan 26 15:44:29 CET 2011
+Copying source code, int2w.src does not require activation.
+Wed Jan 26 15:44:41 CET 2011
+11.494u 0.555s 0:12.09 99.5%	0+0k 640+9192io 0pf+0w
+======================== int2x ==============================
+Wed Jan 26 15:44:41 CET 2011
+Copying source code, int2x.src does not require activation.
+Wed Jan 26 15:44:52 CET 2011
+10.382u 0.623s 0:11.05 99.5%	0+0k 688+9968io 0pf+0w
+======================== iolib ==============================
+Wed Jan 26 15:44:52 CET 2011
+ ACTIVATING *UNX SOURCE CARDS
+   2846 CARDS READ, 228 CARDS ACTIVATED
+Wed Jan 26 15:44:53 CET 2011
+1.012u 0.099s 0:01.14 96.4%	0+0k 200+1688io 0pf+0w
+======================== ivocas ==============================
+Wed Jan 26 15:44:53 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   1199 CARDS READ,  18 CARDS ACTIVATED
+Wed Jan 26 15:44:54 CET 2011
+1.077u 0.092s 0:01.19 97.4%	0+0k 72+776io 0pf+0w
+======================== lagran ==============================
+Wed Jan 26 15:44:54 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+    824 CARDS READ,  36 CARDS ACTIVATED
+Wed Jan 26 15:44:55 CET 2011
+0.802u 0.080s 0:00.91 96.7%	0+0k 56+536io 0pf+0w
+======================== local ==============================
+Wed Jan 26 15:44:55 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   4780 CARDS READ,   0 CARDS ACTIVATED
+Wed Jan 26 15:44:59 CET 2011
+3.534u 0.159s 0:03.73 98.6%	0+0k 312+2992io 0pf+0w
+======================== loccd ==============================
+Wed Jan 26 15:44:59 CET 2011
+Copying source code, loccd.src does not require activation.
+Wed Jan 26 15:45:03 CET 2011
+3.737u 0.117s 0:03.89 98.7%	0+0k 120+1120io 0pf+0w
+======================== locpol ==============================
+Wed Jan 26 15:45:03 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   3974 CARDS READ,  18 CARDS ACTIVATED
+Wed Jan 26 15:45:05 CET 2011
+1.455u 0.130s 0:01.62 97.5%	0+0k 240+2384io 0pf+0w
+======================== mccas ==============================
+Wed Jan 26 15:45:05 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   3524 CARDS READ,  72 CARDS ACTIVATED
+Wed Jan 26 15:45:13 CET 2011
+8.283u 0.212s 0:08.56 99.1%	0+0k 216+2056io 0pf+0w
+======================== mcjac ==============================
+Wed Jan 26 15:45:13 CET 2011
+Copying source code, mcjac.src does not require activation.
+Wed Jan 26 15:45:16 CET 2011
+2.724u 0.115s 0:02.89 97.9%	0+0k 152+1408io 0pf+0w
+======================== mcpgrd ==============================
+Wed Jan 26 15:45:16 CET 2011
+Copying source code, mcpgrd.src does not require activation.
+Wed Jan 26 15:45:29 CET 2011
+13.022u 0.309s 0:13.37 99.6%	0+0k 720+5008io 0pf+0w
+======================== mcpinp ==============================
+Wed Jan 26 15:45:29 CET 2011
+Copying source code, mcpinp.src does not require activation.
+Wed Jan 26 15:45:32 CET 2011
+2.014u 0.160s 0:02.21 98.1%	0+0k 120+1528io 0pf+0w
+======================== mcpint ==============================
+Wed Jan 26 15:45:32 CET 2011
+Copying source code, mcpint.src does not require activation.
+Wed Jan 26 15:45:32 CET 2011
+0.609u 0.074s 0:00.69 97.1%	0+0k 72+472io 0pf+0w
+======================== mcpl10 ==============================
+Wed Jan 26 15:45:32 CET 2011
+Copying source code, mcpl10.src does not require activation.
+Wed Jan 26 15:45:33 CET 2011
+0.675u 0.079s 0:00.79 93.6%	0+0k 120+840io 0pf+0w
+======================== mcpl20 ==============================
+Wed Jan 26 15:45:33 CET 2011
+Copying source code, mcpl20.src does not require activation.
+Wed Jan 26 15:45:35 CET 2011
+1.814u 0.099s 0:01.94 97.9%	0+0k 192+1336io 0pf+0w
+======================== mcpl30 ==============================
+Wed Jan 26 15:45:35 CET 2011
+Copying source code, mcpl30.src does not require activation.
+Wed Jan 26 15:45:38 CET 2011
+3.135u 0.145s 0:03.30 99.0%	0+0k 280+1800io 0pf+0w
+======================== mcpl40 ==============================
+Wed Jan 26 15:45:38 CET 2011
+Copying source code, mcpl40.src does not require activation.
+Wed Jan 26 15:45:43 CET 2011
+4.965u 0.132s 0:05.12 99.4%	0+0k 376+2344io 0pf+0w
+======================== mcpl50 ==============================
+Wed Jan 26 15:45:44 CET 2011
+Copying source code, mcpl50.src does not require activation.
+Wed Jan 26 15:45:46 CET 2011
+2.081u 0.107s 0:02.24 97.3%	0+0k 232+1696io 0pf+0w
+======================== mcpl60 ==============================
+Wed Jan 26 15:45:46 CET 2011
+Copying source code, mcpl60.src does not require activation.
+Wed Jan 26 15:45:50 CET 2011
+4.328u 0.144s 0:04.49 99.3%	0+0k 360+2392io 0pf+0w
+======================== mcpl70 ==============================
+Wed Jan 26 15:45:50 CET 2011
+Copying source code, mcpl70.src does not require activation.
+Wed Jan 26 15:45:57 CET 2011
+6.618u 0.198s 0:06.84 99.4%	0+0k 488+3112io 0pf+0w
+======================== mcpl80 ==============================
+Wed Jan 26 15:45:57 CET 2011
+Copying source code, mcpl80.src does not require activation.
+Wed Jan 26 15:46:02 CET 2011
+4.577u 0.161s 0:04.78 98.9%	0+0k 352+2512io 0pf+0w
+======================== mcqdpt ==============================
+Wed Jan 26 15:46:02 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+  15885 CARDS READ, 214 CARDS ACTIVATED
+Wed Jan 26 15:46:19 CET 2011
+16.828u 0.358s 0:17.24 99.5%	0+0k 1160+10552io 0pf+0w
+======================== mcqdwt ==============================
+Wed Jan 26 15:46:19 CET 2011
+Copying source code, mcqdwt.src does not require activation.
+Wed Jan 26 15:46:49 CET 2011
+29.462u 0.340s 0:29.88 99.7%	0+0k 360+3232io 0pf+0w
+======================== mcqud ==============================
+Wed Jan 26 15:46:49 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   4287 CARDS READ,  15 CARDS ACTIVATED
+Wed Jan 26 15:46:53 CET 2011
+3.398u 0.162s 0:03.60 98.6%	0+0k 232+2768io 0pf+0w
+======================== mcscf ==============================
+Wed Jan 26 15:46:53 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   5516 CARDS READ,  36 CARDS ACTIVATED
+Wed Jan 26 15:46:57 CET 2011
+4.039u 0.212s 0:04.28 99.0%	0+0k 352+3304io 0pf+0w
+======================== mctwo ==============================
+Wed Jan 26 15:46:57 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   5949 CARDS READ, 198 CARDS ACTIVATED
+Wed Jan 26 15:47:02 CET 2011
+4.663u 0.222s 0:04.91 99.3%	0+0k 368+3136io 0pf+0w
+======================== mdefp ==============================
+Wed Jan 26 15:47:02 CET 2011
+Copying source code, mdefp.src does not require activation.
+Wed Jan 26 15:47:06 CET 2011
+3.795u 0.164s 0:03.99 98.9%	0+0k 424+2992io 0pf+0w
+======================== mexing ==============================
+Wed Jan 26 15:47:06 CET 2011
+Copying source code, mexing.src does not require activation.
+Wed Jan 26 15:47:07 CET 2011
+1.501u 0.107s 0:01.63 98.1%	0+0k 104+992io 0pf+0w
+======================== mm23 ==============================
+Wed Jan 26 15:47:07 CET 2011
+Copying source code, mm23.src does not require activation.
+Wed Jan 26 15:47:50 CET 2011
+41.632u 0.472s 0:42.20 99.7%	0+0k 872+10400io 0pf+0w
+======================== morokm ==============================
+Wed Jan 26 15:47:50 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   6240 CARDS READ,  60 CARDS ACTIVATED
+Wed Jan 26 15:47:51 CET 2011
+0.793u 0.156s 0:00.99 94.9%	0+0k 376+4344io 0pf+0w
+======================== mp2 ==============================
+Wed Jan 26 15:47:51 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   4614 CARDS READ,  18 CARDS ACTIVATED
+Wed Jan 26 15:47:55 CET 2011
+4.260u 0.151s 0:04.45 99.1%	0+0k 296+3000io 0pf+0w
+======================== mp2ddi ==============================
+Wed Jan 26 15:47:55 CET 2011
+Copying source code, mp2ddi.src does not require activation.
+Wed Jan 26 15:48:04 CET 2011
+8.980u 0.151s 0:09.20 99.2%	0+0k 472+3408io 0pf+0w
+======================== mp2grd ==============================
+Wed Jan 26 15:48:04 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   5239 CARDS READ,  49 CARDS ACTIVATED
+Wed Jan 26 15:48:11 CET 2011
+6.606u 0.197s 0:06.85 99.1%	0+0k 320+3544io 0pf+0w
+======================== mp2gr2 ==============================
+Wed Jan 26 15:48:11 CET 2011
+Copying source code, mp2gr2.src does not require activation.
+Wed Jan 26 15:48:16 CET 2011
+5.221u 0.162s 0:05.42 99.2%	0+0k 248+2448io 0pf+0w
+======================== mp2ims ==============================
+Wed Jan 26 15:48:17 CET 2011
+Copying source code, mp2ims.src does not require activation.
+Wed Jan 26 15:48:19 CET 2011
+2.054u 0.104s 0:02.20 97.7%	0+0k 128+992io 0pf+0w
+======================== mpcdat ==============================
+Wed Jan 26 15:48:19 CET 2011
+Copying source code, mpcdat.src does not require activation.
+Wed Jan 26 15:48:19 CET 2011
+0.284u 0.077s 0:00.38 92.1%	0+0k 288+1096io 0pf+0w
+======================== mpcgrd ==============================
+Wed Jan 26 15:48:19 CET 2011
+Copying source code, mpcgrd.src does not require activation.
+Wed Jan 26 15:48:23 CET 2011
+3.828u 0.103s 0:03.96 98.9%	0+0k 96+928io 0pf+0w
+======================== mpcint ==============================
+Wed Jan 26 15:48:23 CET 2011
+Copying source code, mpcint.src does not require activation.
+Wed Jan 26 15:48:25 CET 2011
+2.318u 0.101s 0:02.43 99.1%	0+0k 136+1168io 0pf+0w
+======================== mpcmol ==============================
+Wed Jan 26 15:48:26 CET 2011
+Copying source code, mpcmol.src does not require activation.
+Wed Jan 26 15:48:26 CET 2011
+0.744u 0.093s 0:00.88 94.3%	0+0k 80+648io 0pf+0w
+======================== mpcmsc ==============================
+Wed Jan 26 15:48:26 CET 2011
+Copying source code, mpcmsc.src does not require activation.
+Wed Jan 26 15:48:28 CET 2011
+1.095u 0.097s 0:01.21 97.5%	0+0k 88+816io 0pf+0w
+======================== mthlib ==============================
+Wed Jan 26 15:48:28 CET 2011
+Compiling matrix multiply routines to use a system BLAS library...
+ ACTIVATING *I64 SOURCE CARDS
+   6511 CARDS READ,   2 CARDS ACTIVATED
+Wed Jan 26 15:48:31 CET 2011
+3.400u 0.167s 0:03.59 99.1%	0+0k 400+4224io 0pf+0w
+======================== nameio ==============================
+Wed Jan 26 15:48:31 CET 2011
+Copying source code, nameio.src does not require activation.
+Wed Jan 26 15:48:32 CET 2011
+0.623u 0.085s 0:00.73 95.8%	0+0k 88+576io 0pf+0w
+======================== neostb ==============================
+Wed Jan 26 15:48:32 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+    347 CARDS READ,   0 CARDS ACTIVATED
+Wed Jan 26 15:48:32 CET 2011
+0.156u 0.057s 0:00.23 86.9%	0+0k 24+264io 0pf+0w
+======================== nmr ==============================
+Wed Jan 26 15:48:32 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   8567 CARDS READ,  84 CARDS ACTIVATED
+Wed Jan 26 15:48:40 CET 2011
+7.291u 0.322s 0:07.67 99.2%	0+0k 504+5616io 0pf+0w
+======================== ordint ==============================
+Wed Jan 26 15:48:40 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+    906 CARDS READ,  84 CARDS ACTIVATED
+Wed Jan 26 15:48:41 CET 2011
+0.642u 0.101s 0:00.78 94.8%	0+0k 64+512io 0pf+0w
+======================== ormas1 ==============================
+Wed Jan 26 15:48:41 CET 2011
+Copying source code, ormas1.src does not require activation.
+Wed Jan 26 15:48:53 CET 2011
+11.801u 0.254s 0:12.11 99.5%	0+0k 752+6160io 0pf+0w
+======================== parley ==============================
+Wed Jan 26 15:48:53 CET 2011
+Copying source code, parley.src does not require activation.
+Wed Jan 26 15:48:56 CET 2011
+2.969u 0.110s 0:03.11 98.7%	0+0k 160+1688io 0pf+0w
+======================== pcm ==============================
+Wed Jan 26 15:48:56 CET 2011
+Copying source code, pcm.src does not require activation.
+Wed Jan 26 15:48:59 CET 2011
+3.536u 0.114s 0:03.66 99.4%	0+0k 320+2344io 0pf+0w
+======================== pcmcav ==============================
+Wed Jan 26 15:49:00 CET 2011
+Copying source code, pcmcav.src does not require activation.
+Wed Jan 26 15:49:02 CET 2011
+2.015u 0.093s 0:02.14 98.1%	0+0k 160+1288io 0pf+0w
+======================== pcmcv2 ==============================
+Wed Jan 26 15:49:02 CET 2011
+Copying source code, pcmcv2.src does not require activation.
+Wed Jan 26 15:49:07 CET 2011
+4.837u 0.136s 0:05.01 99.0%	0+0k 304+2392io 0pf+0w
+======================== pcmder ==============================
+Wed Jan 26 15:49:07 CET 2011
+Copying source code, pcmder.src does not require activation.
+Wed Jan 26 15:49:10 CET 2011
+2.869u 0.118s 0:03.02 98.3%	0+0k 192+1504io 0pf+0w
+======================== pcmdis ==============================
+Wed Jan 26 15:49:10 CET 2011
+Copying source code, pcmdis.src does not require activation.
+Wed Jan 26 15:49:11 CET 2011
+1.495u 0.102s 0:01.62 98.1%	0+0k 88+720io 0pf+0w
+======================== pcmief ==============================
+Wed Jan 26 15:49:11 CET 2011
+Copying source code, pcmief.src does not require activation.
+Wed Jan 26 15:49:18 CET 2011
+6.873u 0.174s 0:07.08 99.4%	0+0k 304+2496io 0pf+0w
+======================== pcmpol ==============================
+Wed Jan 26 15:49:18 CET 2011
+Copying source code, pcmpol.src does not require activation.
+Wed Jan 26 15:49:24 CET 2011
+5.853u 0.162s 0:06.06 99.1%	0+0k 176+1608io 0pf+0w
+======================== pcmvch ==============================
+Wed Jan 26 15:49:24 CET 2011
+Copying source code, pcmvch.src does not require activation.
+Wed Jan 26 15:49:27 CET 2011
+2.101u 0.112s 0:02.26 97.7%	0+0k 96+736io 0pf+0w
+======================== prpamm ==============================
+Wed Jan 26 15:49:27 CET 2011
+Copying source code, prpamm.src does not require activation.
+Wed Jan 26 15:49:28 CET 2011
+1.178u 0.090s 0:01.29 97.6%	0+0k 56+496io 0pf+0w
+======================== prpel ==============================
+Wed Jan 26 15:49:28 CET 2011
+Copying source code, prpel.src does not require activation.
+Wed Jan 26 15:49:30 CET 2011
+1.413u 0.096s 0:01.56 96.1%	0+0k 304+2384io 0pf+0w
+======================== prplib ==============================
+Wed Jan 26 15:49:30 CET 2011
+Copying source code, prplib.src does not require activation.
+Wed Jan 26 15:49:31 CET 2011
+0.841u 0.075s 0:00.99 91.9%	0+0k 128+1064io 0pf+0w
+======================== prppop ==============================
+Wed Jan 26 15:49:31 CET 2011
+Copying source code, prppop.src does not require activation.
+Wed Jan 26 15:49:37 CET 2011
+6.395u 0.171s 0:06.61 99.2%	0+0k 384+3600io 0pf+0w
+======================== qeigen ==============================
+Wed Jan 26 15:49:37 CET 2011
+Copying source code, qeigen.src does not require activation.
+Wed Jan 26 15:49:38 CET 2011
+0.858u 0.089s 0:00.99 93.9%	0+0k 64+520io 0pf+0w
+======================== qfmm ==============================
+Wed Jan 26 15:49:38 CET 2011
+Copying source code, qfmm.src does not require activation.
+Wed Jan 26 15:49:41 CET 2011
+2.844u 0.105s 0:02.98 98.6%	0+0k 176+1552io 0pf+0w
+======================== qmfm ==============================
+Wed Jan 26 15:49:41 CET 2011
+Copying source code, qmfm.src does not require activation.
+Wed Jan 26 15:49:50 CET 2011
+8.285u 0.164s 0:08.50 99.2%	0+0k 552+4296io 0pf+0w
+======================== qmmm ==============================
+Wed Jan 26 15:49:50 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+    141 CARDS READ,   0 CARDS ACTIVATED
+Wed Jan 26 15:49:50 CET 2011
+0.109u 0.045s 0:00.18 77.7%	0+0k 16+136io 0pf+0w
+======================== qrel ==============================
+Wed Jan 26 15:49:50 CET 2011
+Copying source code, qrel.src does not require activation.
+Wed Jan 26 15:49:56 CET 2011
+5.623u 0.125s 0:05.82 98.6%	0+0k 256+2144io 0pf+0w
+======================== raman ==============================
+Wed Jan 26 15:49:56 CET 2011
+Copying source code, raman.src does not require activation.
+Wed Jan 26 15:49:56 CET 2011
+0.426u 0.074s 0:00.52 94.2%	0+0k 56+472io 0pf+0w
+======================== rhfuhf ==============================
+Wed Jan 26 15:49:56 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   7618 CARDS READ, 152 CARDS ACTIVATED
+Wed Jan 26 15:50:05 CET 2011
+8.388u 0.275s 0:08.70 99.4%	0+0k 528+4680io 0pf+0w
+======================== ricab ==============================
+Wed Jan 26 15:50:05 CET 2011
+Copying source code, ricab.src does not require activation.
+Wed Jan 26 15:50:11 CET 2011
+5.746u 0.267s 0:06.05 99.1%	0+0k 960+7072io 0pf+0w
+======================== riint ==============================
+Wed Jan 26 15:50:11 CET 2011
+Copying source code, riint.src does not require activation.
+Wed Jan 26 15:50:13 CET 2011
+1.784u 0.108s 0:01.92 97.9%	0+0k 104+712io 0pf+0w
+======================== rimp2 ==============================
+Wed Jan 26 15:50:13 CET 2011
+Copying source code, rimp2.src does not require activation.
+Wed Jan 26 15:50:20 CET 2011
+7.210u 0.188s 0:07.46 99.0%	0+0k 472+4072io 0pf+0w
+======================== rohfcc ==============================
+Wed Jan 26 15:50:20 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   9102 CARDS READ,  18 CARDS ACTIVATED
+Wed Jan 26 15:50:33 CET 2011
+12.168u 0.298s 0:12.50 99.6%	0+0k 640+7016io 0pf+0w
+======================== rxncrd ==============================
+Wed Jan 26 15:50:33 CET 2011
+Copying source code, rxncrd.src does not require activation.
+Wed Jan 26 15:50:36 CET 2011
+2.958u 0.158s 0:03.14 98.7%	0+0k 200+1984io 0pf+0w
+======================== ryspol ==============================
+Wed Jan 26 15:50:36 CET 2011
+Copying source code, ryspol.src does not require activation.
+Wed Jan 26 15:50:37 CET 2011
+0.540u 0.082s 0:00.66 93.9%	0+0k 168+848io 0pf+0w
+======================== scflib ==============================
+Wed Jan 26 15:50:37 CET 2011
+Copying source code, scflib.src does not require activation.
+Wed Jan 26 15:50:41 CET 2011
+3.907u 0.132s 0:04.07 99.0%	0+0k 328+2512io 0pf+0w
+======================== scfmi ==============================
+Wed Jan 26 15:50:41 CET 2011
+Copying source code, scfmi.src does not require activation.
+Wed Jan 26 15:50:46 CET 2011
+5.388u 0.142s 0:05.57 99.1%	0+0k 160+1576io 0pf+0w
+======================== scrf ==============================
+Wed Jan 26 15:50:46 CET 2011
+Copying source code, scrf.src does not require activation.
+Wed Jan 26 15:50:47 CET 2011
+1.076u 0.090s 0:01.19 97.4%	0+0k 88+760io 0pf+0w
+======================== sobrt ==============================
+Wed Jan 26 15:50:47 CET 2011
+Copying source code, sobrt.src does not require activation.
+Wed Jan 26 15:50:51 CET 2011
+3.404u 0.146s 0:03.59 98.6%	0+0k 248+1808io 0pf+0w
+======================== soffac ==============================
+Wed Jan 26 15:50:51 CET 2011
+Copying source code, soffac.src does not require activation.
+Wed Jan 26 15:50:53 CET 2011
+1.618u 0.096s 0:01.74 97.7%	0+0k 120+880io 0pf+0w
+======================== solib ==============================
+Wed Jan 26 15:50:53 CET 2011
+Copying source code, solib.src does not require activation.
+Wed Jan 26 15:50:55 CET 2011
+2.311u 0.108s 0:02.45 98.3%	0+0k 208+2136io 0pf+0w
+======================== sozeff ==============================
+Wed Jan 26 15:50:55 CET 2011
+Copying source code, sozeff.src does not require activation.
+Wed Jan 26 15:51:02 CET 2011
+6.349u 0.221s 0:06.61 99.2%	0+0k 368+3288io 0pf+0w
+======================== statpt ==============================
+Wed Jan 26 15:51:02 CET 2011
+Copying source code, statpt.src does not require activation.
+Wed Jan 26 15:51:09 CET 2011
+6.544u 0.213s 0:06.80 99.2%	0+0k 480+3936io 0pf+0w
+======================== surf ==============================
+Wed Jan 26 15:51:09 CET 2011
+Copying source code, surf.src does not require activation.
+Wed Jan 26 15:51:09 CET 2011
+0.468u 0.083s 0:00.58 93.1%	0+0k 40+376io 0pf+0w
+======================== svpchg ==============================
+Wed Jan 26 15:51:09 CET 2011
+Copying source code, svpchg.src does not require activation.
+Wed Jan 26 15:51:20 CET 2011
+10.104u 0.200s 0:10.35 99.5%	0+0k 560+5128io 0pf+0w
+======================== svpinp ==============================
+Wed Jan 26 15:51:20 CET 2011
+Copying source code, svpinp.src does not require activation.
+Wed Jan 26 15:51:22 CET 2011
+2.154u 0.114s 0:02.30 98.2%	0+0k 224+2224io 0pf+0w
+======================== svpleb ==============================
+Wed Jan 26 15:51:22 CET 2011
+Copying source code, svpleb.src does not require activation.
+Wed Jan 26 15:51:25 CET 2011
+2.605u 0.149s 0:02.79 98.2%	0+0k 536+4048io 0pf+0w
+======================== symorb ==============================
+Wed Jan 26 15:51:25 CET 2011
+Copying source code, symorb.src does not require activation.
+Wed Jan 26 15:51:28 CET 2011
+3.473u 0.121s 0:03.65 98.3%	0+0k 184+2216io 0pf+0w
+======================== symslc ==============================
+Wed Jan 26 15:51:28 CET 2011
+Copying source code, symslc.src does not require activation.
+Wed Jan 26 15:51:36 CET 2011
+7.252u 0.172s 0:07.47 99.3%	0+0k 208+2368io 0pf+0w
+======================== tddft ==============================
+Wed Jan 26 15:51:36 CET 2011
+Copying source code, tddft.src does not require activation.
+Wed Jan 26 15:51:38 CET 2011
+1.759u 0.104s 0:01.90 97.3%	0+0k 128+1216io 0pf+0w
+======================== tddefp ==============================
+Wed Jan 26 15:51:38 CET 2011
+Copying source code, tddefp.src does not require activation.
+Wed Jan 26 15:51:38 CET 2011
+0.691u 0.082s 0:00.79 97.4%	0+0k 48+336io 0pf+0w
+======================== tddfun ==============================
+Wed Jan 26 15:51:39 CET 2011
+Copying source code, tddfun.src does not require activation.
+Wed Jan 26 15:51:42 CET 2011
+2.979u 0.142s 0:03.16 98.4%	0+0k 272+1648io 0pf+0w
+======================== tddfxc ==============================
+Wed Jan 26 15:51:42 CET 2011
+Copying source code, tddfxc.src does not require activation.
+Wed Jan 26 15:51:45 CET 2011
+3.298u 0.141s 0:03.47 98.8%	0+0k 168+1104io 0pf+0w
+======================== tddgrd ==============================
+Wed Jan 26 15:51:45 CET 2011
+Copying source code, tddgrd.src does not require activation.
+Wed Jan 26 15:51:48 CET 2011
+2.856u 0.090s 0:02.97 98.9%	0+0k 160+1392io 0pf+0w
+======================== tddint ==============================
+Wed Jan 26 15:51:48 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   1044 CARDS READ,  18 CARDS ACTIVATED
+Wed Jan 26 15:51:49 CET 2011
+1.276u 0.098s 0:01.40 97.1%	0+0k 64+568io 0pf+0w
+======================== tddxca ==============================
+Wed Jan 26 15:51:50 CET 2011
+Copying source code, tddxca.src does not require activation.
+Wed Jan 26 15:52:34 CET 2011
+44.007u 0.607s 0:44.71 99.7%	0+0k 440+2768io 0pf+0w
+======================== tddxcc ==============================
+Wed Jan 26 15:52:34 CET 2011
+Copying source code, tddxcc.src does not require activation.
+Wed Jan 26 15:52:35 CET 2011
+0.409u 0.051s 0:00.49 91.8%	0+0k 56+448io 0pf+0w
+======================== tddxcd ==============================
+Wed Jan 26 15:52:35 CET 2011
+Copying source code, tddxcd.src does not require activation.
+Wed Jan 26 15:54:06 CET 2011
+89.997u 0.773s 1:31.08 99.6%	0+0k 1776+12344io 0pf+0w
+======================== tdhf ==============================
+Wed Jan 26 15:54:06 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   4507 CARDS READ,  18 CARDS ACTIVATED
+Wed Jan 26 15:54:15 CET 2011
+9.008u 0.235s 0:09.28 99.4%	0+0k 296+3064io 0pf+0w
+======================== tdx ==============================
+Wed Jan 26 15:54:15 CET 2011
+Copying source code, tdx.src does not require activation.
+Wed Jan 26 15:54:17 CET 2011
+2.099u 0.106s 0:02.23 98.2%	0+0k 168+1544io 0pf+0w
+======================== tdxio ==============================
+Wed Jan 26 15:54:17 CET 2011
+Copying source code, tdxio.src does not require activation.
+Wed Jan 26 15:54:19 CET 2011
+1.999u 0.101s 0:02.12 98.5%	0+0k 160+952io 0pf+0w
+======================== tdxitr ==============================
+Wed Jan 26 15:54:19 CET 2011
+Copying source code, tdxitr.src does not require activation.
+Wed Jan 26 15:54:21 CET 2011
+1.284u 0.083s 0:01.40 97.1%	0+0k 272+2216io 0pf+0w
+======================== tdxni ==============================
+Wed Jan 26 15:54:21 CET 2011
+Copying source code, tdxni.src does not require activation.
+Wed Jan 26 15:54:25 CET 2011
+4.375u 0.158s 0:04.60 98.2%	0+0k 448+3624io 0pf+0w
+======================== tdxprp ==============================
+Wed Jan 26 15:54:25 CET 2011
+Copying source code, tdxprp.src does not require activation.
+Wed Jan 26 15:54:28 CET 2011
+2.269u 0.136s 0:02.45 97.5%	0+0k 136+1120io 0pf+0w
+======================== trans ==============================
+Wed Jan 26 15:54:28 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   4107 CARDS READ, 132 CARDS ACTIVATED
+Wed Jan 26 15:54:31 CET 2011
+3.071u 0.144s 0:03.24 99.0%	0+0k 272+2200io 0pf+0w
+======================== trfdm2 ==============================
+Wed Jan 26 15:54:31 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   2430 CARDS READ, 106 CARDS ACTIVATED
+Wed Jan 26 15:54:34 CET 2011
+2.492u 0.148s 0:02.67 98.5%	0+0k 144+1384io 0pf+0w
+======================== trnstn ==============================
+Wed Jan 26 15:54:34 CET 2011
+Copying source code, trnstn.src does not require activation.
+Wed Jan 26 15:54:38 CET 2011
+3.951u 0.149s 0:04.13 99.0%	0+0k 272+2552io 0pf+0w
+======================== trudge ==============================
+Wed Jan 26 15:54:38 CET 2011
+Copying source code, trudge.src does not require activation.
+Wed Jan 26 15:54:39 CET 2011
+1.330u 0.092s 0:01.45 97.9%	0+0k 88+872io 0pf+0w
+======================== umpddi ==============================
+Wed Jan 26 15:54:39 CET 2011
+Copying source code, umpddi.src does not require activation.
+Wed Jan 26 15:54:47 CET 2011
+6.908u 0.209s 0:07.16 99.1%	0+0k 336+2608io 0pf+0w
+======================== unport ==============================
+Wed Jan 26 15:54:47 CET 2011
+ ACTIVATING *INT SOURCE CARDS
+   2282 CARDS READ,  46 CARDS ACTIVATED
+Wed Jan 26 15:54:47 CET 2011
+0.215u 0.095s 0:00.35 85.7%	0+0k 152+568io 0pf+0w
+======================== utddft ==============================
+Wed Jan 26 15:54:47 CET 2011
+ ACTIVATING *I64 SOURCE CARDS
+   3493 CARDS READ,  18 CARDS ACTIVATED
+Wed Jan 26 15:54:53 CET 2011
+5.508u 0.156s 0:05.69 99.2%	0+0k 216+2176io 0pf+0w
+======================== vbdum ==============================
+Wed Jan 26 15:54:53 CET 2011
+Copying source code, vbdum.src does not require activation.
+Wed Jan 26 15:54:53 CET 2011
+0.061u 0.057s 0:00.14 78.5%	0+0k 8+72io 0pf+0w
+======================== vibanl ==============================
+Wed Jan 26 15:54:53 CET 2011
+Copying source code, vibanl.src does not require activation.
+Wed Jan 26 15:54:57 CET 2011
+4.025u 0.149s 0:04.20 99.0%	0+0k 224+2304io 0pf+0w
+======================== vscf ==============================
+Wed Jan 26 15:54:57 CET 2011
+Copying source code, vscf.src does not require activation.
+Wed Jan 26 15:54:58 CET 2011
+0.930u 0.124s 0:01.09 96.3%	0+0k 488+4544io 0pf+0w
+======================== vvos ==============================
+Wed Jan 26 15:54:58 CET 2011
+Copying source code, vvos.src does not require activation.
+Wed Jan 26 15:55:00 CET 2011
+1.624u 0.140s 0:01.84 95.6%	0+0k 408+2584io 0pf+0w
+======================== zapddi ==============================
+Wed Jan 26 15:55:00 CET 2011
+Copying source code, zapddi.src does not require activation.
+Wed Jan 26 15:55:06 CET 2011
+6.448u 0.137s 0:06.61 99.3%	0+0k 304+2472io 0pf+0w
+======================== zheev ==============================
+Wed Jan 26 15:55:07 CET 2011
+Copying source code, zheev.src does not require activation.
+Wed Jan 26 15:55:07 CET 2011
+0.631u 0.084s 0:00.75 94.6%	0+0k 560+3032io 0pf+0w
+======================== zmatrx ==============================
+Wed Jan 26 15:55:07 CET 2011
+Copying source code, zmatrx.src does not require activation.
+Wed Jan 26 15:55:10 CET 2011
+2.410u 0.110s 0:02.57 98.0%	0+0k 176+1656io 0pf+0w
+------------------- done with all compilations --------------------
+Wed Jan 26 15:55:10 CET 2011
+1277.656u 40.797s 22:07.45 99.3%	0+0k 62736+638208io 1pf+0w

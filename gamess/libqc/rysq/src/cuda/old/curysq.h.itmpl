@@ -1,0 +1,84 @@
+// ## -*- C++-Cheetah -*-
+
+/**
+   @brief Initializes the cuRysq library 
+   @param device id
+   @return 0 on success
+*/
+int cuRysq_init(int device);
+
+/**
+   @brief Evaluate the block of <AB|CD> ERIs on centers ri, rj, rk and rl. 
+   @param flags Flags
+   @param tol Tolerance
+   @param a A shell
+   @param ri A centers
+   @param b B shell
+   @param rj B centers
+   @param c C shell
+   @param rk C centers
+   @param d D shell
+   @param rl D centers
+   @param n
+   @param index4
+   @param scale Constant factor
+   @param[out] I Integral
+   @return 0 on success
+*/
+int cuRysq_eri(int flags, double tol,
+	       Rysq_shell_t a, double *ri,
+	       Rysq_shell_t b, double *rj,
+	       Rysq_shell_t c, double *rk,
+	       Rysq_shell_t d, double *rl,
+	       int n, int index4[], double scale, double *I);
+
+/**
+   @brief Evaluate the block of <AB|CD> ERIs on centers ri, rj, rk and rl. 
+   @param flags Flags
+   @param tol Tolerance
+   @param a A shell
+   @param ni number of A centers
+   @param ri A centers
+   @param b B shell
+   @param nj number of B centers
+   @param rj B centers
+   @param c C shell
+   @param nk number of C centers 
+   @param rk C centers
+   @param d D shell
+   @param nl number of D centers
+   @param rl D centers
+   @param Dij
+   @param Dkl
+   @param Dil
+   @param Djk
+   @param alpha Constant factor
+   @param[out] Fij
+   @param[out] Fkl
+   @param[out] Fil
+   @param[out] Fjk
+   @return 0 on success
+*/
+int cuRysq_jk(int flags, double tol,
+	      Rysq_shell_t a, int ni, double *ri,
+	      Rysq_shell_t b, int nj, double *rj,
+	      Rysq_shell_t c, int nk, double *rk,
+	      Rysq_shell_t d, int nl, double *rl,
+	      double *Dij, double *Dkl, double *Dil, double *Djk,
+	      double alpha,
+	      double *Fij, double *Fkl, double *Fil, double *Fjk);
+    
+
+int cuRysq_eri1(int flags, double tol,
+		     Rysq_shell_t a, double ri[3],
+		     Rysq_shell_t b, double rj[3],
+		     Rysq_shell_t c, double rk[3],
+		     Rysq_shell_t d, double rl[3],
+		     double scale, double *I);
+
+int cuRysq_eri1_r2(int flags, double tol,
+		     Rysq_shell_t a, double ri[3],
+		     Rysq_shell_t b, double rj[3],
+		     Rysq_shell_t c, double rk[3],
+		     Rysq_shell_t d, double rl[3],
+		     double scale, double *I);

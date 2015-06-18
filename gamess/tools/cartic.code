@@ -1,0 +1,460 @@
+C 17 JUN 92 - MWS - MAKE SURE THIS PROGRAM RUNS SERIALLY
+C 15 SEP 90 - MWS - ADD ATOM NAME TO FRONT OF INPUT CARDS
+C 22 SEP 89 - MWS - CHANGE ANGSTROMS-BOHR CONVERSION FACTOR
+C 05 APR 89 - MWS - INCORPORATE IBM,VAX,CELERITY OPENS
+C     **************
+      PROGRAM CARTIC
+C     **************
+      IMPLICIT REAL*8(A-H,O-Z)
+      CHARACTER*10 ATNAME
+      CHARACTER*1 LETB,LETD,LETW,LETA,LETQ,LET,BELL,LETR
+*UNX  CHARACTER*100 FILENM
+      LOGICAL GOPARR,DSKWRK,MASWRK
+      COMMON /IOUNIT/ IR,IW,IM
+      COMMON /COORDS/ CART(500,3),ZAN(500),NATOMS
+      COMMON /PAR   / ME,MASTER,NPROC,IBTYP,IPTIM,GOPARR,DSKWRK,MASWRK
+      DATA LETB,LETD,LETW,LETA,LETQ,LETR/'B','D','W','A','Q','R'/
+      DATA ONE,BOHR/1.0D0,0.52917724924D0/
+C
+C       Convert CARTesian to Internal Coordinates
+C               ----         -        -
+C       The input to this program is very simple, consisting of
+C       one line per atom, with each line containing the atom name,
+C       charge, then X, Y, Z cartesian coordinates.  The program
+C       will ask you if the units are Angstroms or Bohr for these.
+C                WRITTEN BY MIKE SCHMIDT APRIL 1984
+C
+C     This program must be linked to GAMESS file FRFMT,
+C
+C             for example, on a VMS Alpha or VAX
+C
+C     $ EDIT/TPU CARTIC.CODE 
+C           to manually activate *VMS lines,
+C           save as CARTIC.FOR (instead of .CODE)
+C     $ FORTRAN/FLOAT=IEEE_FLOAT CARTIC
+C           on a VAX, use /NOG_FLOATING instead
+C     $ LINK CARTIC,GAMESS:GAMESS.OLB/LIBRARY
+C     $ DELETE CARTIC.FOR;*,CARTIC.OBJ;*
+C
+C             or on Unix
+C
+C     cd /u1/mike/gamess/tools
+C     vi cartic.code
+C           :%s/^*UNX/    /
+C           :wq cartic.f
+C     g77 -O2 -o cartic.x cartic.f ../object/frfmt.o
+C     rm cartic.f
+C
+C     in case of 64-bit compilation of GAMESS' frfmt.src, you might
+C     need to add an appropriate flag, e.g.
+C         gfortran -fdefault-integer-8 -O2 -std=legacy \
+C               -o cartic.x cartic.f ../object/frfmt.o
+C
+C         Beep if you like annoying beeps.
+      BELL = CHAR(7)
+      BELL = ' '
+C
+C           THIS PROGRAM RUNS IN SERIAL MODE
+C
+      ME = 0
+      MASTER = 0
+      NPROC = 1
+      MASWRK = ME.EQ.MASTER
+      DSKWRK = .FALSE.
+C
+C        ----- DEFINE I/O UNITS -----
+C     IM - ATOM NAME,ZNUC,X,Y,Z  IN FREE FORMAT, 1 ATOM/CARD
+C     IR - INTERACTIVE INPUT (SELF EXPLANATORY)
+C     IW - INTERACTIVE OUTPUT
+C
+      IR=5
+      IW=6
+      IM=1
+C
+*VMS  OPEN (UNIT=IM,FILE='CARTIC',STATUS='OLD',
+*VMS *      FORM='FORMATTED',ACCESS='SEQUENTIAL')
+C
+*IBM  OPEN (UNIT=IM,FILE='CARTIC',STATUS='OLD',
+*IBM *      FORM='FORMATTED',ACCESS='SEQUENTIAL')
+C
+*UNX  call getenv('CARTIC',filenm)
+*UNX  if(filenm(1:1).eq.' ') then
+*UNX        write(iw,*) 'You must assign CARTIC to your input deck by a'
+*UNX        write(iw,*) '   setenv CARTIC input_file_name'
+*UNX        stop
+*UNX     end if
+*UNX  open(unit=im, file=filenm, status='old', form='formatted',
+*UNX *           access='sequential')
+C
+C        ----- READ IN THE CARTESIAN COORDINATES -----
+C        READ(IM,*,END=110) ATNAME,ZAN(I),(CART(I,J),J=1,3)
+C
+      I=0
+      CALL OPNCRD(IM,-IW)
+      IEOF = 0
+  100 CONTINUE
+         CALL RDCARD('CARTIC  ',IEOF)
+         IF(IEOF.NE.0) GO TO 110
+         I = I + 1
+         IF(I.GT.500) STOP 'TOO MANY ATOMS'
+         CALL GSTRNG(ATNAME,-10)
+         ZAN(I)    = RFIND('CHARGE  ',IERR)
+         CART(I,1) = RFIND('X COORD ',IERR)
+         CART(I,2) = RFIND('Y COORD ',IERR)
+         CART(I,3) = RFIND('Z COORD ',IERR)
+         GO TO 100
+C
+  110 CONTINUE
+      NATOMS = I
+      WRITE(IW,920) NATOMS
+  120 CONTINUE
+      READ(IR,940,ERR=120) LET
+      CALL UPRCAS(LET,1)
+      IF(LET.EQ.LETB) GO TO 150
+      FACT = ONE/BOHR
+      DO 130 I=1,NATOMS
+         CART(I,1) = FACT * CART(I,1)
+         CART(I,2) = FACT * CART(I,2)
+         CART(I,3) = FACT * CART(I,3)
+  130 CONTINUE
+  150 CONTINUE
+      CALL REPEL
+C
+C        ----- LOOP OVER COMPUTING THE INTERNAL COORDINATES -----
+C
+  200 CONTINUE
+      WRITE(IW,960) BELL
+      READ(IR,940,ERR=200) LET
+      CALL UPRCAS(LET,1)
+      IF(LET.EQ.LETQ) STOP
+      IF(LET.EQ.LETW) CALL DIHED
+      IF(LET.EQ.LETW) GO TO 200
+      IF(LET.EQ.LETA) CALL ANGLE
+      IF(LET.EQ.LETA) GO TO 200
+      IF(LET.EQ.LETD) CALL DISTNC
+      IF(LET.EQ.LETD) GO TO 200
+      IF(LET.EQ.LETB) CALL BONDPL
+      IF(LET.EQ.LETB) GO TO 200
+      WRITE(IW,970) BELL,BELL,BELL
+      GO TO 200
+C
+  900 FORMAT(1X,'Welcome to Program CARTIC, which will convert from'/
+     *       1X,'CARTesian coordinates to Internal Coordinates.')
+  920 FORMAT(1X,'The coordinates of',I4,' atoms were read in.'/
+     *   1X,'are these coordinates in Angstroms(A) or Bohrs(B)? ',$)
+  940 FORMAT(A1,$)
+  960 FORMAT(/1X,'Compute Bond Distances(D), Bond Angles(A), ',
+     *           'Dihedral Angles(W),'/1X,'Bond-Plane Angles(B),',
+     *           ' or Quit(Q)? ',A1,$)
+  970 FORMAT(1X,A1,'No comprende!',A1,' Pick only from D,A,W,B,Q.',A1)
+      END
+C     ****************
+      SUBROUTINE REPEL
+C     ****************
+      IMPLICIT REAL*8(A-H,O-Z)
+      COMMON /IOUNIT/ IR,IW,IM
+      COMMON /COORDS/ CART(500,3),ZAN(500),NATOMS
+      DATA ZERO/0.0D0/
+C
+      REPULS = ZERO
+      DO 220 I=1,NATOMS
+         DO 210 J=1,I
+            IF(J.EQ.I) GO TO 210
+            RIJ = ZERO
+            DO 200 K=1,3
+               RIJ = RIJ + (CART(I,K) - CART(J,K))**2
+  200       CONTINUE
+            RIJ = SQRT(RIJ)
+            REPULS = REPULS + ZAN(I)*ZAN(J)/RIJ
+  210    CONTINUE
+  220 CONTINUE
+      WRITE(IW,900) REPULS
+      RETURN
+C
+  900 FORMAT(/1X,'The nuclear repulsion energy is',F20.10)
+      END
+C     ****************
+      SUBROUTINE DIHED
+C     ****************
+      IMPLICIT REAL*8(A-H,O-Z)
+      DIMENSION ATI(3),ATJ(3),ATK(3),ATL(3)
+      DIMENSION CR1(3),CR2(3),VIJ(3),VJK(3),VKL(3)
+      COMMON /IOUNIT/ IR,IW,IM
+      COMMON /COORDS/ CART(500,3),ZAN(500),NATOMS
+      DATA ZERO,ONE,TWO/0.0D+00,1.0D+00,2.0D+00/
+      DATA ONE80,PI/180.0D+00,3.1415926535D+00/
+      DATA TEENY/1.0D-5/
+C
+C           REQUEST I-J-K-L INDICES
+C
+  100 CONTINUE
+      WRITE(IW,900)
+      READ(IR,*) II,JJ,KK,LL
+      IF(II.EQ.0) RETURN
+C
+C           READ ALL ATOMIC CARTESIAN COORDINATES
+C
+      DO 220 I=1,3
+         ATI(I) = CART(II,I)
+         ATJ(I) = CART(JJ,I)
+         ATK(I) = CART(KK,I)
+         ATL(I) = CART(LL,I)
+  220 CONTINUE
+      DIJ = ZERO
+      DJK = ZERO
+      DKL = ZERO
+      DO 230 I=1,3
+         DIJ = DIJ + (ATJ(I)-ATI(I))**2
+         DJK = DJK + (ATK(I)-ATJ(I))**2
+         DKL = DKL + (ATL(I)-ATK(I))**2
+  230 CONTINUE
+      DIJ = SQRT(DIJ)
+      DJK = SQRT(DJK)
+      DKL = SQRT(DKL)
+C
+C           GET UNIT VECTORS ALONG THE BONDS
+C
+      DO 420 I=1,3
+          VIJ(I) = (ATJ(I) - ATI(I))/DIJ
+          VJK(I) = (ATK(I) - ATJ(I))/DJK
+          VKL(I) = (ATL(I) - ATK(I))/DKL
+  420 CONTINUE
+C
+C           FIND PERPENDICULARS TO I-J-K AND J-K-L PLANES
+C
+      CR1(1) = VIJ(2)*VJK(3) - VIJ(3)*VJK(2)
+      CR1(2) = VIJ(3)*VJK(1) - VIJ(1)*VJK(3)
+      CR1(3) = VIJ(1)*VJK(2) - VIJ(2)*VJK(1)
+      CR2(1) = VJK(2)*VKL(3) - VJK(3)*VKL(2)
+      CR2(2) = VJK(3)*VKL(1) - VJK(1)*VKL(3)
+      CR2(3) = VJK(1)*VKL(2) - VJK(2)*VKL(1)
+C
+C           GET ANGLE BETWEEN THESE PERPENDICULARS
+C
+      CR1NRM = ZERO
+      CR2NRM = ZERO
+      DOT = ZERO
+      DO 440 I=1,3
+         CR1NRM = CR1NRM + CR1(I)*CR1(I)
+         CR2NRM = CR2NRM + CR2(I)*CR2(I)
+         DOT = DOT + CR1(I)*CR2(I)
+  440 CONTINUE
+      DOT = DOT/SQRT((CR1NRM*CR2NRM))
+      IF(ABS(DOT).GT.(ONE+TEENY)) GO TO 800
+C
+      IF(ABS(DOT).GT.ONE) DOT = SIGN(ONE,DOT)
+      OMEGA = ACOS(DOT)
+      IF(ABS(OMEGA).LT.TEENY) OMEGA = ZERO
+      OMEGA = OMEGA * ONE80/PI
+C
+C           GET SENSE OF ANGLE - POSITIVE DIHEDRAL DEFINED AS CLOCKWISE
+C           ROTATION OF I ABOUT BOND J-K TO ALIGN I WITH L
+C              -180.0 < OMEGA <= +180.0
+C
+      DOT = ZERO
+      DO 500 I=1,3
+         DOT = DOT + VKL(I)*CR1(I)
+  500 CONTINUE
+      IF(ABS(DOT).LT.TEENY) DOT = ZERO
+      IF(DOT.NE.ZERO) SENSE = SIGN(ONE,DOT)
+      IF(DOT.NE.ZERO) OMEGA = SENSE * OMEGA
+      WRITE(IW,930) OMEGA
+      GO TO 100
+C
+  800 CONTINUE
+      WRITE(IW,940)
+      GO TO 100
+C
+  900 FORMAT(/1X,'--- Compute dihedral angle I-J-K-L. ---'/
+     * 1X,'Enter atom indices I,J,K,L (all zeros to quit) > ',$)
+  930 FORMAT(1X,'The dihedral I-J-K-L is',F13.7,' degrees')
+  940 FORMAT(1X,'ERROR in your input leads to bad math')
+      END
+C     ****************
+      SUBROUTINE ANGLE
+C     ****************
+      IMPLICIT REAL*8(A-H,O-Z)
+      DIMENSION ATI(3),ATJ(3),ATK(3)
+      COMMON /IOUNIT/ IR,IW,IM
+      COMMON /COORDS/ CART(500,3),ZAN(500),NATOMS
+      DATA ZERO,TWO/0.0D+00,2.0D+00/
+      DATA ONE,TEENY/1.0D+00,1.0D-05/
+      DATA PI,ONE80/3.1415926538D0,180.0D+00/
+C
+  100 CONTINUE
+      WRITE(IW,900)
+      READ(IR,*) II,JJ,KK
+      IF(II.EQ.0) RETURN
+C
+      DO 110 I=1,3
+         ATI(I) = CART(II,I)
+         ATJ(I) = CART(JJ,I)
+         ATK(I) = CART(KK,I)
+  110 CONTINUE
+C
+C           ----- COMPUTE ALL INTERATOMIC DISTANCES -----
+C
+      AA=ZERO
+      BB=ZERO
+      CC=ZERO
+      DO 220 I=1,3
+         QI=ATI(I)
+         QJ=ATJ(I)
+         QK=ATK(I)
+         AA=AA + (QK-QI)**2
+         BB=BB + (QK-QJ)**2
+         CC=CC + (QI-QJ)**2
+  220 CONTINUE
+      AA=SQRT(AA)
+      BB=SQRT(BB)
+      CC=SQRT(CC)
+C
+C           ----- LAW OF COSINES -----
+C
+      COSINE = -(AA*AA - BB*BB - CC*CC)/(TWO*BB*CC)
+      TMP = ABS(COSINE)
+      IF(TMP.GT.ONE+TEENY) GO TO 800
+      IF(TMP.GT.ONE) COSINE=SIGN(ONE,COSINE)
+      ALPHA = ACOS(COSINE)
+      ALPHA = ONE80 * ALPHA/PI
+      WRITE(IW,980) ALPHA
+      GO TO 100
+C
+  800 CONTINUE
+      WRITE(IW,990)
+      GO TO 100
+C
+  900 FORMAT(/1X,'--- Compute bond angle I-J-K. ---'/
+     *  1X,'Enter atom indices I,J,K (all zeros to quit) > ',$)
+  980 FORMAT(1X,'Angle I-J-K=',F13.7,' degrees.')
+  990 FORMAT(1X,'ERROR in your input leads to COSINE.GT.ONE')
+      END
+C     *****************
+      SUBROUTINE DISTNC
+C     *****************
+      IMPLICIT REAL*8(A-H,O-Z)
+      DIMENSION ATI(3),ATJ(3)
+      COMMON /IOUNIT/ IR,IW,IM
+      COMMON /COORDS/ CART(500,3),ZAN(500),NATOMS
+      DATA ZERO/0.0D+00/
+      DATA ONE,ANGS/1.0D0,0.52917724924D0/
+C
+  100 CONTINUE
+      WRITE(IW,900)
+      READ(IR,*) II,JJ
+      IF(II.EQ.0) RETURN
+C
+      DO 200 I=1,3
+         ATI(I) = CART(II,I)
+         ATJ(I) = CART(JJ,I)
+  200 CONTINUE
+C
+      DDD = ZERO
+      DO 300 I=1,3
+         DDD = DDD + (ATI(I)-ATJ(I))**2
+  300 CONTINUE
+      DDD = SQRT(DDD)
+      DDDANG = DDD*ANGS
+      WRITE(IW,990) DDD,DDDANG
+      GO TO 100
+C
+  900 FORMAT(/1X,'--- Compute bond length I-J. ---'/
+     *  1X,'Enter atom indices I,J (all zero to quit) >',$)
+  990 FORMAT(1X,'The bond length I-J is',F13.7,' Bohr, or',
+     *     F13.7,' Angstroms.')
+      END
+C     *****************
+      SUBROUTINE BONDPL
+C     *****************
+      IMPLICIT REAL*8(A-H,O-Z)
+      DIMENSION ATI(3),ATJ(3),ATK(3),ATL(3)
+      DIMENSION CROSS(3),VJI(3),VJK(3),VJL(3)
+      COMMON /IOUNIT/ IR,IW,IM
+      COMMON /COORDS/ CART(500,3),ZAN(500),NATOMS
+      DATA ZERO,ONE,TEENY/0.0D+00,1.0D+00,1.0D-05/
+      DATA PI,RIGHT,ONE80/3.1415926538D0,90.0D+00,180.0D+00/
+C
+C        ----- COMPUTE ANGLE BETWEEN BOND I-J AND PLANE J-K-L -----
+C           THETA IS POSITIVE IF I-J LIES TO THE SAME SIDE OF
+C           THE PLANE J-K-L AS THE CROSS PRODUCT OF J-K WITH K-L
+C
+  100 CONTINUE
+      WRITE(IW,900)
+      READ(IR,*) II,JJ,KK,LL
+      IF(II.EQ.0) RETURN
+C
+      DO 120 I=1,3
+         ATI(I) = CART(II,I)
+         ATJ(I) = CART(JJ,I)
+         ATK(I) = CART(KK,I)
+         ATL(I) = CART(LL,I)
+  120 CONTINUE
+C
+C           GET VECTORS ALONG THE BONDS JI,JK,JL
+C
+      DO 140 I=1,3
+          Q = ATJ(I)
+          VJK(I) = (ATK(I) - Q)
+          VJL(I) = (ATL(I) - Q)
+          VJI(I) = (ATI(I) - Q)
+  140 CONTINUE
+C
+C           FIND PERPENDICULAR TO J-K-L PLANE
+C
+      CROSS(1) = VJK(2)*VJL(3) - VJK(3)*VJL(2)
+      CROSS(2) = VJK(3)*VJL(1) - VJK(1)*VJL(3)
+      CROSS(3) = VJK(1)*VJL(2) - VJK(2)*VJL(1)
+C
+C           DOT PRODUCT BETWEEN IJ AND THIS PERP
+C
+      DOT=ZERO
+      CRNRM=ZERO
+      VJINRM=ZERO
+      DO 200 I=1,3
+         DOT    = DOT    + CROSS(I)*VJI(I)
+         CRNRM  = CRNRM  + CROSS(I)*CROSS(I)
+         VJINRM = VJINRM + VJI(I)*VJI(I)
+  200 CONTINUE
+      IF(CRNRM*VJINRM.LE.TEENY) GO TO 800
+      DOT = DOT/SQRT(CRNRM*VJINRM)
+      IF(ABS(DOT).GT.(ONE+TEENY)) GO TO 800
+      IF(ABS(DOT).GT.ONE) DOT = SIGN(ONE,DOT)
+      THETA = ACOS(DOT)
+      IF(ABS(THETA).LT.TEENY) THETA = ZERO
+      THETA = THETA * ONE80/PI
+      THETA=RIGHT-THETA
+      WRITE(IW,980) THETA
+      GO TO 100
+C
+  800 CONTINUE
+      WRITE(IW,990)
+      GO TO 100
+C
+  900 FORMAT(/1X,'--- Compute angle between bond I-J and',
+     *          ' plane J-K-L. ---'/
+     * 1X,'Enter atomic indices I,J,K,L (all zero to quit) > ',$)
+  980 FORMAT(1X,'The bond-plane angle is',F13.7)
+  990 FORMAT(1X,'ERROR in your input leads to improper math')
+      END
+C*MODULE UNPORT  *DECK MSGSET
+      SUBROUTINE MSGSET(MSGDBL,MSGINT,MSGCHR)
+C
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+C
+      MSGDBL = 65536
+      MSGINT = 131072
+      MSGCHR = 262144
+*IPS  MSGDBL = 0
+*IPS  MSGINT = 0
+*IPS  MSGCHR = 0
+      RETURN
+      END
+C     ---------------
+      SUBROUTINE ABRT
+C     ---------------
+      STOP 240
+      END
+C
+      SUBROUTINE DDI_BCAST( MSGTAG, TYPE, BUFF, LEN, FROM )
+      RETURN
+      END

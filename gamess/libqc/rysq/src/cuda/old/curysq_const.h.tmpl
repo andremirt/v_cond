@@ -1,0 +1,54 @@
+/** ## -*- C++-Cheetah -*-
+ @file 
+ @brief 
+ @attention Automatically Generated
+##
+#compiler-settings 
+directiveStartToken = %
+commentStartToken = ///
+#end compiler-settings
+*/
+
+#include "rysq_normalize.h"
+///
+%from shell import Shell
+%set Lmax = int($CURYSQ_LMAX)
+%set sp = bool(int($RYSQ_SP))
+///
+%set index = ", ".join([str(shell.first) for shell in Shell.range(last = Lmax+1)])
+%set normals = []
+%set index_x = []
+%set index_y = [] 
+%set index_z = []
+///
+%for shell in Shell.range(last = Lmax)
+%for part in shell.partition()
+%silent normals += [", ".join(["RYSQ_NORMAL_%i%i%i" %tuple(sorted(orb, reverse = True)) for orb  in part])]
+%set index_x += [", ".join(["%i" %(i) for (i,j,k) in part])]
+%set index_y += [", ".join(["%i" %(j) for (i,j,k) in part])]
+%set index_z += [", ".join(["%i" %(k) for (i,j,k) in part])]
+%end for
+%end for
+
+/** @brief Shell indices */
+__constant__ int CURYSQ_L_INDEX[] = {$(index)};
+
+/** @brief Indexded normalization constants */
+__constant__ double CURYSQ_NORMAL[] = {
+%echo "\t" + ",\n\t".join(normals)
+};
+
+/**  @brief Indexed l values, L = l+m+n */
+__constant__ int CURYSQ_LX[] = {
+%echo "\t" + ",\n\t".join(index_x)
+};
+
+/**  @brief Indexed m values, L = l+m+n */
+__constant__ int CURYSQ_LY[] = {
+%echo "\t" + ",\n\t".join(index_y)
+};
+
+/**  @brief Indexed n values, L = l+m+n */
+__constant__ int CURYSQ_LZ[] = {
+%echo "\t" + ",\n\t".join(index_z)
+};
