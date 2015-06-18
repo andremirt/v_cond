@@ -55,7 +55,8 @@
 #       one for LoadLeveler "ll-gms" on the IBM SP line.
 #
 set TARGET=sockets
-set SCR=/home/andresch/scr/$USER
+set SCR=/home/$USER/scr/
+set PATH_TO_GAMESS=/home/$USER/path_to_gamess/v_cond/gamess
 #
 set JOB=$1      # name of the input file xxx.inp, give only the xxx part
 set VERNO=$2    # revision number of the executable created by 'lked' step
@@ -122,8 +123,8 @@ endif
 #
 set echo
 #                        ASCII input files (see explanation above)
-setenv ERICFMT ~/research/vcond/gamess_exp/ericfmt.dat
-setenv MCPPATH ~/research/vcond/gamess_exp/mcpdata
+setenv ERICFMT $PATH_TO_GAMESS/ericfmt.dat
+setenv MCPPATH $PATH_TO_GAMESS/mcpdata
 setenv  EXTBAS /dev/null
 setenv  NUCBAS /dev/null
 #
@@ -474,7 +475,7 @@ if ($TARGET == sockets) then
    if ($os == AIX)     set GMSPATH=/u1/mike/gamess
    if ($os == Darwin)  set GMSPATH=/Users/mike/desktop/gamess
    if ($os == HP-UX)   set GMSPATH=/zr/mike/gamess
-   if ($os == Linux)   set GMSPATH=/home/andresch/research/vcond/gamess_exp
+   if ($os == Linux)   set GMSPATH=$PATH_TO_GAMESS
    if ($os == OSF1)    set GMSPATH=/in/mike/gamess
    if ($os == SunOS)   set GMSPATH=/hf/mike/gamess
 #       special compilation for Sun E450 uSPARC       (uname also= SunOS)
@@ -1138,7 +1139,8 @@ if ($GDDIjob == true) cp $SCR/$JOB.F07 ~/scr/$JOB.dat
 #
 echo Files used on the master node $master were:
 ls -lF $SCR/$JOB.*
-#rm -f  $SCR/$JOB.F*
+rm -f  $SCR/$JOB.F*
+rm -f  $SCR/$JOB.dat
 #
 #   Clean up scratch directory of remote nodes.
 #
@@ -1208,8 +1210,6 @@ endif
 #
 #  and this is the end
 #
-rm /home/andresch/scr/$JOB.dat
-rm $SCR/*
 date
 time
 exit
