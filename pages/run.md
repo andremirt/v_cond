@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Run
-permalink: /run/
+permalink: run/
 ---
 
 

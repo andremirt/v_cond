@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Install
-permalink: /install/
+permalink: install/
 ---
 
 To compute \\(v_{cond}(\mathbf{r})\\) you will have to install
@@ -21,7 +21,7 @@ You will need
 <ul>
   <li>a Fortran compiler</li>
   <li>a C compiler</li>
-  <li>the <a href="http://www.netlib.org/lapack/">LAPACK library</a></li>
+  <li>the <a href="http://www.netlib.org/blas/">BLAS routines</a>, e.g. from <a  href="http://math-atlas.sourceforge.net/">ATLAS</a> or <a href="https://software.intel.com/en-us/intel-mkl">Intel's MKL</a>< /li>
 </ul>
 
 For our Lisa installation make them available with the command
