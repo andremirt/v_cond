@@ -5,7 +5,7 @@ name: by <a href="http://andremirt.github.io">André Mirtschink</a>
 description: > # this means to ignore newlines until "baseurl:"
   Github project page
 
-baseurl: "/vcond" # the subpath of your site, e.g. /blog/
+baseurl: "/v_cond" # the subpath of your site, e.g. /blog/
 url: "http://andremirt.github.io/v_cond" # the base hostname & protocol for your site
 #twitter_username: jekyllrb
 github_username:  andremirt
