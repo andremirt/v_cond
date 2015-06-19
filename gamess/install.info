@@ -1,16 +1,15 @@
 #!/bin/csh
 #   compilation configuration for GAMESS
-#   generated on mac289.few.vu.nl
-#   generated at Wed Apr 16 14:01:48 CEST 2014
-setenv GMS_PATH            /home/andresch/research/vcond/gamess_exp
+#   generated on login1.lisa.surfsara.nl
+#   generated at Thu Jun 18 21:47:31 CEST 2015
+setenv GMS_PATH            /home/andremir/source/v_cond/gamess
 #         machine type
 setenv GMS_TARGET          linux64
 #         FORTRAN compiler setup
 setenv GMS_FORTRAN         ifort
-setenv GMS_IFORT_VERNO     14
+setenv GMS_IFORT_VERNO     13
 #         mathematical library setup
 setenv GMS_MATHLIB         mkl
-setenv GMS_MATHLIB_PATH    /opt/intel/composer_xe_2013_sp1.0.080/mkl/lib/intel64
-setenv GMS_MKL_VERNO       10
+setenv GMS_MATHLIB_PATH    /sara/sw/mkl-11.0.2/composer_xe_2013.2.146/mkl///lib/em64t
 #         parallel message passing model setup
 setenv GMS_DDI_COMM        sockets
