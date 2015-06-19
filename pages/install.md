@@ -8,7 +8,7 @@ To compute \\(v_{cond}(\mathbf{r})\\) you will have to install
 
 <ul>
   <li>our modified vesion of GAMESS-US</li>
-  <li>the Slatec library</li>
+  <li>the SLATEC library</li>
   <li>our v_cond routines</li>
 </ul>
 
@@ -21,22 +21,13 @@ You will need
 <ul>
   <li>a Fortran compiler</li>
   <li>a C compiler</li>
-  <li>the <a href="http://www.netlib.org/blas/">BLAS routines</a>, e.g. from <a  href="http://math-atlas.sourceforge.net/">ATLAS</a> or <a href="https://software.intel.com/en-us/intel-mkl">Intel's MKL</a>< /li>
+  <li>the <a href="http://www.netlib.org/blas/">BLAS routines</a>, e.g. from <a  href="http://math-atlas.sourceforge.net/">ATLAS</a> or <a href="https://software.intel.com/en-us/intel-mkl">Intel's MKL</a></li>
 </ul>
 
 For our Lisa installation make them available with the command
 
 <pre>
 <code class="lb">module load fortran/intel c/intel/64 mkl/64</code>
-</pre>
-
-<h2>Getting the source</h2>
-download link: <a href="https://github.com/andremirt/v_cond/archive/master.zip">ZIP</a> 
-
-or clone the repository with the git command
-
-<pre>
-<code class="lb">git clone https://github.com/andremirt/v_cond.git</code>
 </pre>
 
 <h2>GAMESS-US Install</h2>
@@ -85,7 +76,7 @@ For Lisa we set
 </table>
 </ul>
 
-<h3>Compile GAMESS-US distributed data interface (ddi)</h3>
+<h5>Compile GAMESS-US distributed data interface (ddi)</h5>
 
 To compile the ddi run
 <pre>
@@ -97,7 +88,7 @@ Then move <code>ddikick.x</code> to the GAMESS-US installation directory
 <code  class="language-bash" data-lang="bash">mv ddikick.x ..</code>
 </pre>
 
-<h3>Compile and link GAMESS-US</h3>
+<h5>Compile and link GAMESS-US</h5>
 
 To compile the GAMESS-US routines run
 <pre>
@@ -127,7 +118,7 @@ Finally, link GAMESS-US
 <code  class="language-bash" data-lang="bash">csh lked gamess</code>
 </pre>
 
-<h3>Modify execution script</h3>
+<h5>Modify execution script</h5>
 
 In the file <code>rungmsvcond</code> set the <code>SCR</code> and <code>PATH_TO_GAMESS</code> variables.
 
@@ -145,6 +136,31 @@ Add execution permision to <code>rungmsvcond</code>
 
 And, if desired, create a link to the binary file in <code>~/bin</code>
 <pre>
-<code  class="language-bash" data-lang="bash">ln rungmsvcond ~/bin/.</code>
+<code  class="language-bash" data-lang="bash">ln -s rungmsvcond ~/bin/.</code>
+</pre>
+
+<h2>Compiling the SLATEC library</h2>
+<a href="www.netlib.org/slatec/">SLATEC Common Mathematical Library</a> is a comprehensive software library containing over 1400 general purpose mathematical and statistical routines written in Fortran 77. Here we compile the static library of a slightly modiefied version that is adapted to the Lisa cluster.
+
+Enter the SLATEC static directory
+<pre>
+<code  class="language-bash" data-lang="bash">cd ../slatec/static</code>
+</pre>
+
+Type 
+<pre>
+<code  class="language-bash" data-lang="bash">make</code>
+</pre>
+to compile the routines and create the library.
+
+<h2>Compiling the v_cond routines</h2>
+
+Run
+<pre>
+<code  class="language-bash" data-lang="bash">. comp.sh</code>
+</pre>
+to compile <code>vcond.exe</code>. Eventually create a link to the binary file in <code>~/bin</code>
+<pre>
+<code  class="language-bash" data-lang="bash">ln -s vcond.exe ~/bin/.</code>
 </pre>
 

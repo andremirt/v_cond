@@ -9,7 +9,7 @@
 <style>
 body {
     padding-top: 60px;       
-    background: url(img/cover.png);       
+    background: url({{ site.baseurl }}/img/cover.png);       
   /* Background image is centered vertically and horizontally at all times */
   background-position: center top;
   
@@ -34,7 +34,7 @@ body {
     padding-top: 60px;       
     /* The file size of this background image is 93% smaller
        to improve page load speed on mobile internet connections */
-    background-image: url(img/cover_lr.png) no-repeat center top fixed;
+    background-image: url({{ site.baseurl }}/img/cover_lr.png) no-repeat center top fixed;
     background-size: auto 172.275px;
   }
 }
@@ -54,8 +54,8 @@ body {
   <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ "/feed.xml" | prepend: site.baseurl | prepend: site.url }}" />
 
-  <link href="/css/bootstrap.css" rel="stylesheet">
-  <link href="/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/bootstrap-responsive.css" rel="stylesheet">
+  <link href="{{ site.baseurl }}/css/bootstrap.css" rel="stylesheet">
+  <link href="{{ site.baseurl }}/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ site.baseurl }}/css/bootstrap-responsive.css" rel="stylesheet">
 
 </head>
