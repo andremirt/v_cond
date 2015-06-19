@@ -8,7 +8,7 @@ The computation of \\(v_{cond}(\mathbf{r})\\) is done in two major steps
 
 <ul>
   <li>compute a CI wavefunction GAMESS-US for your molecule</li>
-  <li>use the CI wavefunction to compute \\(v_{cond}(\mathbf{r})\\) with vcond.exe</li>
+  <li>use the CI wavefunction to compute $$v_{cond}(\mathbf{r})$$ with vcond.exe</li>
 </ul>
 
 To demonstrate the usage of the v_cond package we give an example for the Hydrogen molecule. 
@@ -53,7 +53,7 @@ HYDROGEN 1.0 0.0 0.0 0.373
 
 Execute GAMESS-US
 <pre>
-<code  class="language-bash" data-lang="bash">rungmsvcond h2_aug-cc-pVTZ_FCI.inp > h2_aug-cc-pVTZ_FCI.inp</code>
+<code  class="language-bash" data-lang="bash">rungmsvcond h2_aug-cc-pVTZ_FCI.inp > h2_aug-cc-pVTZ_FCI.out</code>
 </pre>
 
 <h2>Run vcond.exe</h2>
@@ -80,6 +80,6 @@ In the final step we call
 <pre>
 <code  class="language-bash" data-lang="bash">vcond.exe</code>
 </pre>
-The files <code>vcond.dat</code>, <code>density.dat</code>, <code>rhovcond.dat, </code><code>vhartr.dat</code> and <code>wXC.dat</code>. <code>wXC.dat</code> contains the exchange-correlation energy density in the gauge of the exchange-correlation hole. See J. Chem. Theory Comput. 8, 3097 (2012) [<a href="../downloads/MirSeiGor-JCTC-12.pdf">pdf</a>] [<a href="http://dx.doi.org/10.1021/ct3003892">doi</a>] for more details.
+The files <code>vcond.dat</code>, <code>density.dat</code>, <code>rhovcond.dat, </code><code>vhartr.dat</code> and <code>wXC.dat</code> are generated. <code>wXC.dat</code> contains the exchange-correlation energy density in the gauge of the exchange-correlation hole. See J. Chem. Theory Comput. 8, 3097 (2012) [<a href="../downloads/MirSeiGor-JCTC-12.pdf">pdf</a>] [<a href="http://dx.doi.org/10.1021/ct3003892">doi</a>] for more details.
 
 
