@@ -23,7 +23,7 @@ program vcndex
   character(8)      :: date
   character(10)     :: time
 
-  open( 6, file='output')
+  open( 6, file='vcond.output')
   write(6,'(''***********************************************************************************'')')
   write(6,'(''***                                                                             ***'')')
   write(6,'(''***  This is program vcndex to calculate the conditional and Hartree potential  ***'')')
@@ -45,10 +45,10 @@ program vcndex
   norb = 0
   rnel = 0.d0
 
-  open( idmp, file='basis', status='old', err=223)
+  open( idmp, file='vcond.basis', status='old', err=223)
   rewind(idmp)
 
-  open( ip2un, file='input', status='old', err=223)
+  open( ip2un, file='vcond.input', status='old', err=223)
   rewind( ip2un)
   read(ip2un,*,err=224) rnel, norb
 

@@ -42,7 +42,7 @@ subroutine vbrain( norb, ip2un, idmp, rnel)
 !  call tmtdag( pmo, nbsf, pao, nbsf, vmoao)
   call pmo2pao( pmo, nbsf, pao, nbsf, vmoao, .true.)
 
-  open( 10, file = 'points', status = 'old', err = 222)
+  open( 10, file = 'vcond.grid', status = 'old', err = 222)
   rewind( 10)
   read(10,*) npnt
 

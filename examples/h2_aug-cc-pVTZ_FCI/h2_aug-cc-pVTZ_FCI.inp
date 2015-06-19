@@ -1,0 +1,31 @@
+ $CONTRL 
+   SCFTYP=RHF 
+   CITYP=ALDET 
+   RUNTYP=ENERGY 
+   ISPHER=1
+!   EXETYP=CHECK 
+ $END
+ $SYSTEM
+   TIMLIM=1000000
+   mwords=100
+ $END
+ $CIINP 
+   NRNFG(6)=1 
+ $END$
+ $CIDET 
+   NCORE=0 
+   NACT=45 
+   NELS=2 
+ $END
+ $BASIS 
+   GBASIS=ACCT 
+ $END
+ $GUESS 
+   GUESS=HUCKEL 
+ $END
+ $DATA
+H2 RHF/aug-cc-pVTZ+FULLCI exp. geom
+Dnh 4
+
+HYDROGEN 1.0 0.0 0.0 0.373
+ $END
