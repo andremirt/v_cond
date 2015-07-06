@@ -87,6 +87,10 @@ Then move <code>ddikick.x</code> to the GAMESS-US installation directory
 <pre>
 <code  class="language-bash" data-lang="bash">mv ddikick.x ..</code>
 </pre>
+and leave the ddi directory
+<pre>
+<code  class="language-bash" data-lang="bash">cd ..</code>
+</pre>
 
 <h5>Compile and link GAMESS-US</h5>
 
@@ -155,7 +159,11 @@ to compile the routines and create the library.
 
 <h2>Compiling the v_cond routines</h2>
 
-Run
+Enter the v_cond directory
+<pre>
+<code  class="language-bash" data-lang="bash">cd ../../v_cond</code>
+</pre>
+and run
 <pre>
 <code  class="language-bash" data-lang="bash">. comp.sh</code>
 </pre>
